@@ -1,0 +1,47 @@
+/* src/components/Header.module.css */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #004a9f; /* Um tom de azul escuro */
+}
+
+/* Container para as ações (ícones) */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem; /* Espaço entre os ícones */
+}
+
+/* Estilo geral para os ícones de ação */
+.actionIcon {
+  font-size: 24px;
+  color: #555;
+  transition: color 0.2s ease-in-out;
+}
+
+.actionIcon:hover {
+  color: #007bff; /* Cor ao passar o mouse */
+}
+
+/* Estilo específico para o botão de logout, para remover a aparência de botão padrão */
+.logoutButton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.logoutButton .actionIcon:hover {
+  color: #d93025; /* Cor vermelha para indicar perigo/saída */
+}

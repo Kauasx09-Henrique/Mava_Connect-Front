@@ -1,0 +1,132 @@
+/* Caminho: src/Pages/style/Cadastro.module.css */
+
+.pageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  background-color: #f4f7f6;
+  min-height: calc(100vh - 80px); /* 80px é a altura aproximada do Header */
+}
+
+.formContainer {
+  background-color: #fff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem 2rem;
+}
+
+.formContainer h2 {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.formContainer h3 {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e9ecef;
+  color: #007bff;
+  font-size: 1.1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.formGroup label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.formGroup input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.infoText {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.errorText {
+  font-size: 0.8rem;
+  color: #dc3545;
+  margin-top: 4px;
+}
+
+
+/* Estilos dos Botões */
+.buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.primaryButton,
+.secondaryButton {
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.primaryButton {
+  background-color: #28a745;
+  color: white;
+}
+
+.primaryButton:hover {
+  background-color: #218838;
+}
+
+.primaryButton:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+}
+
+.secondaryButton {
+  background-color: #6c757d;
+  color: white;
+}
+
+.secondaryButton:hover {
+  background-color: #5a6268;
+}

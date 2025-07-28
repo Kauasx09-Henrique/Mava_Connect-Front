@@ -1,0 +1,115 @@
+/* Caminho: src/Pages/style/Login.module.css */
+
+/* ================================== */
+/* ESTILOS BASE (PARA CELULAR)        */
+/* ================================== */
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Alinha ao topo em telas pequenas */
+  min-height: 100vh;
+  width: 100%;
+  background-color: #f0f2f5;
+  padding: 1rem;
+  box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+}
+
+.loginForm {
+  background: #ffffff;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  border-radius: 12px;
+}
+
+/* ================================== */
+/* ESTILOS PARA TELAS MAIORES (PC)    */
+/* ================================== */
+@media (min-width: 768px) {
+  .loginContainer {
+    /* Em telas maiores, centraliza verticalmente */
+    align-items: center;
+    padding: 0;
+  }
+
+  .loginForm {
+    /* Retorna ao estilo de "card" com largura máxima */
+    width: 100%;
+    max-width: 400px;
+    margin-top: 0;
+    padding: 2rem 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* ================================== */
+/* ESTILOS COMUNS (INPUTS, BOTÕES...) */
+/* ================================== */
+.loginForm h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.inputGroup input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.inputGroup input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.loginButton {
+  padding: 0.75rem 1rem;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.loginButton:hover {
+  opacity: 0.9;
+}
+
+.loginButton:disabled {
+  background: #aab8c5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.errorMessage {
+  color: #d93025;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  margin: -0.5rem 0 0.5rem 0;
+}
