@@ -5,9 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useIMask } from 'react-imask';
 import toast from 'react-hot-toast';
-import { useViaCep } from '../src/hooks/useViaCep';
-import Header from '../src/Components/Header';
+import { useViaCep } from '../src/hooks/useViaCep'; // Corrigido o caminho do import
+import Header from '../src/Components/Header'; // Corrigido o caminho do import
 import styles from './style/Cadastro.module.css';
+
+// A URL base do seu backend
+const API_URL = 'https://mava-connect-backend.onrender.com';
 
 // Estado inicial do formulário, para limpeza fácil
 const initialState = {
@@ -43,7 +46,6 @@ function CadastroVisitante() {
   // --- HANDLERS DE FORMULÁRIO ---
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Se o campo pertence ao endereço, atualiza o sub-objeto
     if (Object.keys(form.endereco).includes(name)) {
       setForm((prev) => ({
         ...prev,
@@ -91,7 +93,6 @@ function CadastroVisitante() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // CORREÇÃO: Garante que o objeto `dataToSend` corresponde à estrutura do backend
     const dataToSend = {
       ...form,
       data_nascimento: form.data_nascimento || null,
@@ -103,7 +104,10 @@ function CadastroVisitante() {
     };
 
     const token = localStorage.getItem('token');
-    const promise = axios.post('https://mava-connect.vercel.app/', dataToSend, {
+
+    // --- CORREÇÃO APLICADA AQUI ---
+    // Adicionamos a URL completa e correta da rota de visitantes
+    const promise = axios.post(`${API_URL}/visitantes`, dataToSend, {
         headers: { Authorization: `Bearer ${token}` }
     });
 
