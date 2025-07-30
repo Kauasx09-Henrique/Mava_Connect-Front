@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import styles from './style/Login.module.css';
+// Importe sua logo (ajuste o caminho conforme necessário)
+import logo from '../public/logo_mava.png'; // ou '../assets/logo.png'
 
 // Boa prática: Definir a URL base da API em um só lugar.
 const API_URL = 'https://mava-connect-backend.onrender.com';
@@ -79,6 +81,10 @@ function Login() {
   return (
     <div className={styles.loginContainer}>
       <form className={styles.loginForm} onSubmit={handleLogin}>
+        {/* Logo adicionada aqui */}
+        <div className={styles.logoContainer}>
+          <img src={logo} alt="Logo da Empresa" className={styles.logo} />
+        </div>
         <h2>Acessar o Sistema</h2>
         <div className={styles.inputGroup}>
           <label htmlFor="email">Email</label>
