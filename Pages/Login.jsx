@@ -6,7 +6,6 @@ import toast from 'react-hot-toast';
 import styles from './style/Login.module.css';
 
 // Boa prática: Definir a URL base da API em um só lugar.
-// Em projetos maiores, isso viria de um arquivo de configuração ou variável de ambiente.
 const API_URL = 'https://mava-connect-backend.onrender.com';
 
 function Login() {
@@ -23,6 +22,11 @@ function Login() {
     e.preventDefault();
     setLoading(true);
 
+    // !! LINHA DE DEBATE ADICIONADA !!
+    // Verifique o console do seu NAVEGADOR (F12) para ver o que está sendo enviado.
+    // A 'senha' aqui deve ser o texto que você digitou, e não um código.
+    console.log('[Login.jsx] DADOS QUE SERÃO ENVIADOS PARA A API:', { email, senha });
+
     // Usa axios.post para enviar os dados para a rota de login do backend.
     const loginPromise = axios.post(`${API_URL}/auth/login`, { email, senha });
 
@@ -31,50 +35,42 @@ function Login() {
       loading: 'Verificando credenciais...',
       success: (res) => {
         // Quando a requisição é bem-sucedida:
-        // 1. Extrai os dados retornados pela API.
-        const { token, tipo, nome, logo } = res.data;
+        const { token, usuario } = res.data;
 
-        console.log('[Login.jsx] Resposta da API recebida:', res.data);
-
-        // 2. Validação para garantir que a resposta da API está como esperado.
-        if (!token || !tipo) {
-          // Se algo estiver faltando, lança um erro que será capturado pelo `toast`.
-          throw new Error('Resposta inválida do servidor. Faltando token ou tipo.');
+        // Validação para garantir que a resposta da API está como esperado.
+        if (!token || !usuario || !usuario.tipo) {
+          throw new Error('Resposta inválida do servidor. Faltando dados essenciais.');
         }
 
-        // 3. Salva os dados do usuário no localStorage para manter a sessão.
+        // Salva os dados do usuário no localStorage para manter a sessão.
         localStorage.setItem('token', token);
-        localStorage.setItem('user_tipo', tipo); // Usei 'user_tipo' para clareza
-        localStorage.setItem('user_nome', nome);
-        if (logo) {
-            localStorage.setItem('user_logo', logo);
+        localStorage.setItem('user_tipo', usuario.tipo);
+        localStorage.setItem('user_nome', usuario.nome);
+        if (usuario.logo) {
+          localStorage.setItem('user_logo', usuario.logo);
         }
 
-        // 4. Redireciona o usuário com base no seu tipo.
-        // O setTimeout dá tempo para o usuário ver a mensagem de sucesso.
+        // Redireciona o usuário com base no seu tipo.
         setTimeout(() => {
-          if  (tipo === 'admin') {
-  navigate('/admin'); 
-
-          } else if (tipo === 'secretaria') {
-            navigate('/secretaria'); // Exemplo de rota de secretaria
+          if (usuario.tipo === 'admin') {
+            navigate('/admin');
+          } else if (usuario.tipo === 'secretaria') {
+            navigate('/secretaria');
           } else {
-            // Caso de segurança: se o tipo for desconhecido, volta para o início.
             navigate('/');
           }
-        }, 800); // 0.8 segundos de delay
+        }, 800);
 
-        return `Bem-vindo(a), ${nome || 'usuário'}!`;
+        return `Bem-vindo(a), ${usuario.nome || 'usuário'}!`;
       },
       error: (err) => {
-        // Quando a requisição falha:
         // Exibe a mensagem de erro vinda do backend ou uma mensagem padrão.
         console.error('[Login.jsx] Erro ao fazer login:', err);
-        return err.response?.data?.error || 'Não foi possível conectar ao servidor.';
+        // Acessa a mensagem de erro específica do backend
+        return err.response?.data?.mensagem || 'Credenciais inválidas ou erro no servidor.';
       },
     }).finally(() => {
-      // Garante que o estado de 'loading' seja desativado ao final,
-      // tanto em caso de sucesso quanto de erro.
+      // Garante que o estado de 'loading' seja desativado ao final.
       setLoading(false);
     });
   };
@@ -93,7 +89,7 @@ function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            disabled={loading} // Desabilita o campo durante o carregamento
+            disabled={loading}
           />
         </div>
         <div className={styles.inputGroup}>
@@ -105,7 +101,7 @@ function Login() {
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             required
-            disabled={loading} // Desabilita o campo durante o carregamento
+            disabled={loading}
           />
         </div>
         <button type="submit" className={styles.loginButton} disabled={loading}>
