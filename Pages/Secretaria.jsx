@@ -1,3 +1,5 @@
+// Caminho: src/Pages/Secretaria.jsx
+
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -34,6 +36,7 @@ const initialVisitorState = {
 function Secretaria() {
   const [visitantes, setVisitantes] = useState([]);
   const [filteredVisitantes, setFilteredVisitantes] = useState([]);
+  const [gfs, setGfs] = useState([]); // Estado para a lista de GFs
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [darkMode, setDarkMode] = useState(false);
@@ -49,64 +52,61 @@ function Secretaria() {
 
   // Verifica o modo do sistema ao carregar
   useEffect(() => {
-    const checkDarkMode = () => {
-      const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(isDark);
-      
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = (e) => setDarkMode(e.matches);
-      mediaQuery.addEventListener('change', handleChange);
-      
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    };
-
-    checkDarkMode();
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setDarkMode(mediaQuery.matches);
+    const handleChange = (e) => setDarkMode(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const fetchVisitantes = async () => {
+  const fetchData = async () => {
     setLoading(true);
+    const token = localStorage.getItem('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/visitantes`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setVisitantes(res.data);
-      setFilteredVisitantes(res.data);
+      // Busca visitantes e GFs em paralelo para mais performance
+      const [visitantesRes, gfsRes] = await Promise.all([
+        axios.get(`${API_URL}/visitantes`, { headers }),
+        axios.get(`${API_URL}/api/gfs`, { headers })
+      ]);
+      
+      setVisitantes(visitantesRes.data);
+      setFilteredVisitantes(visitantesRes.data);
+      setGfs(gfsRes.data);
+
     } catch (err) {
       if (err.response && (err.response.status === 401 || err.response.status === 403)) {
         toast.error('Sua sessão expirou. Por favor, faça login novamente.');
         localStorage.clear();
         navigate('/');
       } else {
-        toast.error('Erro ao buscar visitantes.');
+        toast.error('Erro ao buscar dados do servidor.');
       }
-      console.error("Erro ao buscar visitantes:", err);
+      console.error("Erro ao buscar dados:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchVisitantes();
+    fetchData();
   }, []);
 
+  // Filtra os visitantes com base no termo de busca
   useEffect(() => {
-    if (searchTerm) {
-      const filtered = visitantes.filter(visitante =>
-        visitante.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (visitante.telefone && visitante.telefone.includes(searchTerm)) ||
-        (visitante.email && visitante.email.toLowerCase().includes(searchTerm.toLowerCase())));
-      setFilteredVisitantes(filtered);
-    } else {
-      setFilteredVisitantes(visitantes);
-    }
+    const filtered = visitantes.filter(visitante =>
+      visitante.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (visitante.telefone && String(visitante.telefone).includes(searchTerm)) ||
+      (visitante.email && visitante.email.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    setFilteredVisitantes(filtered);
   }, [searchTerm, visitantes]);
 
+  // Autocompleta o endereço após busca de CEP
   useEffect(() => {
     if (Object.keys(address).length > 0) {
       const stateToUpdate = isAddModalOpen ? setNewVisitor : setEditingVisitante;
-      const visitorToUpdate = isAddModalOpen ? newVisitor : editingVisitante;
-
       stateToUpdate((prev) => ({
         ...prev,
         endereco: {
@@ -138,7 +138,7 @@ function Secretaria() {
               toast.promise(promise, {
                 loading: 'Excluindo visitante...',
                 success: () => {
-                  fetchVisitantes();
+                  fetchData(); // Atualiza a lista
                   return 'Visitante excluído com sucesso!';
                 },
                 error: 'Não foi possível excluir o visitante.',
@@ -147,38 +147,25 @@ function Secretaria() {
           >
             Sim
           </button>
-          <button className={`${styles.cancelButtonToast} ${darkMode ? styles.darkCancelButton : ''}`} 
-            onClick={() => toast.dismiss(t.id)}>
+          <button className={styles.cancelButtonToast} onClick={() => toast.dismiss(t.id)}>
             Não
           </button>
         </div>
       </div>
-    ), {
-      style: darkMode ? {
-        background: '#333',
-        color: '#fff'
-      } : {}
-    });
+    ));
   };
-
+  
+  // --- Funções de Modal ---
   const handleOpenEditModal = (visitante) => {
-    setEditingVisitante(visitante);
+    setEditingVisitante({ ...visitante, endereco: { ...initialVisitorState.endereco, ...visitante.endereco } });
     setIsEditModalOpen(true);
   };
   
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setEditingVisitante(null);
-  };
+  const handleCloseEditModal = () => setIsEditModalOpen(false);
 
   const handleEditModalChange = (e) => {
     const { name, value } = e.target;
-    const isEnderecoField = ['logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'cep'].includes(name);
-
-    setEditingVisitante(prev => ({
-      ...prev,
-      ...(isEnderecoField ? { endereco: { ...prev.endereco, [name]: value } } : { [name]: value })
-    }));
+    setEditingVisitante(prev => ({ ...prev, [name]: value }));
   };
 
   const handleEditModalSubmit = (e) => {
@@ -192,7 +179,7 @@ function Secretaria() {
     toast.promise(promise, {
       loading: 'Atualizando dados...',
       success: () => {
-        fetchVisitantes();
+        fetchData();
         handleCloseEditModal();
         return 'Visitante atualizado com sucesso!';
       },
@@ -209,7 +196,7 @@ function Secretaria() {
 
   const handleAddModalChange = (e) => {
     const {name, value} = e.target;
-    const isEnderecoField = ['logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'cep'].includes(name);
+    const isEnderecoField = Object.keys(initialVisitorState.endereco).includes(name);
     
     setNewVisitor(prev => ({
       ...prev,
@@ -245,27 +232,18 @@ function Secretaria() {
     toast.promise(promise, {
       loading: 'Cadastrando visitante...',
       success: () => {
-        fetchVisitantes();
+        fetchData();
         handleCloseAddModal();
         return 'Visitante cadastrado com sucesso!';
       },
-      error: (err) => err.response?.data?.error || 'Erro ao cadastrar. Tente novamente.'
+      error: (err) => err.response?.data?.details || err.response?.data?.error || 'Erro ao cadastrar.'
     });
   };
 
+  // --- Renderização ---
   const renderVisitorCards = () => {
-    if (loading) return (
-      <div className={styles.loadingContainer}>
-        <div className={styles.spinner}></div>
-      </div>
-    );
-
-    if (filteredVisitantes.length === 0) return (
-      <div className={`${styles.emptyState} ${darkMode ? styles.darkEmptyState : ''}`}>
-        <div className={styles.emptyIllustration}></div>
-        <p>{searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum visitante cadastrado ainda'}</p>
-      </div>
-    );
+    if (loading) return <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>;
+    if (filteredVisitantes.length === 0) return <p className={styles.message}>{searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum visitante cadastrado ainda.'}</p>;
 
     return (
       <div className={styles.visitorsGrid}>
@@ -276,9 +254,9 @@ function Secretaria() {
               <div className={styles.visitDate}>
                 <FiCalendar />
                 <span>
-                  {new Date(visitante.data_visita).toLocaleDateString('pt-BR', {
+                  {visitante.data_visita ? new Date(visitante.data_visita).toLocaleDateString('pt-BR', {
                     day: '2-digit', month: 'short', year: 'numeric'
-                  })}
+                  }) : 'Data N/A'}
                 </span>
               </div>
             </div>
@@ -289,10 +267,7 @@ function Secretaria() {
                   <FiPhone className={styles.contactIcon} />
                   <div>
                     <p className={styles.contactLabel}>Telefone</p>
-                    <a 
-                      href={`https://wa.me/55${visitante.telefone.replace(/\D/g, '')}`} 
-                      className={styles.contactLink}
-                    >
+                    <a href={`https://wa.me/55${visitante.telefone.replace(/\D/g, '')}`} className={styles.contactLink}>
                       {visitante.telefone}
                     </a>
                   </div>
@@ -304,10 +279,7 @@ function Secretaria() {
                   <FiMail className={styles.contactIcon} />
                   <div>
                     <p className={styles.contactLabel}>Email</p>
-                    <a 
-                      href={`mailto:${visitante.email}`} 
-                      className={styles.contactLink}
-                    >
+                    <a href={`mailto:${visitante.email}`} className={styles.contactLink}>
                       {visitante.email}
                     </a>
                   </div>
@@ -316,16 +288,10 @@ function Secretaria() {
             </div>
             
             <div className={styles.cardFooter}>
-              <button 
-                onClick={() => handleOpenEditModal(visitante)}
-                className={`${styles.editButton} ${darkMode ? styles.darkEditButton : ''}`}
-              >
+              <button onClick={() => handleOpenEditModal(visitante)} className={styles.editButton}>
                 <FiEdit /> Editar
               </button>
-              <button 
-                onClick={() => handleDelete(visitante.id)}
-                className={`${styles.deleteButton} ${darkMode ? styles.darkDeleteButton : ''}`}
-              >
+              <button onClick={() => handleDelete(visitante.id)} className={styles.deleteButton}>
                 <FiTrash2 /> Remover
               </button>
             </div>
@@ -348,17 +314,15 @@ function Secretaria() {
                 placeholder="Buscar visitantes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`${styles.searchInput} ${darkMode ? styles.darkInput : ''}`}
+                className={styles.searchInput}
               />
               {searchTerm && (
-                <button className={`${styles.clearSearch} ${darkMode ? styles.darkClearSearch : ''}`} 
-                  onClick={() => setSearchTerm('')}>
+                <button className={styles.clearSearch} onClick={() => setSearchTerm('')}>
                   <FiX />
                 </button>
               )}
             </div>
-            <button className={`${styles.addButton} ${darkMode ? styles.darkAddButton : ''}`} 
-              onClick={handleOpenAddModal}>
+            <button className={styles.addButton} onClick={handleOpenAddModal}>
               <FiPlus /> Novo Visitante
             </button>
           </div>
@@ -369,80 +333,69 @@ function Secretaria() {
         </div>
       </main>
 
-      {/* Modal de Edição */}
+      {/* --- MODAL DE EDIÇÃO --- */}
       {isEditModalOpen && editingVisitante && (
         <div className={styles.modalOverlay}>
           <div className={`${styles.modalContent} ${darkMode ? styles.darkModal : ''}`}>
-            <button className={`${styles.closeModal} ${darkMode ? styles.darkCloseModal : ''}`} 
-              onClick={handleCloseEditModal}>
-              <FiX />
-            </button>
+            <button className={styles.closeModal} onClick={handleCloseEditModal}><FiX /></button>
             <form onSubmit={handleEditModalSubmit}>
               <h2>Editando: {editingVisitante.nome}</h2>
               <div className={styles.formGrid}>
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label htmlFor="edit-nome">Nome Completo</label>
-                  <input 
-                    type="text" 
-                    id="edit-nome" 
-                    name="nome" 
-                    value={editingVisitante.nome} 
-                    onChange={handleEditModalChange} 
-                    required 
-                    className={darkMode ? styles.darkInput : ''}
-                  />
+                  <input type="text" id="edit-nome" name="nome" value={editingVisitante.nome} onChange={handleEditModalChange} required />
                 </div>
-                {/* Outros campos do formulário de edição */}
+                <div className={styles.formGroup}>
+                  <label htmlFor="edit-email">Email</label>
+                  <input type="email" id="edit-email" name="email" value={editingVisitante.email || ''} onChange={handleEditModalChange} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="edit-telefone">Telefone</label>
+                  <input type="tel" id="edit-telefone" name="telefone" value={editingVisitante.telefone || ''} onChange={handleEditModalChange} required />
+                </div>
               </div>
-              
               <div className={styles.modalActions}>
-                <button 
-                  type="button" 
-                  onClick={handleCloseEditModal} 
-                  className={`${styles.cancelButton} ${darkMode ? styles.darkCancelButton : ''}`}
-                >
-                  Cancelar
-                </button>
-                <button 
-                  type="submit" 
-                  className={`${styles.saveButton} ${darkMode ? styles.darkSaveButton : ''}`}
-                >
-                  Salvar Alterações
-                </button>
+                <button type="button" onClick={handleCloseEditModal} className={styles.cancelButton}>Cancelar</button>
+                <button type="submit" className={styles.saveButton}>Salvar Alterações</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal de Adição */}
+      {/* --- MODAL DE ADIÇÃO --- */}
       {isAddModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={`${styles.modalContent} ${darkMode ? styles.darkModal : ''}`}>
-            <button className={`${styles.closeModal} ${darkMode ? styles.darkCloseModal : ''}`} 
-              onClick={handleCloseAddModal}>
-              <FiX />
-            </button>
+            <button className={styles.closeModal} onClick={handleCloseAddModal}><FiX /></button>
             <form onSubmit={handleAddNewVisitorSubmit}>
               <h2>Adicionar Novo Visitante</h2>
               <div className={styles.formGrid}>
-                {/* Campos do formulário de adição com classes condicionais */}
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <label>Nome Completo*</label>
+                  <input name="nome" value={newVisitor.nome} onChange={handleAddModalChange} required />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Telefone*</label>
+                  <input name="telefone" value={newVisitor.telefone} onChange={handleAddModalChange} required ref={telefoneRef} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Email</label>
+                  <input type="email" name="email" value={newVisitor.email} onChange={handleAddModalChange} />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>GF Responsável*</label>
+                  <select name="gf_responsavel" value={newVisitor.gf_responsavel} onChange={handleAddModalChange} required>
+                    <option value="">Selecione um GF</option>
+                    {gfs.map((gf) => (
+                      <option key={gf.id} value={gf.nome}>{gf.nome}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              
               <div className={styles.modalActions}>
-                <button 
-                  type="button" 
-                  onClick={handleCloseAddModal} 
-                  className={`${styles.cancelButton} ${darkMode ? styles.darkCancelButton : ''}`}
-                >
-                  Cancelar
-                </button>
-                <button 
-                  type="submit" 
-                  className={`${styles.saveButton} ${darkMode ? styles.darkSaveButton : ''}`}
-                >
-                  Cadastrar Visitante
-                </button>
+                <button type="button" onClick={handleCloseAddModal} className={styles.cancelButton}>Cancelar</button>
+                <button type="submit" className={styles.saveButton}>Cadastrar</button>
               </div>
             </form>
           </div>
