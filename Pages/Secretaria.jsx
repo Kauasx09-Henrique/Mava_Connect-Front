@@ -1,11 +1,10 @@
-// Caminho: src/Pages/Secretaria.jsx
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Header from '../src/Components/Header';
 import styles from './style/Secretaria.module.css';
-import { FaEdit, FaTrashAlt, FaWhatsapp, FaEnvelope, FaPlus, FaTimes } from 'react-icons/fa';
+import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar } from 'react-icons/fi';
 import { useIMask } from 'react-imask';
 import { useViaCep } from '../src/hooks/useViaCep';
 
@@ -231,59 +230,84 @@ function Secretaria() {
     });
   };
 
-  const renderContent = () => {
-    if (loading) return <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>;
-    if (filteredVisitantes.length === 0) return <p className={styles.message}>{searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum visitante cadastrado ainda.'}</p>;
+  const renderVisitorCards = () => {
+    if (loading) return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+      </div>
+    );
+
+    if (filteredVisitantes.length === 0) return (
+      <div className={styles.emptyState}>
+        <div className={styles.emptyIllustration}></div>
+        <p>{searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum visitante cadastrado ainda'}</p>
+      </div>
+    );
 
     return (
-      <div className={styles.tableContainer}>
-        <table className={styles.visitorTable}>
-          <thead>
-            <tr>
-              <th>Nome Completo</th>
-              <th>Telefone</th>
-              <th>Contato</th>
-              <th>Data da Visita</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredVisitantes.map((visitante) => {
-              const telefoneLimpo = visitante.telefone ? String(visitante.telefone).replace(/\D/g, '') : '';
-              return (
-                <tr key={visitante.id}>
-                  <td>{visitante.nome}</td> 
-                  <td>{visitante.telefone}</td>
-                  <td className={styles.contactActions}>
-                    {visitante.telefone && (
-                      <a href={`https://wa.me/55${telefoneLimpo}`} target="_blank" rel="noopener noreferrer" title="Enviar WhatsApp">
-                        <FaWhatsapp className={styles.whatsappIcon} />
-                      </a>
-                    )}
-                    {visitante.email && (
-                      <a href={`mailto:${visitante.email}`} title="Enviar Email">
-                        <FaEnvelope className={styles.emailIcon} />
-                      </a>
-                    )}
-                  </td>
-                  <td>
-                    {new Date(visitante.data_visita).toLocaleDateString('pt-BR', {
-                      day: '2-digit', month: 'short', year: 'numeric'
-                    })}
-                  </td>
-                  <td className={styles.actions}>
-                    <button onClick={() => handleOpenEditModal(visitante)} title="Editar Visitante">
-                      <FaEdit />
-                    </button>
-                    <button onClick={() => handleDelete(visitante.id)} title="Excluir Visitante" className={styles.deleteButton}>
-                      <FaTrashAlt />
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+      <div className={styles.visitorsGrid}>
+        {filteredVisitantes.map(visitante => (
+          <div key={visitante.id} className={styles.visitorCard}>
+            <div className={styles.cardHeader}>
+              <h3>{visitante.nome}</h3>
+              <div className={styles.visitDate}>
+                <FiCalendar />
+                <span>
+                  {new Date(visitante.data_visita).toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: 'short', year: 'numeric'
+                  })}
+                </span>
+              </div>
+            </div>
+            
+            <div className={styles.cardContent}>
+              {visitante.telefone && (
+                <div className={styles.contactItem}>
+                  <FiPhone className={styles.contactIcon} />
+                  <div>
+                    <p className={styles.contactLabel}>Telefone</p>
+                    <a 
+                      href={`https://wa.me/55${visitante.telefone.replace(/\D/g, '')}`} 
+                      className={styles.contactLink}
+                    >
+                      {visitante.telefone}
+                    </a>
+                  </div>
+                </div>
+              )}
+              
+              {visitante.email && (
+                <div className={styles.contactItem}>
+                  <FiMail className={styles.contactIcon} />
+                  <div>
+                    <p className={styles.contactLabel}>Email</p>
+                    <a 
+                      href={`mailto:${visitante.email}`} 
+                      className={styles.contactLink}
+                    >
+                      {visitante.email}
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className={styles.cardFooter}>
+              <button 
+                onClick={() => handleOpenEditModal(visitante)}
+                className={styles.editButton}
+              >
+                <FiEdit /> Editar
+              </button>
+              <button 
+                onClick={() => handleDelete(visitante.id)}
+                className={styles.deleteButton}
+              >
+                <FiTrash2 /> Remover
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     );
   };
@@ -298,24 +322,25 @@ function Secretaria() {
             <div className={styles.searchContainer}>
               <input
                 type="text"
-                placeholder="Buscar por nome, telefone ou email..."
+                placeholder="Buscar visitantes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={styles.searchInput}
               />
               {searchTerm && (
                 <button className={styles.clearSearch} onClick={() => setSearchTerm('')}>
-                  <FaTimes />
+                  <FiX />
                 </button>
               )}
             </div>
             <button className={styles.addButton} onClick={handleOpenAddModal}>
-              <FaPlus /> Adicionar Visitante
+              <FiPlus /> Novo Visitante
             </button>
           </div>
         </div>
+        
         <div className={styles.content}>
-          {renderContent()}
+          {renderVisitorCards()}
         </div>
       </main>
 
@@ -324,7 +349,7 @@ function Secretaria() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <button className={styles.closeModal} onClick={handleCloseEditModal}>
-              <FaTimes />
+              <FiX />
             </button>
             <form onSubmit={handleEditModalSubmit}>
               <h2>Editando: {editingVisitante.nome}</h2>
@@ -357,7 +382,7 @@ function Secretaria() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <button className={styles.closeModal} onClick={handleCloseAddModal}>
-              <FaTimes />
+              <FiX />
             </button>
             <form onSubmit={handleAddNewVisitorSubmit}>
               <h2>Adicionar Novo Visitante</h2>
@@ -420,5 +445,4 @@ function Secretaria() {
     </div>
   );
 }
-
 export default Secretaria;
