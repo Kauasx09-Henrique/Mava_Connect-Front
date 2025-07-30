@@ -1,5 +1,3 @@
-// Caminho: src/Pages/CadastroVisitante.jsx
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -35,13 +33,31 @@ const initialState = {
 function CadastroVisitante() {
   const navigate = useNavigate();
   const [form, setForm] = useState(initialState);
-  const [gfs, setGfs] = useState([]); // NOVO ESTADO: para armazenar a lista de GFs
+  const [gfs, setGfs] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   
   const { address, loading: cepLoading, error: cepError, fetchCep } = useViaCep();
   const numeroInputRef = useRef(null);
 
-  // --- BUSCA DE DADOS INICIAIS ---
+  // Detecta o tema preferido do sistema
+  useEffect(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDarkMode(prefersDark);
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => setDarkMode(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handler);
+    
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // Aplica o tema ao body
+  useEffect(() => {
+    document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+  }, [darkMode]);
+
+  // Busca lista de GFs
   useEffect(() => {
     const fetchGfs = async () => {
       try {
@@ -58,7 +74,6 @@ function CadastroVisitante() {
 
     fetchGfs();
   }, []);
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -136,12 +151,101 @@ function CadastroVisitante() {
 
   return (
     <>
-      <Header />
-      <div className={styles.pageContainer}>
+      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+      <div className={`${styles.pageContainer} ${darkMode ? styles.darkMode : ''}`}>
         <form className={styles.formContainer} onSubmit={handleSubmit}>
           <h2>Cadastro de Visitante</h2>
 
-          {/* ... outros campos do formulário ... */}
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label htmlFor="nome">Nome Completo</label>
+              <input id="nome" name="nome" type="text" value={form.nome} onChange={handleChange} required disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="data_nascimento">Data de Nascimento</label>
+              <input id="data_nascimento" name="data_nascimento" type="date" value={form.data_nascimento} onChange={handleChange} disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="telefone">Telefone</label>
+              <input id="telefone" name="telefone" type="text" value={form.telefone} ref={telefoneRef} onChange={handleChange} required disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="sexo">Sexo</label>
+              <select id="sexo" name="sexo" value={form.sexo} onChange={handleChange} required disabled={isSubmitting}>
+                <option value="">Selecione</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="email">E-mail</label>
+              <input id="email" name="email" type="email" value={form.email} onChange={handleChange} disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="estado_civil">Estado Civil</label>
+              <select id="estado_civil" name="estado_civil" value={form.estado_civil} onChange={handleChange} disabled={isSubmitting}>
+                <option value="">Selecione</option>
+                <option value="Solteiro(a)">Solteiro(a)</option>
+                <option value="Casado(a)">Casado(a)</option>
+                <option value="Divorciado(a)">Divorciado(a)</option>
+                <option value="Viúvo(a)">Viúvo(a)</option>
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="profissao">Profissão</label>
+              <input id="profissao" name="profissao" type="text" value={form.profissao} onChange={handleChange} disabled={isSubmitting} />
+            </div>
+          </div>
+
+          <h3 className={styles.fullWidth}>Endereço</h3>
+          <div className={styles.formGrid}>
+            <div className={styles.formGroup}>
+              <label htmlFor="cep">CEP</label>
+              <div className={styles.cepContainer}>
+                <input id="cep" name="cep" type="text" value={form.endereco.cep} ref={cepRef} onChange={handleChange} disabled={isSubmitting} />
+                <button type="button" onClick={handleBuscaCep} disabled={isSubmitting || !form.endereco.cep || form.endereco.cep.length < 8} className={styles.cepButton}>
+                  {cepLoading ? 'Buscando...' : 'Buscar'}
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="logradouro">Logradouro</label>
+              <input id="logradouro" name="logradouro" type="text" value={form.endereco.logradouro} onChange={handleChange} disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="numero">Número</label>
+              <input id="numero" name="numero" type="text" value={form.endereco.numero} onChange={handleChange} ref={numeroInputRef} disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="complemento">Complemento</label>
+              <input id="complemento" name="complemento" type="text" value={form.endereco.complemento} onChange={handleChange} disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="bairro">Bairro</label>
+              <input id="bairro" name="bairro" type="text" value={form.endereco.bairro} onChange={handleChange} disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="cidade">Cidade</label>
+              <input id="cidade" name="cidade" type="text" value={form.endereco.cidade} onChange={handleChange} disabled={isSubmitting} />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="uf">UF</label>
+              <input id="uf" name="uf" type="text" value={form.endereco.uf} onChange={handleChange} disabled={isSubmitting} maxLength="2" />
+            </div>
+          </div>
 
           <h3 className={styles.fullWidth}>Informações da Igreja</h3>
           <div className={styles.formGroup}>
@@ -150,7 +254,6 @@ function CadastroVisitante() {
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="gf_responsavel">GF Responsável</label>
-            {/* --- SELECT DINÂMICO --- */}
             <select id="gf_responsavel" name="gf_responsavel" value={form.gf_responsavel} onChange={handleChange} required disabled={isSubmitting}>
               <option value="">Selecione um GF</option>
               {gfs.map((gf) => (

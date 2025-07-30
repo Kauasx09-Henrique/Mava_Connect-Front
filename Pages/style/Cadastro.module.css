@@ -1,132 +1,197 @@
-/* Caminho: src/Pages/style/Cadastro.module.css */
-
+/* Estilos base */
 .pageContainer {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 2rem;
-  background-color: #f4f7f6;
-  min-height: calc(100vh - 80px); /* 80px é a altura aproximada do Header */
+  background-color: #f5f5f5;
+  color: #333;
+  min-height: 100vh;
+  padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .formContainer {
-  background-color: #fff;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  width: 100%;
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   max-width: 900px;
+  margin: 0 auto;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.formGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem 2rem;
-}
-
-.formContainer h2 {
-  grid-column: 1 / -1;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-.formContainer h3 {
-  grid-column: 1 / -1;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e9ecef;
-  color: #007bff;
-  font-size: 1.1rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #555;
+  transition: color 0.3s ease;
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
 .fullWidth {
   grid-column: 1 / -1;
 }
 
-.formGroup label {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #495057;
-}
-
-.formGroup input,
-.formGroup select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.formGroup input:focus,
-.formGroup select:focus {
-  border-color: #80bdff;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.formGroup input:disabled {
-    background-color: #e9ecef;
-    cursor: not-allowed;
-}
-
-.infoText {
-  font-size: 0.8rem;
-  color: #6c757d;
-  margin-top: 4px;
-}
-
-.errorText {
-  font-size: 0.8rem;
-  color: #dc3545;
-  margin-top: 4px;
-}
-
-
-/* Estilos dos Botões */
 .buttonGroup {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-.primaryButton,
-.secondaryButton {
-  padding: 12px 24px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 1rem;
-  transition: background-color 0.2s, transform 0.2s;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .primaryButton {
-  background-color: #28a745;
+  background-color: #4CAF50;
   color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
 }
 
 .primaryButton:hover {
-  background-color: #218838;
+  background-color: #45a049;
 }
 
 .primaryButton:disabled {
-    background-color: #a5d6a7;
-    cursor: not-allowed;
+  background-color: #a5d6a7;
+  cursor: not-allowed;
 }
 
 .secondaryButton {
-  background-color: #6c757d;
-  color: white;
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .secondaryButton:hover {
-  background-color: #5a6268;
+  background-color: #e0e0e0;
+}
+
+.secondaryButton:disabled {
+  background-color: #eeeeee;
+  cursor: not-allowed;
+}
+
+.cepContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.cepButton {
+  padding: 10px 15px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cepButton:hover {
+  background-color: #0b7dda;
+}
+
+.cepButton:disabled {
+  background-color: #bbdefb;
+  cursor: not-allowed;
+}
+
+/* Dark Mode Styles */
+.pageContainer.darkMode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.pageContainer.darkMode .formContainer {
+  background-color: #1e1e1e;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.pageContainer.darkMode .formGroup label {
+  color: #b0b0b0;
+}
+
+.pageContainer.darkMode input,
+.pageContainer.darkMode select {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+.pageContainer.darkMode input:focus,
+.pageContainer.darkMode select:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+.pageContainer.darkMode .secondaryButton {
+  background-color: #333;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+.pageContainer.darkMode .secondaryButton:hover {
+  background-color: #444;
+}
+
+.pageContainer.darkMode .cepButton {
+  background-color: #1976D2;
+}
+
+.pageContainer.darkMode .cepButton:hover {
+  background-color: #1565C0;
+}
+
+/* Toast notifications adaptation */
+:root {
+  --toastify-color-light: #fff;
+  --toastify-color-dark: #1e1e1e;
+  --toastify-color-info: #2196f3;
+  --toastify-color-success: #4CAF50;
+  --toastify-color-warning: #ff9800;
+  --toastify-color-error: #f44336;
+  --toastify-color-transparent: rgba(255, 255, 255, 0.7);
+}
+
+.Toastify__toast-container {
+  width: auto;
+  max-width: 500px;
+}
+
+.Toastify__toast {
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-family: inherit;
 }

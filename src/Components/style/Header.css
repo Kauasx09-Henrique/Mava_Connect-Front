@@ -1,0 +1,111 @@
+.header {
+  background-color: #4CAF50;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 100;
+}
+
+.header.darkMode {
+  background-color: #2E7D32;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profileImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.userName {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.actionButton, .logoutButton, .themeToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+}
+
+.actionButton:hover, .logoutButton:hover, .themeToggle:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.buttonText {
+  display: inline;
+}
+
+.themeToggle {
+  font-size: 16px;
+  padding: 8px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .userName {
+    max-width: 150px;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .buttonText {
+    display: none;
+  }
+
+  .actionButton, .logoutButton, .themeToggle {
+    padding: 8px;
+    justify-content: center;
+    flex-grow: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .userProfile {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .actions {
+    gap: 8px;
+  }
+}

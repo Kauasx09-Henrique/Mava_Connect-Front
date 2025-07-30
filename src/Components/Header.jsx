@@ -1,12 +1,13 @@
 // Caminho: src/components/Header.jsx
-
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import styles from './Header.module.css';
+import styles from './style/Header.css';
 
 function Header() {
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
   
   // Lendo os dados do usuário, com valores padrão para evitar erros
   const userName = localStorage.getItem('nome') || 'Usuário';
@@ -14,6 +15,23 @@ function Header() {
   // Constrói a URL completa para a imagem
   const userLogoPath = localStorage.getItem('logo');
   const userLogoUrl = userLogoPath ? `http://localhost:3001/${userLogoPath}` : null;
+
+  // Detecta o tema preferido do sistema
+  useEffect(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDarkMode(prefersDark);
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => setDarkMode(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handler);
+    
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // Aplica o tema ao body
+  useEffect(() => {
+    document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+  }, [darkMode]);
 
   const handleLogout = () => {
     // Limpa todos os dados da sessão
@@ -34,15 +52,20 @@ function Header() {
     e.target.src = `https://placehold.co/40x40/007bff/FFFFFF?text=${initial}`;
   };
 
+  // Alternar manualmente entre dark/light mode
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${darkMode ? styles.darkMode : ''}`}>
       {/* Seção de Perfil do Usuário */}
       <div className={styles.userProfile}>
         <img
-          src={userLogoUrl || `https://placehold.co/40x40/EFEFEF/333333?text=+`} // Usa a URL completa do logo ou um placeholder
+          src={userLogoUrl || `https://placehold.co/40x40/EFEFEF/333333?text=+`}
           alt="Foto do usuário"
           className={styles.profileImage}
-          onError={handleImageError} // Define um fallback para links de imagem quebrados
+          onError={handleImageError}
         />
         <span className={styles.userName}>Olá, {userName}</span>
       </div>
@@ -56,6 +79,15 @@ function Header() {
             <span className={styles.buttonText}>Novo Visitante</span>
           </Link>
         )}
+
+        {/* Botão de Toggle Dark/Light Mode */}
+        <button 
+          onClick={toggleDarkMode} 
+          className={styles.themeToggle}
+          title={darkMode ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
 
         {/* Botão de Logout */}
         <button onClick={handleLogout} className={styles.logoutButton} title="Sair do sistema">
