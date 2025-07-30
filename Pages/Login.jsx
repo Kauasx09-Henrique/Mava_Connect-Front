@@ -7,7 +7,7 @@ import styles from './style/Login.module.css';
 
 // Boa prática: Definir a URL base da API em um só lugar.
 // Em projetos maiores, isso viria de um arquivo de configuração ou variável de ambiente.
-const API_URL = 'http://localhost:3001';
+const API_URL = 'https://mava-connect-backend.onrender.com';
 
 function Login() {
   // --- STATE MANAGEMENT ---

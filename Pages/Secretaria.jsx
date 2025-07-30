@@ -10,7 +10,7 @@ import { FaEdit, FaTrashAlt, FaWhatsapp, FaEnvelope, FaPlus } from 'react-icons/
 import { useIMask } from 'react-imask';
 import { useViaCep } from '../src/hooks/useViaCep';
 
-const API_URL = 'http://localhost:3001/visitantes';
+const API_URL = 'https://mava-connect-backend.onrender.com';
 
 const initialVisitorState = {
   nome: '',

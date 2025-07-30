@@ -8,7 +8,7 @@ import Header from '../src/Components/Header'; // Header importado e pronto para
 import styles from './style/Admin.module.css';
 import { FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking } from 'react-icons/fa';
 
-const API_BASE_URL = 'http://localhost:3001'; 
+const API_BASE_URL = 'https://mava-connect-backend.onrender.com'; 
 
 function Admin() {
   const navigate = useNavigate(); 
