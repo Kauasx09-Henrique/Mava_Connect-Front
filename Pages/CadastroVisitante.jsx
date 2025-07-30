@@ -103,7 +103,7 @@ function CadastroVisitante() {
     };
 
     const token = localStorage.getItem('token');
-    const promise = axios.post('http://localhost:3001/visitantes', dataToSend, {
+    const promise = axios.post('https://mava-connect.vercel.app/', dataToSend, {
         headers: { Authorization: `Bearer ${token}` }
     });
 
