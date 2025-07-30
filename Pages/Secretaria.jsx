@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import Header from '../src/Components/Header';
+import Header from '../components/Header';
 import styles from './style/Secretaria.module.css';
 import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar } from 'react-icons/fi';
 import { useIMask } from 'react-imask';
-import { useViaCep } from '../src/hooks/useViaCep';
+import { useViaCep } from '../hooks/useViaCep';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 
@@ -36,7 +36,7 @@ const initialVisitorState = {
 function Secretaria() {
   const [visitantes, setVisitantes] = useState([]);
   const [filteredVisitantes, setFilteredVisitantes] = useState([]);
-  const [gfs, setGfs] = useState([]); // Estado para a lista de GFs
+  const [gfs, setGfs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [darkMode, setDarkMode] = useState(false);
@@ -50,7 +50,6 @@ function Secretaria() {
   const { address, loading: cepLoading, error: cepError, fetchCep } = useViaCep();
   const numeroInputRef = useRef(null);
 
-  // Verifica o modo do sistema ao carregar
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     setDarkMode(mediaQuery.matches);
@@ -65,7 +64,6 @@ function Secretaria() {
     const headers = { 'Authorization': `Bearer ${token}` };
 
     try {
-      // Busca visitantes e GFs em paralelo para mais performance
       const [visitantesRes, gfsRes] = await Promise.all([
         axios.get(`${API_URL}/visitantes`, { headers }),
         axios.get(`${API_URL}/api/gfs`, { headers })
@@ -93,7 +91,6 @@ function Secretaria() {
     fetchData();
   }, []);
 
-  // Filtra os visitantes com base no termo de busca
   useEffect(() => {
     const filtered = visitantes.filter(visitante =>
       visitante.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -103,7 +100,6 @@ function Secretaria() {
     setFilteredVisitantes(filtered);
   }, [searchTerm, visitantes]);
 
-  // Autocompleta o endereço após busca de CEP
   useEffect(() => {
     if (Object.keys(address).length > 0) {
       const stateToUpdate = isAddModalOpen ? setNewVisitor : setEditingVisitante;
@@ -138,7 +134,7 @@ function Secretaria() {
               toast.promise(promise, {
                 loading: 'Excluindo visitante...',
                 success: () => {
-                  fetchData(); // Atualiza a lista
+                  fetchData();
                   return 'Visitante excluído com sucesso!';
                 },
                 error: 'Não foi possível excluir o visitante.',
@@ -155,7 +151,6 @@ function Secretaria() {
     ));
   };
   
-  // --- Funções de Modal ---
   const handleOpenEditModal = (visitante) => {
     setEditingVisitante({ ...visitante, endereco: { ...initialVisitorState.endereco, ...visitante.endereco } });
     setIsEditModalOpen(true);
@@ -205,7 +200,7 @@ function Secretaria() {
   };
 
   const handleBuscaCep = () => {
-    const cepToSearch = isAddModalOpen ? newVisitor.endereco.cep : editingVisitante?.endereco.cep;
+    const cepToSearch = newVisitor.endereco.cep;
     if (cepToSearch) fetchCep(cepToSearch);
   };
 
@@ -240,7 +235,6 @@ function Secretaria() {
     });
   };
 
-  // --- Renderização ---
   const renderVisitorCards = () => {
     if (loading) return <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>;
     if (filteredVisitantes.length === 0) return <p className={styles.message}>{searchTerm ? 'Nenhum resultado encontrado' : 'Nenhum visitante cadastrado ainda.'}</p>;
@@ -333,7 +327,6 @@ function Secretaria() {
         </div>
       </main>
 
-      {/* --- MODAL DE EDIÇÃO --- */}
       {isEditModalOpen && editingVisitante && (
         <div className={styles.modalOverlay}>
           <div className={`${styles.modalContent} ${darkMode ? styles.darkModal : ''}`}>
@@ -363,7 +356,7 @@ function Secretaria() {
         </div>
       )}
 
-      {/* --- MODAL DE ADIÇÃO --- */}
+      {/* --- MODAL DE ADIÇÃO (CORRIGIDO) --- */}
       {isAddModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={`${styles.modalContent} ${darkMode ? styles.darkModal : ''}`}>
@@ -371,6 +364,7 @@ function Secretaria() {
             <form onSubmit={handleAddNewVisitorSubmit}>
               <h2>Adicionar Novo Visitante</h2>
               <div className={styles.formGrid}>
+                {/* --- CAMPOS DO FORMULÁRIO ADICIONADOS AQUI --- */}
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label>Nome Completo*</label>
                   <input name="nome" value={newVisitor.nome} onChange={handleAddModalChange} required />
@@ -392,6 +386,11 @@ function Secretaria() {
                     ))}
                   </select>
                 </div>
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <label>Como conheceu a igreja?</label>
+                  <input name="como_conheceu" value={newVisitor.como_conheceu} onChange={handleAddModalChange} />
+                </div>
+                {/* --- FIM DOS CAMPOS ADICIONADOS --- */}
               </div>
               <div className={styles.modalActions}>
                 <button type="button" onClick={handleCloseAddModal} className={styles.cancelButton}>Cancelar</button>
