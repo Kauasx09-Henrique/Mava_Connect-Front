@@ -1,12 +1,18 @@
-/* src/Pages/style/Login.module.css */
-
+/* Estilos base */
 .loginContainer {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  transition: all 0.3s ease;
+}
+
+/* Modo escuro */
+.loginContainer.darkMode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #f0f0f0;
 }
 
 .loginForm {
@@ -17,9 +23,11 @@
   width: 100%;
   max-width: 450px;
   transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+}
+
+.darkMode .loginForm {
+  background: #2d3748;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .logoContainer {
@@ -41,9 +49,12 @@
   font-weight: 600;
 }
 
+.darkMode .loginForm h2 {
+  color: #f7fafc;
+}
+
 .inputGroup {
   margin-bottom: 1.5rem;
-  width: 100%;
 }
 
 .inputGroup label {
@@ -52,6 +63,10 @@
   color: #4a5568;
   font-weight: 500;
   font-size: 0.95rem;
+}
+
+.darkMode .inputGroup label {
+  color: #e2e8f0;
 }
 
 .inputGroup input {
@@ -64,10 +79,21 @@
   background-color: #f8fafc;
 }
 
+.darkMode .inputGroup input {
+  background-color: #4a5568;
+  border-color: #4a5568;
+  color: #f7fafc;
+}
+
 .inputGroup input:focus {
   outline: none;
   border-color: #4299e1;
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.darkMode .inputGroup input:focus {
+  border-color: #63b3ed;
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
 }
 
 .inputGroup input::placeholder {
@@ -99,7 +125,11 @@
   transform: none;
 }
 
-/* Efeito de loading sutil */
+.darkMode .loginButton:disabled {
+  background-color: #718096;
+}
+
+/* Efeito de loading */
 @keyframes pulse {
   0% { opacity: 0.8; }
   50% { opacity: 1; }
@@ -119,10 +149,6 @@
   .loginForm h2 {
     font-size: 1.5rem;
   }
-  
-  .logo {
-    max-width: 120px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -141,46 +167,5 @@
   
   .loginButton {
     padding: 0.8rem;
-  }
-  
-  .logo {
-    max-width: 100px;
-  }
-}
-
-/* Efeitos de foco acessíveis */
-.inputGroup input:focus-visible {
-  outline: 2px solid #4299e1;
-  outline-offset: 2px;
-}
-
-/* Dark mode opcional */
-@media (prefers-color-scheme: dark) {
-  .loginForm {
-    background: #2d3748;
-    color: #f7fafc;
-  }
-  
-  .loginForm h2 {
-    color: #f7fafc;
-  }
-  
-  .inputGroup label {
-    color: #e2e8f0;
-  }
-  
-  .inputGroup input {
-    background-color: #4a5568;
-    border-color: #4a5568;
-    color: #f7fafc;
-  }
-  
-  .inputGroup input::placeholder {
-    color: #a0aec0;
-  }
-  
-  .inputGroup input:focus {
-    border-color: #63b3ed;
-    box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
   }
 }
