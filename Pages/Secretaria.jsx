@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import Header from '../src/Components/Header';
+import Header from '../src/Components/Header'; // Caminho de import corrigido
 import styles from './style/Secretaria.module.css';
 import { FaEdit, FaTrashAlt, FaWhatsapp, FaEnvelope, FaPlus } from 'react-icons/fa';
 import { useIMask } from 'react-imask';
-import { useViaCep } from '../src/hooks/useViaCep';
+import { useViaCep } from '../src/hooks/useViaCep'; // Caminho de import corrigido
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 
@@ -39,7 +39,6 @@ function Secretaria() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Estados para os Modais
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingVisitante, setEditingVisitante] = useState(null);
@@ -49,11 +48,12 @@ function Secretaria() {
   const numeroInputRef = useRef(null);
 
 
-  // Função para buscar os dados da API
   const fetchVisitantes = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(API_URL, {
+      // --- CORREÇÃO 1/4: Buscar visitantes ---
+      const res = await axios.get(`${API_URL}/visitantes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setVisitantes(res.data);
@@ -77,21 +77,22 @@ function Secretaria() {
 
   useEffect(() => {
     if (Object.keys(address).length > 0) {
-      setNewVisitor((prev) => ({
+      const stateToUpdate = isAddModalOpen ? setNewVisitor : setEditingVisitante;
+      const visitorToUpdate = isAddModalOpen ? newVisitor : editingVisitante;
+
+      stateToUpdate((prev) => ({
         ...prev,
         endereco: {
-            ...prev.endereco,
-            logradouro: address.logradouro,
-            bairro: address.bairro,
-            cidade: address.cidade,
-            uf: address.uf,
+          ...prev.endereco,
+          logradouro: address.logradouro,
+          bairro: address.bairro,
+          cidade: address.cidade,
+          uf: address.uf,
         }
       }));
       numeroInputRef.current?.focus();
     }
-  }, [address]);
-
-  // --- Funções de Ação ---
+  }, [address, isAddModalOpen, isEditModalOpen]);
 
   const handleDelete = (id) => {
     toast((t) => (
@@ -103,17 +104,18 @@ function Secretaria() {
             onClick={() => {
                 toast.dismiss(t.id);
                 const token = localStorage.getItem('token');
-                const promise = axios.delete(`${API_URL}/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                // --- CORREÇÃO 2/4: Deletar visitante ---
+                const promise = axios.delete(`${API_URL}/visitantes/${id}`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 toast.promise(promise, {
-                loading: 'Excluindo visitante...',
-                success: () => {
-                    fetchVisitantes(); // Atualiza a lista
-                    return 'Visitante excluído com sucesso!';
-                },
-                error: 'Não foi possível excluir o visitante.',
+                  loading: 'Excluindo visitante...',
+                  success: () => {
+                      fetchVisitantes();
+                      return 'Visitante excluído com sucesso!';
+                  },
+                  error: 'Não foi possível excluir o visitante.',
                 });
             }}
             >
@@ -127,7 +129,6 @@ function Secretaria() {
     ));
   };
 
-  // --- Funções do Modal de Edição ---
   const handleOpenEditModal = (visitante) => {
     setEditingVisitante(visitante);
     setIsEditModalOpen(true);
@@ -140,27 +141,20 @@ function Secretaria() {
 
   const handleEditModalChange = (e) => {
     const { name, value } = e.target;
-    if (['logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'cep'].includes(name)) {
-      setEditingVisitante(prev => ({
-        ...prev,
-        endereco: {
-          ...prev.endereco,
-          [name]: value,
-        }
-      }));
-    } else {
-      setEditingVisitante(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    const isEnderecoField = ['logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'cep'].includes(name);
+
+    setEditingVisitante(prev => ({
+      ...prev,
+      ...(isEnderecoField ? { endereco: { ...prev.endereco, [name]: value } } : { [name]: value })
+    }));
   };
 
   const handleEditModalSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
     
-    const promise = axios.put(`${API_URL}/${editingVisitante.id}`, editingVisitante, {
+    // --- CORREÇÃO 3/4: Atualizar visitante ---
+    const promise = axios.put(`${API_URL}/visitantes/${editingVisitante.id}`, editingVisitante, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
@@ -175,42 +169,34 @@ function Secretaria() {
     });
   };
 
-  // --- Funções do Modal de Adição ---
   const handleOpenAddModal = () => {
     setNewVisitor(initialVisitorState);
     setIsAddModalOpen(true);
   };
 
-  const handleCloseAddModal = () => {
-      setIsAddModalOpen(false);
-  }
+  const handleCloseAddModal = () => setIsAddModalOpen(false);
 
   const handleAddModalChange = (e) => {
     const {name, value} = e.target;
-    setNewVisitor(prev => ({...prev, [name]: value}));
-  }
-
-  const handleAddModalCepChange = (e) => {
-    const {name, value} = e.target;
-    setNewVisitor(prev => ({...prev, endereco: {...prev.endereco, [name]: value}}));
-  }
-
-  const handleBuscaCep = () => {
-    if (newVisitor.endereco.cep) fetchCep(newVisitor.endereco.cep);
+    const isEnderecoField = ['logradouro', 'numero', 'complemento', 'bairro', 'cidade', 'uf', 'cep'].includes(name);
+    
+    setNewVisitor(prev => ({
+        ...prev,
+        ...(isEnderecoField ? { endereco: { ...prev.endereco, [name]: value } } : { [name]: value })
+    }));
   };
 
-  const { ref: cepRef } = useIMask(
-    { mask: '00000-000' },
-    { onAccept: (value) => handleAddModalCepChange({ target: { name: 'cep', value } }) }
-  );
+  const handleBuscaCep = () => {
+    const cepToSearch = isAddModalOpen ? newVisitor.endereco.cep : editingVisitante?.endereco.cep;
+    if (cepToSearch) fetchCep(cepToSearch);
+  };
 
-  const { ref: telefoneRef } = useIMask(
-    { mask: '(00) 00000-0000' },
-    { onAccept: (value) => handleAddModalChange({ target: { name: 'telefone', value } }) }
-  );
+  const { ref: cepRef } = useIMask({ mask: '00000-000' });
+  const { ref: telefoneRef } = useIMask({ mask: '(00) 00000-0000' });
 
   const handleAddNewVisitorSubmit = (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
 
     const dataToSend = {
       ...newVisitor,
@@ -221,7 +207,10 @@ function Secretaria() {
       }
     };
 
-    const promise = axios.post(API_URL, dataToSend);
+    // --- CORREÇÃO 4/4: Adicionar novo visitante ---
+    const promise = axios.post(`${API_URL}/visitantes`, dataToSend, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
 
     toast.promise(promise, {
         loading: 'Cadastrando visitante...',
@@ -230,14 +219,10 @@ function Secretaria() {
             handleCloseAddModal();
             return 'Visitante cadastrado com sucesso!';
         },
-        error: (err) => {
-            return err.response?.data?.error || 'Erro ao cadastrar. Tente novamente.';
-        }
+        error: (err) => err.response?.data?.error || 'Erro ao cadastrar. Tente novamente.'
     });
-  }
+  };
 
-
-  // --- Renderização da Tabela ---
 
   const renderContent = () => {
     if (loading) return <p className={styles.message}>Carregando visitantes...</p>;
@@ -257,7 +242,7 @@ function Secretaria() {
           </thead>
           <tbody>
             {visitantes.map((visitante) => {
-              const telefoneLimpo = visitante.telefone ? visitante.telefone.replace(/\D/g, '') : '';
+              const telefoneLimpo = visitante.telefone ? String(visitante.telefone).replace(/\D/g, '') : '';
               return (
                 <tr key={visitante.id}>
                   <td>{visitante.nome}</td> 
@@ -302,8 +287,8 @@ function Secretaria() {
       <main className={styles.dashboard}>
         <div className={styles.dashboardHeader}>
             <h1>Visitantes Cadastrados</h1>
-            <button className={styles.addButton} onClick={handleOpenAddModal}>
-                <FaPlus /> Adicionar Visitante
+            <button className={styles.addButton} onClick={() => navigate('/cadastrar-visitante')}>
+              <FaPlus /> Adicionar Visitante
             </button>
         </div>
         <div className={styles.content}>
@@ -319,16 +304,16 @@ function Secretaria() {
               <h2>Editando: {editingVisitante.nome}</h2>
               <div className={styles.formGrid}>
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                    <label htmlFor="nome">Nome Completo</label>
-                    <input type="text" id="nome" name="nome" value={editingVisitante.nome} onChange={handleEditModalChange} required />
+                    <label htmlFor="edit-nome">Nome Completo</label>
+                    <input type="text" id="edit-nome" name="nome" value={editingVisitante.nome} onChange={handleEditModalChange} required />
                 </div>
                 <div className={styles.formGroup}>
-                    <label htmlFor="email">Email</label>
-                    <input type="email" id="email" name="email" value={editingVisitante.email || ''} onChange={handleEditModalChange} />
+                    <label htmlFor="edit-email">Email</label>
+                    <input type="email" id="edit-email" name="email" value={editingVisitante.email || ''} onChange={handleEditModalChange} />
                 </div>
                 <div className={styles.formGroup}>
-                    <label htmlFor="telefone">Telefone</label>
-                    <input type="tel" id="telefone" name="telefone" value={editingVisitante.telefone || ''} onChange={handleEditModalChange} required/>
+                    <label htmlFor="edit-telefone">Telefone</label>
+                    <input type="tel" id="edit-telefone" name="telefone" value={editingVisitante.telefone || ''} onChange={handleEditModalChange} required/>
                 </div>
               </div>
               
@@ -339,114 +324,6 @@ function Secretaria() {
             </form>
           </div>
         </div>
-      )}
-
-      {/* Modal de Adição */}
-      {isAddModalOpen && (
-         <div className={styles.modalOverlay}>
-            <div className={styles.modalContent}>
-                <form onSubmit={handleAddNewVisitorSubmit}>
-                    <h2>Cadastro de Visitante</h2>
-                    <div className={styles.formGrid}>
-                        <h3 className={styles.fullWidth}>Informações Pessoais</h3>
-                        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                            <label htmlFor="nome">Nome Completo</label>
-                            <input id="nome" name="nome" type="text" value={newVisitor.nome} onChange={handleAddModalChange} required />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="data_nascimento">Data de Nascimento</label>
-                            <input id="data_nascimento" name="data_nascimento" type="date" value={newVisitor.data_nascimento} onChange={handleAddModalChange} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="sexo">Sexo</label>
-                            <select id="sexo" name="sexo" value={newVisitor.sexo} onChange={handleAddModalChange}>
-                                <option value="">Selecione</option>
-                                <option value="Masculino">Masculino</option>
-                                <option value="Feminino">Feminino</option>
-                            </select>
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="estado_civil">Estado Civil</label>
-                            <select id="estado_civil" name="estado_civil" value={newVisitor.estado_civil} onChange={handleAddModalChange}>
-                                <option value="">Selecione</option>
-                                <option value="Solteiro(a)">Solteiro(a)</option>
-                                <option value="Casado(a)">Casado(a)</option>
-                                <option value="União Estável">União Estável</option>
-                                <option value="Divorciado(a)">Divorciado(a)</option>
-                                <option value="Viúvo(a)">Viúvo(a)</option>
-                            </select>
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="profissao">Profissão</label>
-                            <input id="profissao" name="profissao" type="text" value={newVisitor.profissao} onChange={handleAddModalChange} />
-                        </div>
-
-                        <h3 className={styles.fullWidth}>Contato</h3>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="email">Email</label>
-                            <input id="email" name="email" type="email" value={newVisitor.email} onChange={handleAddModalChange} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="telefone">Celular / Telefone</label>
-                            <input ref={telefoneRef} id="telefone" name="telefone" type="tel" value={newVisitor.telefone} onChange={handleAddModalChange} placeholder="(99) 99999-9999" required />
-                        </div>
-
-                        <h3 className={styles.fullWidth}>Endereço</h3>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="cep">CEP</label>
-                            <input ref={cepRef} id="cep" name="cep" type="text" value={newVisitor.endereco.cep} onChange={handleAddModalCepChange} onBlur={handleBuscaCep} placeholder="00000-000"/>
-                            {cepLoading && <small>Buscando...</small>}
-                            {cepError && <small>{cepError}</small>}
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="logradouro">Rua / Logradouro</label>
-                            <input id="logradouro" name="logradouro" type="text" value={newVisitor.endereco.logradouro} onChange={handleAddModalCepChange} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="numero">Número</label>
-                            <input ref={numeroInputRef} id="numero" name="numero" type="text" value={newVisitor.endereco.numero} onChange={handleAddModalCepChange} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="complemento">Complemento</label>
-                            <input id="complemento" name="complemento" type="text" value={newVisitor.endereco.complemento} onChange={handleAddModalCepChange} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="bairro">Bairro</label>
-                            <input id="bairro" name="bairro" type="text" value={newVisitor.endereco.bairro} onChange={handleAddModalCepChange} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="cidade">Cidade</label>
-                            <input id="cidade" name="cidade" type="text" value={newVisitor.endereco.cidade} onChange={handleAddModalCepChange} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="uf">Estado (UF)</label>
-                            <input id="uf" name="uf" type="text" value={newVisitor.endereco.uf} onChange={handleAddModalCepChange} maxLength={2} />
-                        </div>
-
-                        <h3 className={styles.fullWidth}>Informações da Igreja</h3>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="como_conheceu">Como conheceu a igreja?</label>
-                            <input id="como_conheceu" name="como_conheceu" type="text" value={newVisitor.como_conheceu} onChange={handleAddModalChange} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="gf_responsavel">GF Responsável</label>
-                            <select id="gf_responsavel" name="gf_responsavel" value={newVisitor.gf_responsavel} onChange={handleAddModalChange} required>
-                                <option value="">Selecione</option>
-                                <option value="Efraim">Efraim</option>
-                                <option value="Naum">Naum</option>
-                                <option value="Moryah">Moryah</option>
-                                <option value="Filhos da promessa">Filhos da promessa</option>
-                                <option value="Ekballo">Ekballo</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className={styles.modalActions}>
-                        <button type="button" onClick={handleCloseAddModal} className={styles.cancelButton}>Cancelar</button>
-                        <button type="submit" className={styles.saveButton}>Cadastrar</button>
-                    </div>
-                </form>
-            </div>
-         </div>
       )}
     </div>
   );
