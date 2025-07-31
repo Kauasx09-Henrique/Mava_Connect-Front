@@ -6,7 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar, FiCheck, FiClock, FiAlertCircle, FiSearch, FiUsers, FiThumbsUp } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import Header from '../Components/Header';
-import styles from './styles/Secretaria.module.css';
+import styles from './style/Secretaria.module.css';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 const WHATSAPP_MESSAGE = `Olá, tudo bem? ... Atenciosamente, Secretaria MAVA`; // Mensagem completa aqui
