@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import Header from '../src/Components/Header';
+import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar } from 'react-icons/fi';
 import { useIMask } from 'react-imask';
-import { useViaCep } from '../src/hooks/useViaCep';
+import { useViaCep } from '../hooks/useViaCep';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 
