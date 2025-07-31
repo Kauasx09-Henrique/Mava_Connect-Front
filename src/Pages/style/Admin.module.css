@@ -1,113 +1,230 @@
-/* src/Pages/style/Admin.module.css */
-
-/* --- Variáveis de Tema --- */
+/* VARIÁVEIS DE CORES PARA O TEMA */
 :root {
-  --bg-page: #f1f5f9;
-  --bg-sidebar: #ffffff;
-  --surface-primary: #ffffff;
-  --border-color: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --accent-primary: #4338ca;
-  --accent-hover: #3730a3;
-  --accent-light: #eef2ff;
-  --delete-color: #ef4444;
-  --delete-hover: #dc2626;
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  /* Light Theme */
+  --bg-color: #f5f7fa;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --text-secondary: #666666;
+  --border-color: #e0e0e0;
+  --primary-color: #4e73df;
+  --primary-hover: #3a5ab6;
+  --success-color: #1cc88a;
+  --warning-color: #f6c23e;
+  --danger-color: #e74a3b;
+  --info-color: #36b9cc;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --input-bg: #ffffff;
+  --input-border: #d1d3e2;
+  --table-header-bg: #f8f9fc;
+  --table-row-even: #ffffff;
+  --table-row-odd: #f9f9f9;
+  --modal-overlay: rgba(0, 0, 0, 0.5);
 }
 
 .dark-mode {
-  --bg-page: #0f172a;
-  --bg-sidebar: #1e293b;
-  --surface-primary: #1e293b;
-  --border-color: #334155;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --accent-primary: #818cf8;
-  --accent-hover: #6366f1;
-  --accent-light: #312e81;
-  --delete-color: #f87171;
-  --delete-hover: #ef4444;
+  /* Dark Theme */
+  --bg-color: #1a1a2e;
+  --card-bg: #16213e;
+  --text-color: #f0f0f0;
+  --text-secondary: #cccccc;
+  --border-color: #2a3a5a;
+  --primary-color: #5a67d8;
+  --primary-hover: #4c51bf;
+  --success-color: #48bb78;
+  --warning-color: #ed8936;
+  --danger-color: #f56565;
+  --info-color: #4299e1;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --input-bg: #1e2a4a;
+  --input-border: #2d3748;
+  --table-header-bg: #1e2a4a;
+  --table-row-even: #16213e;
+  --table-row-odd: #1a2b55;
+  --modal-overlay: rgba(0, 0, 0, 0.7);
 }
 
-/* --- Layout Principal --- */
-.adminLayout {
+/* ESTILOS GERAIS */
+.adminContainer {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.adminPanel {
+  padding: 20px;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.dashboardHeader {
+  margin-bottom: 30px;
   display: flex;
-  background-color: var(--bg-page);
-  min-height: calc(100vh - 70px); /* Altura da tela menos o Header */
+  align-items: center;
+  justify-content: space-between;
 }
 
-.sidebar {
-  width: 250px;
-  background-color: var(--bg-sidebar);
-  border-right: 1px solid var(--border-color);
-  padding: 1.5rem 1rem;
+.dashboardHeader h1 {
+  font-size: 1.8rem;
   display: flex;
-  flex-direction: column;
-  transition: all 0.3s ease;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
 }
 
-.sidebarTitle {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  padding: 0 0.5rem 1.5rem 0.5rem;
-  margin-bottom: 1rem;
+/* TOGGLE DE VISÃO */
+.viewToggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.viewToggle button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.viewToggle button:hover {
+  color: var(--primary-color);
+}
+
+.viewToggle button.active {
+  color: var(--primary-color);
+  background-color: rgba(78, 115, 223, 0.1);
+}
+
+/* BARRA DE PESQUISA */
+.searchContainer {
+  margin-bottom: 25px;
+}
+
+.searchBox {
+  position: relative;
+  max-width: 500px;
+}
+
+.searchBox input {
+  width: 100%;
+  padding: 12px 15px 12px 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-size: 0.95rem;
+  transition: border-color 0.3s;
+}
+
+.searchBox input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.25);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+/* CONTAINERS DE TABELAS */
+.tableContainer {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.tableHeader {
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.navButton {
+.tableHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  border: none;
+  gap: 8px;
+}
+
+.tableControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+}
+
+.filterButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filterButtons button {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
   background-color: transparent;
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 500;
-  text-align: left;
+  font-size: 0.8rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s;
 }
-.navButton:hover {
-  background-color: var(--accent-light);
-  color: var(--accent-primary);
+
+.filterButtons button:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
-.navButton.active {
-  background-color: var(--accent-primary);
-  color: #fff;
+
+.filterButtons button.activeFilter {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.filterButtons button.activeFilter[style*="--active-color"] {
+  background-color: var(--active-color);
+  border-color: var(--active-color);
+}
+
+.addButton {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--primary-color);
+  color: white;
   font-weight: 600;
-}
-
-.content {
-  flex-grow: 1;
-  padding: 2rem;
-  overflow-x: hidden;
-}
-
-.contentHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-}
-.contentHeader h1 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--text-primary);
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-/* --- Tabela --- */
-.tableContainer {
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+.addButton:hover {
+  background-color: var(--primary-hover);
 }
 
+/* TABELAS */
 .tableWrapper {
   overflow-x: auto;
 }
@@ -115,138 +232,443 @@
 .dataTable {
   width: 100%;
   border-collapse: collapse;
-}
-.dataTable th, .dataTable td {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-  vertical-align: middle;
-  white-space: nowrap;
-}
-.dataTable th {
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.dataTable tbody tr:last-child td {
-  border-bottom: none;
-}
-.dataTable tbody tr {
-  transition: background-color 0.2s ease;
-}
-.dataTable tbody tr:hover {
-  background-color: var(--accent-light);
+  font-size: 0.9rem;
 }
 
-/* --- Elementos da Tabela --- */
-.badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 99px;
+.dataTable th {
+  padding: 15px;
+  text-align: left;
+  background-color: var(--table-header-bg);
   font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: capitalize;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dataTable td {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.dataTable tr:nth-child(even) {
+  background-color: var(--table-row-even);
+}
+
+.dataTable tr:nth-child(odd) {
+  background-color: var(--table-row-odd);
+}
+
+.dataTable tr:hover {
+  background-color: rgba(78, 115, 223, 0.1);
+}
+
+/* ESTILOS ESPECÍFICOS PARA CÉLULAS */
+.visitorInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.visitorName {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.visitorDetail {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.roleBadge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 5px;
+  color: white;
 }
-.admin { background-color: #fecaca; color: #991b1b; }
-.dark-mode .admin { background-color: #7f1d1d; color: #fecaca; }
-.secretaria { background-color: #dbeafe; color: #1e40af; }
-.dark-mode .secretaria { background-color: #1e3a8a; color: #dbeafe; }
 
 .statusSelect {
-  padding: 0.4rem 0.6rem;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 5px;
   border: 1px solid var(--border-color);
-  background-color: var(--surface-primary);
-  color: var(--text-primary);
-  font-weight: 500;
+  background-color: var(--input-bg);
+  color: var(--text-color);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.3s;
 }
+
 .statusSelect:focus {
   outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+  border-color: var(--primary-color);
 }
 
+/* BOTÕES DE AÇÃO */
 .actions {
-  display: flex;
-  gap: 0.5rem;
-}
-.actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  display: flex;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-.actions button:hover {
-  background-color: color-mix(in srgb, var(--border-color) 50%, transparent);
-  color: var(--text-primary);
-}
-.actions .deleteButton:hover {
-  color: var(--delete-color);
-  background-color: color-mix(in srgb, var(--delete-color) 15%, transparent);
+  width: 120px;
 }
 
-/* --- Modal --- */
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+.actionButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.editButton, .deleteButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-}
-.modalContent {
-  background-color: var(--surface-primary);
-  padding: 2rem;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 550px;
-  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
 }
 
-/* --- Responsividade --- */
+.editButton {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+.deleteButton {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.editButton:hover, .deleteButton:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+/* MODAL */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--modal-overlay);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 30px;
+  box-shadow: var(--shadow);
+  color: var(--text-color);
+}
+
+.closeModal {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 5px;
+  transition: color 0.3s;
+}
+
+.closeModal:hover {
+  color: var(--danger-color);
+}
+
+.modalContent h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* FORMULÁRIO */
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formSection {
+  margin-bottom: 25px;
+}
+
+.formSection h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 5px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  transition: border-color 0.3s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.25);
+}
+
+.formGroup textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background-color: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cancelButton:hover {
+  background-color: rgba(231, 74, 59, 0.1);
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+
+.saveButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.saveButton:hover {
+  background-color: var(--primary-hover);
+}
+
+/* TOAST DE CONFIRMAÇÃO */
+.confirmationToast {
+  padding: 10px;
+}
+
+.confirmationToast p {
+  margin: 0 0 15px 0;
+  color: var(--text-color);
+}
+
+.toastActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.toastConfirmButton {
+  padding: 8px 15px;
+  background-color: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toastConfirmButton:hover {
+  background-color: #c53030;
+}
+
+.toastCancelButton {
+  padding: 8px 15px;
+  background-color: var(--border-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toastCancelButton:hover {
+  background-color: #cbd5e0;
+}
+
+/* LOADING */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px;
+  gap: 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(78, 115, 223, 0.2);
+  border-top: 5px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 1024px) {
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @media (max-width: 768px) {
-  .adminLayout {
-    flex-direction: column;
+  .dashboardHeader h1 {
+    font-size: 1.5rem;
   }
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    padding: 0.5rem;
-    flex-direction: row;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-  .sidebarTitle {
-    display: none;
-  }
-  .navButton {
-    padding: 0.6rem 0.8rem;
-  }
-  .navButton span { /* Esconde o texto dos botões no mobile */
-    display: none;
-  }
-  .content {
-    padding: 1.5rem 1rem;
-  }
-  .contentHeader {
+  
+  .tableHeader {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
   }
-  .contentHeader h1 {
-    font-size: 1.5rem;
+  
+  .tableControls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .filterButtons {
+    order: 1;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .addButton {
+    order: 2;
+  }
+  
+  .dataTable th, .dataTable td {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+  
+  .modalContent {
+    padding: 20px;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .adminPanel {
+    padding: 15px;
+  }
+  
+  .viewToggle {
+    flex-direction: column;
+  }
+  
+  .viewToggle button {
+    justify-content: center;
+  }
+  
+  .modalActions {
+    flex-direction: column;
+  }
+  
+  .cancelButton, .saveButton {
+    width: 100%;
+  }
+  
+  .dataTable {
+    font-size: 0.8rem;
+  }
+  
+  .visitorInfo, .contactInfo {
+    gap: 3px;
+  }
+  
+  .visitorDetail, .contactItem {
+    font-size: 0.75rem;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .editButton, .deleteButton {
+    width: 28px;
+    height: 28px;
   }
 }
