@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useIMask } from 'react-imask';
 import toast from 'react-hot-toast';
-import { useViaCep } from '../src/hooks/useViaCep';
+import { useViaCep } from '../../src/hooks/useViaCep';
 import Header from '../src/Components/Header';
 import styles from './style/Cadastro.module.css';
 
