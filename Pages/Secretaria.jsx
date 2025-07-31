@@ -4,11 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import Header from '../src/Components/Header';
+// --- CORREÇÃO APLICADA AQUI ---
+import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar } from 'react-icons/fi';
 import { useIMask } from 'react-imask';
-import { useViaCep } from '../src/hooks/useViaCep';
+import { useViaCep } from '../hooks/useViaCep';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 
@@ -297,7 +298,7 @@ function Secretaria() {
 
   return (
     <div className={`${styles.container} ${darkMode ? styles.darkMode : ''}`}>
-      <Header darkMode={darkMode} />
+      <Header />
       <main className={styles.dashboard}>
         <div className={styles.dashboardHeader}>
           <h1>Visitantes Cadastrados</h1>
@@ -356,7 +357,6 @@ function Secretaria() {
         </div>
       )}
 
-      {/* --- MODAL DE ADIÇÃO (CORRIGIDO) --- */}
       {isAddModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={`${styles.modalContent} ${darkMode ? styles.darkModal : ''}`}>
@@ -364,7 +364,6 @@ function Secretaria() {
             <form onSubmit={handleAddNewVisitorSubmit}>
               <h2>Adicionar Novo Visitante</h2>
               <div className={styles.formGrid}>
-                {/* --- CAMPOS DO FORMULÁRIO ADICIONADOS AQUI --- */}
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                   <label>Nome Completo*</label>
                   <input name="nome" value={newVisitor.nome} onChange={handleAddModalChange} required />
@@ -390,7 +389,6 @@ function Secretaria() {
                   <label>Como conheceu a igreja?</label>
                   <input name="como_conheceu" value={newVisitor.como_conheceu} onChange={handleAddModalChange} />
                 </div>
-                {/* --- FIM DOS CAMPOS ADICIONADOS --- */}
               </div>
               <div className={styles.modalActions}>
                 <button type="button" onClick={handleCloseAddModal} className={styles.cancelButton}>Cancelar</button>
