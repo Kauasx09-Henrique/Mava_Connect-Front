@@ -23,7 +23,6 @@ const StatCard = ({ icon, label, value, colorClass }) => (
   </div>
 );
 
-// --- ADICIONADO: Código completo do StatusBadge ---
 const StatusBadge = ({ status }) => {
     const statusInfo = useMemo(() => {
         switch (status) {
@@ -34,7 +33,7 @@ const StatusBadge = ({ status }) => {
             case 'erro número':
                 return { label: 'Erro no Número', className: styles.statusError };
             default:
-                return { label: status, className: styles.statusDefault };
+                return { label: status || 'Indefinido', className: styles.statusDefault };
         }
     }, [status]);
 
@@ -45,19 +44,22 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-// --- ADICIONADO: Código completo do VisitorCard com a data de visita ---
 const VisitorCard = ({ visitante, onEdit, onDelete }) => {
     const whatsappUrl = useMemo(() => {
-        if (!visitante.telefone) return null;
+        if (!visitante?.telefone) return null;
         const cleanPhone = visitante.telefone.replace(/\D/g, '');
-        const encodedMessage = encodeURIComponent(WHATSAPP_MESSAGE);
-        return `https://wa.me/55${cleanPhone}?text=${encodedMessage}`;
-    }, [visitante.telefone]);
+        return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+    }, [visitante?.telefone]);
+
+    // CORREÇÃO: Adicionado um check para garantir que a data é válida
+    const visitDate = visitante?.data_visita && !isNaN(new Date(visitante.data_visita))
+        ? new Date(visitante.data_visita).toLocaleDateString('pt-BR')
+        : 'Data inválida';
 
     return (
         <div className={styles.visitorCard}>
             <div className={styles.cardHeader}>
-                <h3 className={styles.visitorName}>{visitante.nome}</h3>
+                <h3 className={styles.visitorName}>{visitante.nome || 'Nome não informado'}</h3>
                 <StatusBadge status={visitante.status} />
             </div>
             <div className={styles.cardBody}>
@@ -67,16 +69,17 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
                 {visitante.email && (
                     <div className={styles.contactItem}><FiMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>
                 )}
-                {/* AQUI ESTÁ A DATA DE CADASTRO/VISITA */}
                 <div className={styles.contactItem}>
                     <FiCalendar />
-                    <span>Visitou em: {new Date(visitante.data_visita).toLocaleDateString('pt-BR')}</span>
+                    <span>Visitou em: {visitDate}</span>
                 </div>
             </div>
             <div className={styles.cardFooter}>
-                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar WhatsApp">
-                    <FaWhatsapp />
-                </a>
+                {whatsappUrl && (
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar WhatsApp">
+                        <FaWhatsapp />
+                    </a>
+                )}
                 <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
                     <FiEdit />
                 </button>
@@ -89,7 +92,7 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
 };
 
 const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
-  if (visitantes.length === 0) {
+  if (!visitantes || visitantes.length === 0) {
     return (
       <div className={styles.emptyState}>
         <p>Nenhum visitante encontrado com os filtros atuais.</p>
@@ -116,7 +119,6 @@ function Secretaria() {
   const [editingVisitor, setEditingVisitor] = useState(null);
   const navigate = useNavigate();
 
-  // Busca de dados
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -135,26 +137,23 @@ function Secretaria() {
     fetchData();
   }, [navigate]);
 
-  // Cálculos para os cards de estatísticas
-  const stats = useMemo(() => {
-    return {
-      total: visitantes.length,
-      pending: visitantes.filter(v => v.status === 'pendente').length,
-      contacted: visitantes.filter(v => v.status === 'entrou em contato').length,
-      error: visitantes.filter(v => v.status === 'erro número').length,
-    };
-  }, [visitantes]);
+  const stats = useMemo(() => ({
+    total: visitantes.length,
+    pending: visitantes.filter(v => v.status === 'pendente').length,
+    contacted: visitantes.filter(v => v.status === 'entrou em contato').length,
+    error: visitantes.filter(v => v.status === 'erro número').length,
+  }), [visitantes]);
 
-  // Filtragem dos visitantes para a lista
+  // CORREÇÃO: Filtro mais seguro para evitar erros com dados nulos
   const filteredVisitantes = useMemo(() => {
     return visitantes.filter(v => {
-      const matchesSearch = v.nome.toLowerCase().includes(searchTerm.toLowerCase());
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = !searchLower || (v.nome && v.nome.toLowerCase().includes(searchLower));
       const matchesStatus = statusFilter === 'todos' || v.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [searchTerm, statusFilter, visitantes]);
 
-  // --- ADICIONADO: Lógica completa para Deletar e Atualizar ---
   const handleDelete = (id) => {
     toast((t) => (
         <div>
@@ -168,10 +167,7 @@ function Secretaria() {
                         const promise = axios.delete(`${API_URL}/visitantes/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
                         toast.promise(promise, {
                             loading: 'Excluindo...',
-                            success: () => {
-                                fetchData();
-                                return 'Excluído com sucesso!';
-                            },
+                            success: () => { fetchData(); return 'Excluído com sucesso!'; },
                             error: 'Erro ao excluir.'
                         });
                     }}
@@ -200,6 +196,11 @@ function Secretaria() {
     });
   };
 
+  // Função para lidar com mudanças nos inputs do modal
+  const handleModalChange = (e) => {
+    const { name, value } = e.target;
+    setEditingVisitor(prev => ({ ...prev, [name]: value }));
+  };
 
   return (
     <div className={styles.pageContainer}>
@@ -216,28 +217,16 @@ function Secretaria() {
           <div className={styles.filters}>
             <div className={styles.searchContainer}>
               <FiSearch className={styles.searchIcon} />
-              <input
-                type="text"
-                placeholder="Buscar por nome do visitante..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={styles.searchInput}
-              />
+              <input type="text" placeholder="Buscar por nome..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className={styles.statusFilter}
-            >
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.statusFilter}>
               <option value="todos">Todos os Status</option>
               <option value="pendente">Pendente</option>
               <option value="entrou em contato">Contatado</option>
               <option value="erro número">Número Inválido</option>
             </select>
           </div>
-          <Link to="/cadastrar-visitante" className={styles.addButton}>
-            <FiPlus /> Novo Visitante
-          </Link>
+          <Link to="/cadastrar-visitante" className={styles.addButton}><FiPlus /> Novo Visitante</Link>
         </div>
 
         <div className={styles.content}>
@@ -249,26 +238,35 @@ function Secretaria() {
         </div>
       </main>
 
-      {/* --- ADICIONADO: Código completo do Modal --- */}
+      {/* MELHORIA: Modal de edição mais completo */}
       {editingVisitor && (
         <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
            <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                 <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><FiX /></button>
                 <form onSubmit={handleUpdateVisitor}>
                     <h2>Editando: {editingVisitor.nome}</h2>
-                    <div className={styles.formGroup}>
-                        <label>Nome Completo</label>
-                        <input value={editingVisitor.nome} onChange={e => setEditingVisitor({...editingVisitor, nome: e.target.value})} />
+                    <div className={styles.formGrid}>
+                        <div className={styles.formGroup}>
+                            <label>Nome Completo</label>
+                            <input name="nome" value={editingVisitor.nome || ''} onChange={handleModalChange} />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Telefone</label>
+                            <input name="telefone" value={editingVisitor.telefone || ''} onChange={handleModalChange} />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Email</label>
+                            <input name="email" type="email" value={editingVisitor.email || ''} onChange={handleModalChange} />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Status</label>
+                            <select name="status" value={editingVisitor.status || 'pendente'} onChange={handleModalChange}>
+                                <option value="pendente">Pendente</option>
+                                <option value="entrou em contato">Contatado</option>
+                                <option value="erro número">Erro no Número</option>
+                            </select>
+                        </div>
                     </div>
-                    <div className={styles.formGroup}>
-                        <label>Status</label>
-                        <select value={editingVisitor.status} onChange={e => setEditingVisitor({...editingVisitor, status: e.target.value})}>
-                            <option value="pendente">Pendente</option>
-                            <option value="entrou em contato">Contatado</option>
-                            <option value="erro número">Erro no Número</option>
-                        </select>
-                    </div>
-                    {/* Adicione outros campos de edição aqui se precisar */}
                     <div className={styles.modalActions}>
                         <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>Cancelar</button>
                         <button type="submit" className={styles.saveButton}>Salvar Alterações</button>
