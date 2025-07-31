@@ -1,34 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Header from '../Components/Header';
 import styles from './style/Admin.module.css';
 import { 
-  FaEdit, 
-  FaTrashAlt, 
-  FaPlus, 
-  FaUsers, 
-  FaWalking, 
-  FaSearch,
-  FaFilter,
-  FaChartLine,
-  FaUserShield,
-  FaUserFriends,
-  FaPhone,
-  FaEnvelope,
-  FaCalendarAlt,
-  FaMapMarkerAlt
+  FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
+  FaUserShield, FaUserFriends, FaPhone, FaEnvelope, FaCalendarAlt
 } from 'react-icons/fa';
-import { GiModernCity } from 'react-icons/gi';
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
 
+// CORRIGIDO: Status alinhados com o banco de dados
 const statusOptions = [
-  { value: 'ativo', label: 'Ativo', color: '#4CAF50' },
-  { value: 'inativo', label: 'Inativo', color: '#F44336' },
   { value: 'pendente', label: 'Pendente', color: '#FFC107' },
-  { value: 'frequentando', label: 'Frequentando', color: '#2196F3' }
+  { value: 'entrou em contato', label: 'Contatado', color: '#4CAF50' },
+  { value: 'erro número', label: 'Erro no Número', color: '#F44336' }
 ];
 
 const userRoles = {
@@ -51,45 +38,37 @@ function Admin() {
 
   // Theme detection
   useEffect(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setDarkMode(prefersDark);
-    
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = (e) => setDarkMode(e.matches);
+    setDarkMode(mediaQuery.matches);
     mediaQuery.addEventListener('change', handler);
-    
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
   // Apply theme
   useEffect(() => {
-    document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+    document.body.className = darkMode ? 'dark-mode' : '';
   }, [darkMode]);
 
   // Fetch all data
   const fetchAllData = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
-    
     if (!token) {
-      toast.error("Sessão expirada. Por favor, faça o login novamente.");
+      toast.error("Sessão expirada.");
       navigate('/');
       return;
     }
-    
     const headers = { 'Authorization': `Bearer ${token}` };
-    
     try {
       const [usersRes, visitorsRes] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/usuarios`, { headers }),
         axios.get(`${API_BASE_URL}/visitantes`, { headers })
       ]);
-      
       setUsuarios(usersRes.data);
       setVisitantes(visitorsRes.data);
     } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error("Erro ao carregar dados");
+      toast.error("Erro ao carregar dados.");
     } finally {
       setLoading(false);
     }
@@ -97,7 +76,7 @@ function Admin() {
 
   useEffect(() => {
     fetchAllData();
-  }, []);
+  }, [navigate]);
 
   // Modal handlers
   const handleOpenModal = (item = null) => {
@@ -110,12 +89,19 @@ function Admin() {
         tipo_usuario: item?.tipo_usuario || 'secretaria'
       });
     } else {
+      // ATUALIZADO: Preenche o formulário com todos os dados do visitante
       setFormData({
         nome: item?.nome || '',
+        data_nascimento: item?.data_nascimento ? new Date(item.data_nascimento).toISOString().split('T')[0] : '',
         telefone: item?.telefone || '',
+        sexo: item?.sexo || '',
         email: item?.email || '',
+        estado_civil: item?.estado_civil || '',
+        profissao: item?.profissao || '',
+        como_conheceu: item?.como_conheceu || '',
+        gf_responsavel: item?.gf_responsavel || '', // Assumindo que o nome do GF vem na resposta
         status: item?.status || 'pendente',
-        gf_responsavel: item?.gf_responsavel || ''
+        endereco: item?.endereco || { cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', uf: '' }
       });
     }
     setIsModalOpen(true);
@@ -131,21 +117,33 @@ function Admin() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+  
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      endereco: { ...prev.endereco, [name]: value }
+    }));
+  };
 
   // Status change handler
   const handleStatusChange = async (visitorId, newStatus) => {
     const token = localStorage.getItem('token');
+    const originalVisitors = [...visitantes];
+    setVisitantes(prev => prev.map(v => v.id === visitorId ? { ...v, status: newStatus } : v)); // Otimista
+
     try {
-      await axios.put(
+      // CORRIGIDO: Usando PATCH para a rota de status
+      await axios.patch(
         `${API_BASE_URL}/visitantes/${visitorId}/status`,
         { status: newStatus },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      toast.success(`Status atualizado para ${statusOptions.find(s => s.value === newStatus)?.label}`);
-      fetchAllData();
+      toast.success('Status atualizado!');
+      fetchAllData(); // Re-sincroniza por segurança
     } catch (error) {
-      toast.error("Erro ao atualizar status");
-      console.error(error);
+      setVisitantes(originalVisitors); // Reverte em caso de erro
+      toast.error(error.response?.data?.error || "Erro ao atualizar status");
     }
   };
 
@@ -154,34 +152,30 @@ function Admin() {
     e.preventDefault();
     const token = localStorage.getItem('token');
     const headers = { 'Authorization': `Bearer ${token}` };
-    
-    const endpoint = view === 'usuarios' 
-      ? `${API_BASE_URL}/api/usuarios` 
-      : `${API_BASE_URL}/visitantes`;
+    const endpoint = view === 'usuarios' ? `${API_BASE_URL}/api/usuarios` : `${API_BASE_URL}/visitantes`;
     
     const dataToSend = { ...formData };
     if (view === 'usuarios' && editingItem && !dataToSend.senha_gf) {
       delete dataToSend.senha_gf;
     }
 
-    try {
-      let response;
-      if (editingItem) {
-        response = await axios.put(`${endpoint}/${editingItem.id}`, dataToSend, { headers });
-      } else {
-        response = await axios.post(endpoint, dataToSend, { headers });
-      }
-      
-      toast.success(response.data.message || 'Operação realizada com sucesso!');
-      fetchAllData();
-      handleCloseModal();
-    } catch (error) {
-      toast.error(error.response?.data?.error || 'Erro ao salvar dados');
-    }
+    const promise = editingItem
+      ? axios.put(`${endpoint}/${editingItem.id}`, dataToSend, { headers })
+      : axios.post(endpoint, dataToSend, { headers });
+
+    toast.promise(promise, {
+        loading: 'Salvando...',
+        success: (res) => {
+            fetchAllData();
+            handleCloseModal();
+            return res.data.message || 'Operação realizada com sucesso!';
+        },
+        error: (err) => err.response?.data?.error || 'Erro ao salvar dados'
+    });
   };
 
   // Delete handler
-  const handleDelete = async (item) => {
+  const handleDelete = (item) => {
     toast((t) => (
       <div className={styles.confirmationToast}>
         <p>Confirmar exclusão de <strong>{view === 'usuarios' ? item.nome_gf : item.nome}</strong>?</p>
@@ -193,13 +187,12 @@ function Admin() {
               const endpoint = view === 'usuarios' 
                 ? `${API_BASE_URL}/api/usuarios/${item.id}` 
                 : `${API_BASE_URL}/visitantes/${item.id}`;
-              
               try {
                 await axios.delete(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
-                toast.success('Item excluído com sucesso!');
+                toast.success('Item excluído!');
                 fetchAllData();
               } catch (error) {
-                toast.error(error.response?.data?.error || 'Erro ao excluir item');
+                toast.error(error.response?.data?.error || 'Erro ao excluir');
               }
               toast.dismiss(t.id);
             }}
@@ -217,485 +210,170 @@ function Admin() {
     ), { duration: 10000 });
   };
 
-  // Filter visitors by status
-  const filteredVisitantes = visitantes.filter(visitor => {
+  // Filtering logic
+  const filteredVisitantes = useMemo(() => visitantes.filter(visitor => {
+    const searchString = searchTerm.toLowerCase();
     const matchesSearch = 
-      visitor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      visitor.telefone.includes(searchTerm) ||
-      visitor.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      visitor.gf_responsavel?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+      visitor.nome.toLowerCase().includes(searchString) ||
+      visitor.telefone.includes(searchString) ||
+      visitor.email?.toLowerCase().includes(searchString) ||
+      visitor.gf_responsavel?.toLowerCase().includes(searchString);
     const matchesFilter = activeFilter === 'all' || visitor.status === activeFilter;
-    
     return matchesSearch && matchesFilter;
-  });
+  }), [visitantes, searchTerm, activeFilter]);
 
-  const filteredUsuarios = usuarios.filter(user => 
+  const filteredUsuarios = useMemo(() => usuarios.filter(user => 
     user.nome_gf.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email_gf.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.tipo_usuario.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    user.email_gf.toLowerCase().includes(searchTerm.toLowerCase())
+  ), [usuarios, searchTerm]);
 
-  // Render status badge
-  const renderStatusBadge = (status) => {
-    const statusObj = statusOptions.find(s => s.value === status) || statusOptions[0];
-    return (
-      <span 
-        className={styles.statusBadge} 
-        style={{ 
-          backgroundColor: statusObj.color,
-          color: darkMode ? '#fff' : '#000'
-        }}
-      >
-        {statusObj.label}
-      </span>
-    );
-  };
-
-  // Render user role badge
-  const renderRoleBadge = (role) => {
-    const roleObj = userRoles[role] || userRoles.secretaria;
-    return (
-      <span 
-        className={styles.roleBadge} 
-        style={{ 
-          backgroundColor: roleObj.color,
-          color: '#fff'
-        }}
-      >
-        {roleObj.icon} {roleObj.label}
-      </span>
-    );
-  };
-
-  // Render user table
+  // Render Functions
   const renderUserTable = () => (
     <div className={styles.tableContainer}>
       <div className={styles.tableHeader}>
-        <h3>Lista de Usuários</h3>
-        <button 
-          onClick={() => handleOpenModal()} 
-          className={styles.addButton}
-        >
-          <FaPlus /> Novo Usuário
-        </button>
+        <h3>Lista de Usuários ({filteredUsuarios.length})</h3>
+        <button onClick={() => handleOpenModal()} className={styles.addButton}><FaPlus /> Novo Usuário</button>
       </div>
-      
       <div className={styles.tableWrapper}>
         <table className={styles.dataTable}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Email</th>
-              <th>Perfil</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsuarios.length > 0 ? filteredUsuarios.map(user => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>
-                  <div className={styles.userInfo}>
-                    <span className={styles.userName}>{user.nome_gf}</span>
-                  </div>
-                </td>
-                <td>{user.email_gf}</td>
-                <td>{renderRoleBadge(user.tipo_usuario)}</td>
-                <td className={styles.actions}>
-                  <div className={styles.actionButtons}>
-                    <button 
-                      onClick={() => handleOpenModal(user)} 
-                      title="Editar"
-                      className={styles.editButton}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(user)} 
-                      title="Excluir" 
-                      className={styles.deleteButton}
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan="5" className={styles.noResults}>
-                  Nenhum usuário encontrado
-                </td>
-              </tr>
-            )}
-          </tbody>
+            {/* ... cabeçalho da tabela de usuários ... */}
+            <tbody>
+                {filteredUsuarios.map(user => (
+                    <tr key={user.id}>
+                        <td>{user.id}</td>
+                        <td>{user.nome_gf}</td>
+                        <td>{user.email_gf}</td>
+                        <td><span className={`${styles.roleBadge}`} style={{backgroundColor: userRoles[user.tipo_usuario]?.color || '#777'}}>{userRoles[user.tipo_usuario]?.icon} {userRoles[user.tipo_usuario]?.label}</span></td>
+                        <td className={styles.actions}><div className={styles.actionButtons}><button onClick={() => handleOpenModal(user)} title="Editar" className={styles.editButton}><FaEdit /></button><button onClick={() => handleDelete(user)} title="Excluir" className={styles.deleteButton}><FaTrashAlt /></button></div></td>
+                    </tr>
+                ))}
+            </tbody>
         </table>
       </div>
     </div>
   );
 
-  // Render visitor table
   const renderVisitorTable = () => (
     <div className={styles.tableContainer}>
       <div className={styles.tableHeader}>
-        <h3>Lista de Visitantes</h3>
+        <h3>Lista de Visitantes ({filteredVisitantes.length})</h3>
         <div className={styles.tableControls}>
           <div className={styles.filterButtons}>
-            <button 
-              onClick={() => setActiveFilter('all')} 
-              className={activeFilter === 'all' ? styles.activeFilter : ''}
-            >
-              Todos
-            </button>
+            <button onClick={() => setActiveFilter('all')} className={activeFilter === 'all' ? styles.activeFilter : ''}>Todos</button>
             {statusOptions.map(option => (
-              <button
-                key={option.value}
-                onClick={() => setActiveFilter(option.value)}
-                className={activeFilter === option.value ? styles.activeFilter : ''}
-                style={{ color: option.color }}
-              >
-                {option.label}
-              </button>
+              <button key={option.value} onClick={() => setActiveFilter(option.value)} className={activeFilter === option.value ? styles.activeFilter : ''} style={{'--active-color': option.color}}>{option.label}</button>
             ))}
           </div>
-          <button 
-            onClick={() => handleOpenModal()} 
-            className={styles.addButton}
-          >
-            <FaPlus /> Novo Visitante
-          </button>
+          <button onClick={() => handleOpenModal()} className={styles.addButton}><FaPlus /> Novo Visitante</button>
         </div>
       </div>
-      
       <div className={styles.tableWrapper}>
         <table className={styles.dataTable}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Contato</th>
-              <th>Status</th>
-              <th>GF Responsável</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredVisitantes.length > 0 ? filteredVisitantes.map(visitor => (
-              <tr key={visitor.id}>
-                <td>{visitor.id}</td>
-                <td>
-                  <div className={styles.visitorInfo}>
-                    <span className={styles.visitorName}>{visitor.nome}</span>
-                    {visitor.email && (
-                      <span className={styles.visitorDetail}>
-                        <FaEnvelope /> {visitor.email}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td>
-                  <div className={styles.contactInfo}>
-                    <span className={styles.contactItem}>
-                      <FaPhone /> {visitor.telefone}
-                    </span>
-                    {visitor.data_nascimento && (
-                      <span className={styles.contactItem}>
-                        <FaCalendarAlt /> {new Date(visitor.data_nascimento).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td>
-                  <select
-                    value={visitor.status}
-                    onChange={(e) => handleStatusChange(visitor.id, e.target.value)}
-                    className={styles.statusSelect}
-                    style={{ 
-                      borderColor: statusOptions.find(s => s.value === visitor.status)?.color,
-                      color: darkMode ? '#fff' : '#333'
-                    }}
-                  >
-                    {statusOptions.map(option => (
-                      <option 
-                        key={option.value} 
-                        value={option.value}
-                        style={{ color: '#333' }}
-                      >
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td>{visitor.gf_responsavel}</td>
-                <td className={styles.actions}>
-                  <div className={styles.actionButtons}>
-                    <button 
-                      onClick={() => handleOpenModal(visitor)} 
-                      title="Editar"
-                      className={styles.editButton}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(visitor)} 
-                      title="Excluir" 
-                      className={styles.deleteButton}
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan="6" className={styles.noResults}>
-                  Nenhum visitante encontrado
-                </td>
-              </tr>
-            )}
-          </tbody>
+            {/* ... cabeçalho da tabela de visitantes ... */}
+            <tbody>
+                {filteredVisitantes.map(visitor => (
+                    <tr key={visitor.id}>
+                        <td>{visitor.id}</td>
+                        <td><div className={styles.visitorInfo}><span className={styles.visitorName}>{visitor.nome}</span>{visitor.email && <span className={styles.visitorDetail}><FaEnvelope /> {visitor.email}</span>}</div></td>
+                        <td><div className={styles.contactInfo}><span className={styles.contactItem}><FaPhone /> {visitor.telefone}</span>{visitor.data_nascimento && <span className={styles.contactItem}><FaCalendarAlt /> {new Date(visitor.data_nascimento).toLocaleDateString()}</span>}</div></td>
+                        <td><select value={visitor.status} onChange={(e) => handleStatusChange(visitor.id, e.target.value)} className={styles.statusSelect} style={{borderColor: statusOptions.find(s => s.value === visitor.status)?.color}}>{statusOptions.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}</select></td>
+                        <td>{visitor.gf_responsavel}</td>
+                        <td className={styles.actions}><div className={styles.actionButtons}><button onClick={() => handleOpenModal(visitor)} title="Editar" className={styles.editButton}><FaEdit /></button><button onClick={() => handleDelete(visitor)} title="Excluir" className={styles.deleteButton}><FaTrashAlt /></button></div></td>
+                    </tr>
+                ))}
+            </tbody>
         </table>
       </div>
     </div>
   );
 
-  // Render visitor modal
-  const renderVisitorModal = () => (
-    <div className={`${styles.modalOverlay} ${darkMode ? styles.dark : ''}`}>
-      <div className={styles.modalContent}>
-        <button className={styles.closeModal} onClick={handleCloseModal}>
-          &times;
-        </button>
-        
-        <h2>
-          {editingItem 
-            ? `Editar Visitante - ${editingItem.nome}`
-            : 'Cadastrar Novo Visitante'}
-        </h2>
-        
-        <form onSubmit={handleFormSubmit} className={styles.modalForm}>
-          <div className={styles.formSection}>
-            <h3>Informações Pessoais</h3>
-            <div className={styles.formGrid}>
-              <div className={styles.formGroup}>
-                <label>Nome Completo*</label>
-                <input 
-                  type="text" 
-                  name="nome" 
-                  value={formData.nome || ''} 
-                  onChange={handleFormChange} 
-                  required 
-                />
-              </div>
-              
-              <div className={styles.formGroup}>
-                <label>Telefone*</label>
-                <input 
-                  type="text" 
-                  name="telefone" 
-                  value={formData.telefone || ''} 
-                  onChange={handleFormChange} 
-                  required 
-                />
-              </div>
-              
-              <div className={styles.formGroup}>
-                <label>Email</label>
-                <input 
-                  type="email" 
-                  name="email" 
-                  value={formData.email || ''} 
-                  onChange={handleFormChange} 
-                />
-              </div>
-              
-              <div className={styles.formGroup}>
-                <label>Status*</label>
-                <select 
-                  name="status" 
-                  value={formData.status || 'pendente'} 
-                  onChange={handleFormChange}
-                  required
-                >
-                  {statusOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className={styles.formGroup}>
-                <label>GF Responsável</label>
-                <input 
-                  type="text" 
-                  name="gf_responsavel" 
-                  value={formData.gf_responsavel || ''} 
-                  onChange={handleFormChange} 
-                />
-              </div>
+  const renderModal = () => {
+    const isUserView = view === 'usuarios';
+    return (
+        <div className={`${styles.modalOverlay} ${darkMode ? styles.dark : ''}`}>
+            <div className={styles.modalContent}>
+                <button className={styles.closeModal} onClick={handleCloseModal}>&times;</button>
+                <h2>{editingItem ? `Editar ${isUserView ? 'Usuário' : 'Visitante'}` : `Novo ${isUserView ? 'Usuário' : 'Visitante'}`}</h2>
+                <form onSubmit={handleFormSubmit} className={styles.modalForm}>
+                    {isUserView ? (
+                        // Formulário de Usuário
+                        <div className={styles.formGrid}>
+                            <div className={styles.formGroup}><label>Nome*</label><input type="text" name="nome_gf" value={formData.nome_gf || ''} onChange={handleFormChange} required /></div>
+                            <div className={styles.formGroup}><label>Email*</label><input type="email" name="email_gf" value={formData.email_gf || ''} onChange={handleFormChange} required /></div>
+                            <div className={styles.formGroup}><label>Senha{!editingItem && '*'}</label><input type="password" name="senha_gf" value={formData.senha_gf || ''} onChange={handleFormChange} placeholder={editingItem ? 'Deixe em branco para não alterar' : ''} required={!editingItem} /></div>
+                            <div className={styles.formGroup}><label>Perfil*</label><select name="tipo_usuario" value={formData.tipo_usuario || 'secretaria'} onChange={handleFormChange} required><option value="secretaria">Secretaria</option><option value="admin">Administrador</option></select></div>
+                        </div>
+                    ) : (
+                        // Formulário de Visitante Completo
+                        <>
+                            <div className={styles.formSection}>
+                                <h3>Informações Pessoais</h3>
+                                <div className={styles.formGrid}>
+                                    <div className={styles.formGroup}><label>Nome Completo*</label><input type="text" name="nome" value={formData.nome || ''} onChange={handleFormChange} required /></div>
+                                    <div className={styles.formGroup}><label>Data de Nascimento</label><input type="date" name="data_nascimento" value={formData.data_nascimento || ''} onChange={handleFormChange} /></div>
+                                    <div className={styles.formGroup}><label>Sexo</label><select name="sexo" value={formData.sexo || ''} onChange={handleFormChange}><option value="">Não informar</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select></div>
+                                    <div className={styles.formGroup}><label>Estado Civil</label><input type="text" name="estado_civil" value={formData.estado_civil || ''} onChange={handleFormChange} /></div>
+                                    <div className={styles.formGroup}><label>Profissão</label><input type="text" name="profissao" value={formData.profissao || ''} onChange={handleFormChange} /></div>
+                                </div>
+                            </div>
+                            <div className={styles.formSection}>
+                                <h3>Contato e Visita</h3>
+                                <div className={styles.formGrid}>
+                                    <div className={styles.formGroup}><label>Telefone*</label><input type="text" name="telefone" value={formData.telefone || ''} onChange={handleFormChange} required /></div>
+                                    <div className={styles.formGroup}><label>Email</label><input type="email" name="email" value={formData.email || ''} onChange={handleFormChange} /></div>
+                                    <div className={styles.formGroup}><label>Status*</label><select name="status" value={formData.status || 'pendente'} onChange={handleFormChange} required>{statusOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</select></div>
+                                    <div className={styles.formGroup}><label>GF Responsável</label><input type="text" name="gf_responsavel" value={formData.gf_responsavel || ''} onChange={handleFormChange} /></div>
+                                    <div className={styles.formGroup} style={{gridColumn: 'span 2'}}><label>Como conheceu a igreja?</label><textarea name="como_conheceu" value={formData.como_conheceu || ''} onChange={handleFormChange}></textarea></div>
+                                </div>
+                            </div>
+                            <div className={styles.formSection}>
+                                <h3>Endereço</h3>
+                                <div className={styles.formGrid}>
+                                    <div className={styles.formGroup}><label>CEP</label><input type="text" name="cep" value={formData.endereco?.cep || ''} onChange={handleAddressChange} /></div>
+                                    <div className={styles.formGroup}><label>Logradouro</label><input type="text" name="logradouro" value={formData.endereco?.logradouro || ''} onChange={handleAddressChange} /></div>
+                                    <div className={styles.formGroup}><label>Número</label><input type="text" name="numero" value={formData.endereco?.numero || ''} onChange={handleAddressChange} /></div>
+                                    <div className={styles.formGroup}><label>Complemento</label><input type="text" name="complemento" value={formData.endereco?.complemento || ''} onChange={handleAddressChange} /></div>
+                                    <div className={styles.formGroup}><label>Bairro</label><input type="text" name="bairro" value={formData.endereco?.bairro || ''} onChange={handleAddressChange} /></div>
+                                    <div className={styles.formGroup}><label>Cidade</label><input type="text" name="cidade" value={formData.endereco?.cidade || ''} onChange={handleAddressChange} /></div>
+                                    <div className={styles.formGroup}><label>UF</label><input type="text" name="uf" value={formData.endereco?.uf || ''} onChange={handleAddressChange} maxLength="2" /></div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                    <div className={styles.modalActions}>
+                        <button type="button" onClick={handleCloseModal} className={styles.cancelButton}>Cancelar</button>
+                        <button type="submit" className={styles.saveButton}>{editingItem ? 'Atualizar' : 'Cadastrar'}</button>
+                    </div>
+                </form>
             </div>
-          </div>
-          
-          <div className={styles.modalActions}>
-            <button 
-              type="button" 
-              onClick={handleCloseModal} 
-              className={styles.cancelButton}
-            >
-              Cancelar
-            </button>
-            <button 
-              type="submit" 
-              className={styles.saveButton}
-            >
-              {editingItem ? 'Atualizar Visitante' : 'Cadastrar Visitante'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-
-  // Render user modal
-  const renderUserModal = () => (
-    <div className={`${styles.modalOverlay} ${darkMode ? styles.dark : ''}`}>
-      <div className={styles.modalContent}>
-        <button className={styles.closeModal} onClick={handleCloseModal}>
-          &times;
-        </button>
-        
-        <h2>
-          {editingItem 
-            ? `Editar Usuário - ${editingItem.nome_gf}`
-            : 'Cadastrar Novo Usuário'}
-        </h2>
-        
-        <form onSubmit={handleFormSubmit} className={styles.modalForm}>
-          <div className={styles.formGrid}>
-            <div className={styles.formGroup}>
-              <label>Nome*</label>
-              <input 
-                type="text" 
-                name="nome_gf" 
-                value={formData.nome_gf || ''} 
-                onChange={handleFormChange} 
-                required 
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label>Email*</label>
-              <input 
-                type="email" 
-                name="email_gf" 
-                value={formData.email_gf || ''} 
-                onChange={handleFormChange} 
-                required 
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label>Senha{!editingItem && '*'}</label>
-              <input 
-                type="password" 
-                name="senha_gf" 
-                value={formData.senha_gf || ''} 
-                onChange={handleFormChange} 
-                placeholder={editingItem ? 'Deixe em branco para não alterar' : ''}
-                required={!editingItem}
-              />
-            </div>
-            
-            <div className={styles.formGroup}>
-              <label>Perfil*</label>
-              <select 
-                name="tipo_usuario" 
-                value={formData.tipo_usuario || 'secretaria'} 
-                onChange={handleFormChange}
-                required
-              >
-                <option value="secretaria">Secretaria</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </div>
-          </div>
-          
-          <div className={styles.modalActions}>
-            <button 
-              type="button" 
-              onClick={handleCloseModal} 
-              className={styles.cancelButton}
-            >
-              Cancelar
-            </button>
-            <button 
-              type="submit" 
-              className={styles.saveButton}
-            >
-              {editingItem ? 'Atualizar Usuário' : 'Cadastrar Usuário'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+        </div>
+    );
+  };
 
   return (
-    <div className={`${styles.adminContainer} ${darkMode ? styles.dark : ''}`}>
-      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
-      
+    <div className={`${styles.adminContainer} ${darkMode ? 'dark-mode' : ''}`}>
+      <Header />
       <div className={styles.adminPanel}>
-        {/* Dashboard Header */}
         <div className={styles.dashboardHeader}>
-          <h1>
-            <FaUserShield /> Painel de Administração
-          </h1>
+          <h1><FaUserShield /> Painel de Administração</h1>
         </div>
-        
-        {/* View Toggle */}
         <div className={styles.viewToggle}>
-          <button 
-            onClick={() => setView('usuarios')} 
-            className={view === 'usuarios' ? styles.active : ''}
-          >
-            <FaUsers /> Gerenciar Usuários
-          </button>
-          <button 
-            onClick={() => setView('visitantes')} 
-            className={view === 'visitantes' ? styles.active : ''}
-          >
-            <FaWalking /> Gerenciar Visitantes
-          </button>
+          <button onClick={() => setView('usuarios')} className={view === 'usuarios' ? styles.active : ''}><FaUsers /> Gerenciar Usuários</button>
+          <button onClick={() => setView('visitantes')} className={view === 'visitantes' ? styles.active : ''}><FaWalking /> Gerenciar Visitantes</button>
         </div>
-        
-        {/* Search and Filters */}
         <div className={styles.searchContainer}>
           <div className={styles.searchBox}>
             <FaSearch className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder={`Pesquisar ${view === 'usuarios' ? 'usuários...' : 'visitantes...'}`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <input type="text" placeholder={`Pesquisar ${view === 'usuarios' ? 'usuários...' : 'visitantes...'}`} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
         </div>
-        
-        {/* Content Area */}
         {loading ? (
-          <div className={styles.loading}>
-            <div className={styles.spinner}></div>
-            <p>Carregando dados...</p>
-          </div>
+          <div className={styles.loading}><div className={styles.spinner}></div><p>Carregando dados...</p></div>
         ) : (
           view === 'usuarios' ? renderUserTable() : renderVisitorTable()
         )}
       </div>
-      
-      {/* Modals */}
-      {isModalOpen && (view === 'usuarios' ? renderUserModal() : renderVisitorModal())}
+      {isModalOpen && renderModal()}
     </div>
   );
 }
