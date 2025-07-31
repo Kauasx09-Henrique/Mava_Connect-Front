@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import Header from '../src/Components/Header'; // Header importado e pronto para uso
+import Header from '../Components/Header'; // Header importado e pronto para uso
 import styles from './style/Admin.module.css';
 import { FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking } from 'react-icons/fa';
 
