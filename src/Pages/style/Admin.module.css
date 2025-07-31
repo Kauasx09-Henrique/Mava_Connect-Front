@@ -2,223 +2,490 @@
 
 /* --- Variáveis de Tema --- */
 :root {
-  --bg-page: #f1f5f9;
-  --bg-sidebar: #ffffff;
-  --surface-primary: #ffffff;
-  --border-color: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #64748b;
-  --accent-primary: #4338ca;
-  --accent-hover: #3730a3;
-  --accent-light: #eef2ff;
-  --delete-color: #ef4444;
-  --delete-hover: #dc2626;
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --bg-page: #f8f9fa;
+  --bg-primary: #ffffff;
+  --bg-secondary: #e9ecef;
+  --border-color: #dee2e6;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --accent-primary: #0d6efd;
+  --accent-hover: #0b5ed7;
+  --success-color: #198754;
+  --danger-color: #dc3545;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .dark-mode {
-  --bg-page: #0f172a;
-  --bg-sidebar: #1e293b;
-  --surface-primary: #1e293b;
-  --border-color: #334155;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --accent-primary: #818cf8;
-  --accent-hover: #6366f1;
-  --accent-light: #312e81;
-  --delete-color: #f87171;
-  --delete-hover: #ef4444;
+  --bg-page: #121212;
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #2d2d2d;
+  --border-color: #444;
+  --text-primary: #f0f0f0;
+  --text-secondary: #aaa;
+  --accent-primary: #589bff;
+  --accent-hover: #7baefb;
+  --success-color: #2e7d32;
+  --danger-color: #d32f2f;
 }
 
-/* --- Layout Principal --- */
-.adminLayout {
-  display: flex;
+/* --- Layout Base --- */
+.adminContainer {
+  min-height: 100vh;
   background-color: var(--bg-page);
-  min-height: calc(100vh - 70px); /* Altura da tela menos o Header */
-}
-
-.sidebar {
-  width: 250px;
-  background-color: var(--bg-sidebar);
-  border-right: 1px solid var(--border-color);
-  padding: 1.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  transition: background-color 0.3s ease;
-}
-
-.sidebarTitle {
-  font-size: 1.1rem;
-  font-weight: 700;
   color: var(--text-primary);
-  padding: 0 0.5rem 1.5rem 0.5rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.navButton {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  border: none;
-  background-color: transparent;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.navButton:hover {
-  background-color: var(--accent-light);
-  color: var(--accent-primary);
-}
-.navButton.active {
-  background-color: var(--accent-primary);
-  color: #fff;
-  font-weight: 600;
-}
-
-.content {
-  flex-grow: 1;
+.adminPanel {
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 2rem;
 }
 
-.contentHeader {
+/* --- Cabeçalho do Dashboard --- */
+.dashboardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
 }
-.contentHeader h1 {
-  font-size: 1.875rem;
+
+.dashboardHeader h1 {
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.headerActions .exportButton {
+  background: none;
+  border: 1px solid var(--border-color);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.headerActions .exportButton:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+
+/* --- Cards de Estatísticas --- */
+.statsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.statIcon {
+  font-size: 1.8rem;
+  padding: 1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--accent-light);
+  color: var(--accent-primary);
+}
+
+.dark-mode .statIcon {
+  background-color: rgba(88, 155, 255, 0.15);
+}
+
+.statInfo h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.statInfo p {
+  margin: 0;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
+.statusMiniCards {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.statusMiniCard {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+
+/* --- Seletor de Visualização (Usuários/Visitantes) --- */
+.viewToggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-secondary);
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+.viewToggle button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.viewToggle button:hover {
+  color: var(--text-primary);
+}
+
+.viewToggle .active {
+  font-weight: 600;
+  background: var(--bg-primary);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* --- Busca e Filtros --- */
+.searchContainer {
+  margin-bottom: 1.5rem;
+}
+
+.searchBox {
+  position: relative;
+  max-width: 500px;
+}
+
+.searchBox input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.searchBox input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+
 /* --- Tabela --- */
 .tableContainer {
-  background-color: var(--surface-primary);
+  margin-top: 1.5rem;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.tableHeader h3 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.tableControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filterButtons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filterButtons button {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
+  background: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  color: var(--text-secondary);
+}
+
+.filterButtons .activeFilter {
+  font-weight: 600;
+  background-color: var(--accent-light);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.addButton {
+  padding: 0.65rem 1.25rem;
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.addButton:hover {
+  filter: brightness(1.1);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .dataTable {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.95rem;
 }
-.dataTable th, .dataTable td {
-  padding: 1rem 1.5rem;
+
+.dataTable th,
+.dataTable td {
+  padding: 1rem;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
-  vertical-align: middle;
 }
+
 .dataTable th {
-  color: var(--text-secondary);
-  font-size: 0.75rem;
   font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
-.dataTable tbody tr:last-child td {
+
+.dataTable tr:last-child td {
   border-bottom: none;
 }
-.dataTable tbody tr {
-  transition: background-color 0.2s ease;
-}
-.dataTable tbody tr:hover {
-  background-color: var(--accent-light);
+
+.dataTable tr:hover {
+  background-color: color-mix(in srgb, var(--bg-secondary) 50%, transparent);
 }
 
-/* --- Elementos da Tabela --- */
-.badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 99px;
-  font-weight: 600;
-  font-size: 0.75rem;
-  text-transform: capitalize;
+
+/* --- Conteúdo da Tabela --- */
+.userInfo,
+.visitorInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName,
+.visitorName {
+  font-weight: 500;
+}
+
+.visitorDetail {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+
+/* --- Badges e Select de Status --- */
+.statusBadge,
+.roleBadge {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
 }
-.admin { background-color: #fecaca; color: #991b1b; }
-.dark-mode .admin { background-color: #7f1d1d; color: #fecaca; }
-.secretaria { background-color: #dbeafe; color: #1e40af; }
-.dark-mode .secretaria { background-color: #1e3a8a; color: #dbeafe; }
 
 .statusSelect {
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem;
   border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background-color: var(--surface-primary);
+  border: 2px solid;
+  background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-weight: 500;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-.statusSelect:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+  transition: all 0.2s;
 }
 
+.statusSelect:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+}
+
+
+/* --- Botões de Ação --- */
 .actions {
+  white-space: nowrap;
+}
+
+.actionButtons {
   display: flex;
   gap: 0.5rem;
 }
-.actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
+
+.editButton,
+.deleteButton {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-.actions button:hover {
-  background-color: color-mix(in srgb, var(--border-color) 50%, transparent);
-  color: var(--text-primary);
-}
-.actions .deleteButton:hover {
-  color: var(--delete-color);
-  background-color: color-mix(in srgb, var(--delete-color) 15%, transparent);
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-/* --- Modal --- */
+.editButton {
+  background-color: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+  color: var(--accent-primary);
+}
+
+.editButton:hover {
+  background-color: color-mix(in srgb, var(--accent-primary) 25%, transparent);
+}
+
+.deleteButton {
+  background-color: color-mix(in srgb, var(--danger-color) 15%, transparent);
+  color: var(--danger-color);
+}
+
+.deleteButton:hover {
+  background-color: color-mix(in srgb, var(--danger-color) 25%, transparent);
+}
+
+
+/* --- Estados de Carregamento e Vazio --- */
+.noResults {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--border-color);
+  border-radius: 50%;
+  border-top-color: var(--accent-primary);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* --- Estilos do Modal --- */
 .modalOverlay {
   position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease;
+  backdrop-filter: blur(4px);
 }
 
 .modalContent {
-  background-color: var(--surface-primary);
-  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: var(--bg-primary);
   border-radius: 12px;
-  width: 90%;
-  max-width: 550px;
+  box-shadow: var(--shadow-md);
+  padding: 2rem;
   position: relative;
-  animation: slideUp 0.4s ease;
 }
 
-.modalContent h2 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
-}
-
-.closeModalButton {
+.closeModal {
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -227,22 +494,42 @@
   font-size: 1.5rem;
   cursor: pointer;
   color: var(--text-secondary);
-  transition: color 0.2s ease;
 }
-.closeModalButton:hover {
-  color: var(--text-primary);
+
+.modalContent h2 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+.modalForm .formSection {
+  margin-bottom: 1.5rem;
+}
+
+.modalForm .formSection h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
 }
 
 .formGroup {
-  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .formGroup label {
-  display: block;
   margin-bottom: 0.5rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: var(--text-secondary);
-  font-size: 0.9rem;
 }
 
 .formGroup input,
@@ -255,7 +542,6 @@
   color: var(--text-primary);
   font-size: 1rem;
   box-sizing: border-box;
-  transition: all 0.2s ease;
 }
 
 .formGroup input:focus,
@@ -274,14 +560,12 @@
   border-top: 1px solid var(--border-color);
 }
 
-.cancelButton,
-.saveButton {
+.cancelButton, .saveButton {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .cancelButton {
@@ -289,26 +573,39 @@
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
 }
-.cancelButton:hover {
-  background-color: var(--accent-light);
-  border-color: var(--accent-light);
-}
 
 .saveButton {
-  background-color: var(--accent-primary);
-  color: #fff;
-}
-.saveButton:hover {
-  background-color: var(--accent-hover);
+  background-color: var(--success-color);
+  color: white;
 }
 
-/* --- Animações --- */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* --- Estilos do Toast de Confirmação --- */
+.confirmationToast {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+.toastActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.toastConfirmButton, .toastCancelButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.toastConfirmButton {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.toastCancelButton {
+  background-color: var(--border-color);
+  color: var(--text-secondary);
 }
