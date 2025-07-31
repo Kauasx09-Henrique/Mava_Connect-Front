@@ -1,65 +1,90 @@
-// Caminho: src/Pages/Admin.jsx
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import Header from '../Components/Header'; // Header importado e pronto para uso
+import Header from '../Components/Header';
 import styles from './style/Admin.module.css';
-import { FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking } from 'react-icons/fa';
+import { 
+  FaEdit, 
+  FaTrashAlt, 
+  FaPlus, 
+  FaUsers, 
+  FaWalking, 
+  FaSearch,
+  FaMoon,
+  FaSun,
+  FaCheck,
+  FaTimes,
+  FaUserClock
+} from 'react-icons/fa';
 
-const API_BASE_URL = 'https://mava-connect-backend.onrender.com'; 
+const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
+
+const statusOptions = [
+  { value: 'ativo', label: 'Ativo', color: 'green' },
+  { value: 'inativo', label: 'Inativo', color: 'red' },
+  { value: 'pendente', label: 'Pendente', color: 'orange' },
+  { value: 'frequentando', label: 'Frequentando', color: 'blue' }
+];
 
 function Admin() {
-  const navigate = useNavigate(); 
-  
-  // --- STATE MANAGEMENT ---
+  const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState('usuarios');
   const [usuarios, setUsuarios] = useState([]);
   const [visitantes, setVisitantes] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+  const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState(null); 
+  const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
+  
+  // Detect system theme preference
+  useEffect(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDarkMode(prefersDark);
+    
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => setDarkMode(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
-  // --- API DATA FETCHING ---
+  // Apply theme to body
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      document.body.classList.remove('light-mode');
+    } else {
+      document.body.classList.add('light-mode');
+      document.body.classList.remove('dark-mode');
+    }
+  }, [darkMode]);
+
   const fetchAllData = async () => {
     setLoading(true);
     const token = localStorage.getItem('token');
     
     if (!token) {
       toast.error("Sessão expirada. Por favor, faça o login novamente.");
-      setLoading(false);
-      navigate('/'); // Redireciona para o login se não houver token
+      navigate('/');
       return;
     }
     
     const headers = { 'Authorization': `Bearer ${token}` };
     
-    const usersPromise = axios.get(`${API_BASE_URL}/api/usuarios`, { headers });
-    const visitorsPromise = axios.get(`${API_BASE_URL}/visitantes`, { headers });
-
     try {
-      const results = await Promise.allSettled([usersPromise, visitorsPromise]);
+      const [usersRes, visitorsRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/usuarios`, { headers }),
+        axios.get(`${API_BASE_URL}/visitantes`, { headers })
+      ]);
       
-      if (results[0].status === 'fulfilled') {
-        setUsuarios(results[0].value.data);
-      } else {
-        console.error("Erro ao buscar usuários:", results[0].reason);
-        toast.error("Não foi possível carregar os usuários.");
-      }
-
-      if (results[1].status === 'fulfilled') {
-        setVisitantes(results[1].value.data);
-      } else {
-        console.error("Erro ao buscar visitantes:", results[1].reason);
-        toast.error("Não foi possível carregar os visitantes.");
-      }
-
+      setUsuarios(usersRes.data);
+      setVisitantes(visitorsRes.data);
     } catch (error) {
-      toast.error('Ocorreu um erro inesperado ao carregar os dados.');
-      console.error("Erro geral ao buscar dados:", error);
+      console.error("Error fetching data:", error);
+      toast.error("Erro ao carregar dados");
     } finally {
       setLoading(false);
     }
@@ -69,23 +94,21 @@ function Admin() {
     fetchAllData();
   }, []);
 
-  // --- MODAL AND FORM HANDLING ---
-
   const handleOpenModal = (item = null) => {
     setEditingItem(item);
     if (view === 'usuarios') {
       setFormData({
-        nome_gf: item ? item.nome_gf : '',
-        email_gf: item ? item.email_gf : '',
+        nome_gf: item?.nome_gf || '',
+        email_gf: item?.email_gf || '',
         senha_gf: '',
-        tipo_usuario: item ? item.tipo_usuario : 'secretaria',
-        logo: item ? item.logo : null
+        tipo_usuario: item?.tipo_usuario || 'secretaria'
       });
     } else {
       setFormData({
-        nome: item ? item.nome : '',
-        rg: item ? item.rg : '',
-        empresa: item ? item.empresa : '',
+        nome: item?.nome || '',
+        telefone: item?.telefone || '',
+        status: item?.status || 'pendente',
+        gf_responsavel: item?.gf_responsavel || ''
       });
     }
     setIsModalOpen(true);
@@ -102,159 +125,331 @@ function Admin() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // --- CRUD OPERATIONS ---
+  const handleStatusChange = async (visitorId, newStatus) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.put(
+        `${API_BASE_URL}/visitantes/${visitorId}/status`,
+        { status: newStatus },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      toast.success(`Status atualizado para ${statusOptions.find(s => s.value === newStatus)?.label}`);
+      fetchAllData();
+    } catch (error) {
+      toast.error("Erro ao atualizar status");
+      console.error(error);
+    }
+  };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
     const headers = { 'Authorization': `Bearer ${token}` };
     
-    let promise;
-    let dataToSend = { ...formData };
-    const endpoint = view === 'usuarios' ? `${API_BASE_URL}/api/usuarios` : `${API_BASE_URL}/visitantes`;
-
-    if (view === 'usuarios' && editingItem && !formData.senha_gf) {
+    const endpoint = view === 'usuarios' 
+      ? `${API_BASE_URL}/api/usuarios` 
+      : `${API_BASE_URL}/visitantes`;
+    
+    const dataToSend = { ...formData };
+    if (view === 'usuarios' && editingItem && !dataToSend.senha_gf) {
       delete dataToSend.senha_gf;
     }
 
-    if (editingItem) {
-      promise = axios.put(`${endpoint}/${editingItem.id}`, dataToSend, { headers });
-    } else {
-      promise = axios.post(endpoint, dataToSend, { headers });
-    }
-
-    toast.promise(promise, {
-      loading: 'Salvando...',
-      success: () => {
-        fetchAllData(); 
-        handleCloseModal();
-        return `Item ${editingItem ? 'atualizado' : 'criado'} com sucesso!`;
-      },
-      error: (err) => err.response?.data?.error || 'Ocorreu um erro ao salvar.',
-    });
-  };
-
-  const handleDelete = (item) => {
-    const endpoint = view === 'usuarios' ? `${API_BASE_URL}/api/usuarios` : `${API_BASE_URL}/visitantes`;
-    const itemName = view === 'usuarios' ? item.nome_gf : item.nome;
-
-    toast((t) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <p>Tem certeza que deseja excluir <strong>{itemName}</strong>?</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                <button
-                    className={styles.confirmButton}
-                    onClick={() => {
-                        const token = localStorage.getItem('token');
-                        const promise = axios.delete(`${endpoint}/${item.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                        toast.promise(promise, {
-                            loading: 'Excluindo...',
-                            success: () => { fetchAllData(); return 'Item excluído!'; },
-                            error: 'Não foi possível excluir.',
-                        });
-                        toast.dismiss(t.id);
-                    }}
-                >Excluir</button>
-                <button className={styles.cancelButton} onClick={() => toast.dismiss(t.id)}>Cancelar</button>
-            </div>
-        </div>
-    ), { duration: 6000 });
-  };
-  
-  const handleAddNewClick = () => {
-    if (view === 'usuarios') {
-      navigate('/cadastrar-usuario');
-    } else {
-      handleOpenModal();
+    try {
+      let response;
+      if (editingItem) {
+        response = await axios.put(`${endpoint}/${editingItem.id}`, dataToSend, { headers });
+      } else {
+        response = await axios.post(endpoint, dataToSend, { headers });
+      }
+      
+      toast.success(response.data.message || 'Operação realizada com sucesso!');
+      fetchAllData();
+      handleCloseModal();
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Erro ao salvar dados');
     }
   };
 
-  // --- RENDER FUNCTIONS ---
-  
+  const handleDelete = async (item) => {
+    const token = localStorage.getItem('token');
+    const endpoint = view === 'usuarios' 
+      ? `${API_BASE_URL}/api/usuarios/${item.id}` 
+      : `${API_BASE_URL}/visitantes/${item.id}`;
+    
+    try {
+      await axios.delete(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
+      toast.success('Item excluído com sucesso!');
+      fetchAllData();
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Erro ao excluir item');
+    }
+  };
+
+  const filteredVisitantes = visitantes.filter(visitor => 
+    visitor.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    visitor.telefone.includes(searchTerm) ||
+    visitor.status.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredUsuarios = usuarios.filter(user => 
+    user.nome_gf.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email_gf.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.tipo_usuario.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const renderStatusBadge = (status) => {
+    const statusObj = statusOptions.find(s => s.value === status) || statusOptions[0];
+    return (
+      <span 
+        className={styles.statusBadge} 
+        style={{ backgroundColor: statusObj.color }}
+      >
+        {statusObj.label}
+      </span>
+    );
+  };
+
   const renderUserTable = () => (
-    <table className={styles.dataTable}>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>Email</th>
-          <th>Perfil</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {usuarios.length > 0 ? usuarios.map(user => (
-          <tr key={user.id}>
-            <td>{user.id}</td>
-            <td>{user.nome_gf}</td>
-            <td>{user.email_gf}</td>
-            <td><span className={`${styles.perfil} ${styles[user.tipo_usuario]}`}>{user.tipo_usuario}</span></td>
-            <td className={styles.actions}>
-              <button onClick={() => handleOpenModal(user)} title="Editar"><FaEdit /></button>
-              <button onClick={() => handleDelete(user)} title="Excluir" className={styles.deleteButton}><FaTrashAlt /></button>
-            </td>
+    <div className={styles.tableWrapper}>
+      <table className={styles.dataTable}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Perfil</th>
+            <th>Ações</th>
           </tr>
-        )) : (
-          <tr><td colSpan="5">Nenhum usuário encontrado.</td></tr>
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {filteredUsuarios.length > 0 ? filteredUsuarios.map(user => (
+            <tr key={user.id}>
+              <td>{user.id}</td>
+              <td>{user.nome_gf}</td>
+              <td>{user.email_gf}</td>
+              <td>
+                <span className={`${styles.perfil} ${styles[user.tipo_usuario]}`}>
+                  {user.tipo_usuario}
+                </span>
+              </td>
+              <td className={styles.actions}>
+                <button 
+                  onClick={() => handleOpenModal(user)} 
+                  title="Editar"
+                  className={styles.editButton}
+                >
+                  <FaEdit />
+                </button>
+                <button 
+                  onClick={() => handleDelete(user)} 
+                  title="Excluir" 
+                  className={styles.deleteButton}
+                >
+                  <FaTrashAlt />
+                </button>
+              </td>
+            </tr>
+          )) : (
+            <tr>
+              <td colSpan="5" className={styles.noResults}>
+                Nenhum usuário encontrado
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 
   const renderVisitorTable = () => (
-    <table className={styles.dataTable}>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>RG</th>
-          <th>Empresa</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {visitantes.length > 0 ? visitantes.map(visitor => (
-          <tr key={visitor.id}>
-            <td>{visitor.id}</td>
-            <td>{visitor.nome}</td>
-            <td>{visitor.rg}</td>
-            <td>{visitor.empresa}</td>
-            <td className={styles.actions}>
-              <button onClick={() => handleOpenModal(visitor)} title="Editar"><FaEdit /></button>
-              <button onClick={() => handleDelete(visitor)} title="Excluir" className={styles.deleteButton}><FaTrashAlt /></button>
-            </td>
+    <div className={styles.tableWrapper}>
+      <table className={styles.dataTable}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Status</th>
+            <th>GF Responsável</th>
+            <th>Ações</th>
           </tr>
-        )) : (
-          <tr><td colSpan="5">Nenhum visitante encontrado.</td></tr>
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {filteredVisitantes.length > 0 ? filteredVisitantes.map(visitor => (
+            <tr key={visitor.id}>
+              <td>{visitor.id}</td>
+              <td>{visitor.nome}</td>
+              <td>{visitor.telefone}</td>
+              <td>
+                <select
+                  value={visitor.status}
+                  onChange={(e) => handleStatusChange(visitor.id, e.target.value)}
+                  className={styles.statusSelect}
+                >
+                  {statusOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </td>
+              <td>{visitor.gf_responsavel}</td>
+              <td className={styles.actions}>
+                <button 
+                  onClick={() => handleOpenModal(visitor)} 
+                  title="Editar"
+                  className={styles.editButton}
+                >
+                  <FaEdit />
+                </button>
+                <button 
+                  onClick={() => handleDelete(visitor)} 
+                  title="Excluir" 
+                  className={styles.deleteButton}
+                >
+                  <FaTrashAlt />
+                </button>
+              </td>
+            </tr>
+          )) : (
+            <tr>
+              <td colSpan="6" className={styles.noResults}>
+                Nenhum visitante encontrado
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
-  
+
   const renderModal = () => (
-    <div className={styles.modalOverlay}>
+    <div className={`${styles.modalOverlay} ${darkMode ? styles.dark : ''}`}>
       <div className={styles.modalContent}>
+        <button className={styles.closeModal} onClick={handleCloseModal}>
+          &times;
+        </button>
+        
+        <h2>
+          {editingItem 
+            ? `Editar ${view === 'usuarios' ? 'Usuário' : 'Visitante'}` 
+            : 'Cadastrar Novo Visitante'}
+        </h2>
+        
         <form onSubmit={handleFormSubmit}>
-          <h2>{editingItem ? `Editar ${view === 'usuarios' ? 'Usuário' : 'Visitante'}` : `Novo Visitante`}</h2>
-          
           {view === 'usuarios' ? (
             <>
-              <div className={styles.formGroup}><label>Nome</label><input type="text" name="nome_gf" value={formData.nome_gf || ''} onChange={handleFormChange} required /></div>
-              <div className={styles.formGroup}><label>Email</label><input type="email" name="email_gf" value={formData.email_gf || ''} onChange={handleFormChange} required /></div>
-              <div className={styles.formGroup}><label>Senha</label><input type="password" name="senha_gf" value={formData.senha_gf || ''} onChange={handleFormChange} placeholder='Deixe em branco para não alterar' /></div>
-              <div className={styles.formGroup}><label>Perfil</label><select name="tipo_usuario" value={formData.tipo_usuario || 'secretaria'} onChange={handleFormChange}><option value="secretaria">Secretaria</option><option value="admin">Admin</option></select></div>
+              <div className={styles.formGroup}>
+                <label>Nome</label>
+                <input 
+                  type="text" 
+                  name="nome_gf" 
+                  value={formData.nome_gf || ''} 
+                  onChange={handleFormChange} 
+                  required 
+                />
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label>Email</label>
+                <input 
+                  type="email" 
+                  name="email_gf" 
+                  value={formData.email_gf || ''} 
+                  onChange={handleFormChange} 
+                  required 
+                />
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label>Senha</label>
+                <input 
+                  type="password" 
+                  name="senha_gf" 
+                  value={formData.senha_gf || ''} 
+                  onChange={handleFormChange} 
+                  placeholder={editingItem ? 'Deixe em branco para não alterar' : ''}
+                />
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label>Perfil</label>
+                <select 
+                  name="tipo_usuario" 
+                  value={formData.tipo_usuario || 'secretaria'} 
+                  onChange={handleFormChange}
+                >
+                  <option value="secretaria">Secretaria</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
             </>
           ) : (
             <>
-              <div className={styles.formGroup}><label>Nome Completo</label><input type="text" name="nome" value={formData.nome || ''} onChange={handleFormChange} required /></div>
-              <div className={styles.formGroup}><label>RG</label><input type="text" name="rg" value={formData.rg || ''} onChange={handleFormChange} required /></div>
-              <div className={styles.formGroup}><label>Empresa</label><input type="text" name="empresa" value={formData.empresa || ''} onChange={handleFormChange} /></div>
+              <div className={styles.formGroup}>
+                <label>Nome Completo</label>
+                <input 
+                  type="text" 
+                  name="nome" 
+                  value={formData.nome || ''} 
+                  onChange={handleFormChange} 
+                  required 
+                />
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label>Telefone</label>
+                <input 
+                  type="text" 
+                  name="telefone" 
+                  value={formData.telefone || ''} 
+                  onChange={handleFormChange} 
+                  required 
+                />
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label>Status</label>
+                <select 
+                  name="status" 
+                  value={formData.status || 'pendente'} 
+                  onChange={handleFormChange}
+                >
+                  {statusOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className={styles.formGroup}>
+                <label>GF Responsável</label>
+                <input 
+                  type="text" 
+                  name="gf_responsavel" 
+                  value={formData.gf_responsavel || ''} 
+                  onChange={handleFormChange} 
+                />
+              </div>
             </>
           )}
-
+          
           <div className={styles.modalActions}>
-            <button type="button" onClick={handleCloseModal} className={styles.cancelButton}>Cancelar</button>
-            <button type="submit" className={styles.saveButton}>Salvar</button>
+            <button 
+              type="button" 
+              onClick={handleCloseModal} 
+              className={styles.cancelButton}
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              className={styles.saveButton}
+            >
+              {editingItem ? 'Atualizar' : 'Salvar'}
+            </button>
           </div>
         </form>
       </div>
@@ -262,30 +457,70 @@ function Admin() {
   );
 
   return (
-    <>
-      <Header />
+    <div className={`${styles.adminContainer} ${darkMode ? styles.dark : ''}`}>
+      <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+      
       <div className={styles.adminPanel}>
-        <div className={styles.viewToggle}>
-            <button onClick={() => setView('usuarios')} className={view === 'usuarios' ? styles.active : ''}><FaUsers /> Gerenciar Usuários</button>
-            <button onClick={() => setView('visitantes')} className={view === 'visitantes' ? styles.active : ''}><FaWalking /> Gerenciar Visitantes</button>
-        </div>
-
         <div className={styles.header}>
-          <h1>{view === 'usuarios' ? 'Lista de Usuários' : 'Lista de Visitantes'}</h1>
-          <button onClick={handleAddNewClick} className={styles.addButton}>
-            <FaPlus /> Cadastrar {view === 'usuarios' ? 'Usuário' : 'Visitante'}
+          <h1>
+            {view === 'usuarios' ? (
+              <>
+                <FaUsers /> Gerenciamento de Usuários
+              </>
+            ) : (
+              <>
+                <FaWalking /> Gerenciamento de Visitantes
+              </>
+            )}
+          </h1>
+          
+          <div className={styles.controls}>
+            <div className={styles.searchBox}>
+              <FaSearch className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder={`Pesquisar ${view === 'usuarios' ? 'usuários...' : 'visitantes...'}`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            
+            <button 
+              onClick={() => handleOpenModal()} 
+              className={styles.addButton}
+            >
+              <FaPlus /> {view === 'usuarios' ? 'Novo Usuário' : 'Novo Visitante'}
+            </button>
+          </div>
+        </div>
+        
+        <div className={styles.viewToggle}>
+          <button 
+            onClick={() => setView('usuarios')} 
+            className={view === 'usuarios' ? styles.active : ''}
+          >
+            <FaUsers /> Usuários
+          </button>
+          <button 
+            onClick={() => setView('visitantes')} 
+            className={view === 'visitantes' ? styles.active : ''}
+          >
+            <FaWalking /> Visitantes
           </button>
         </div>
-
-        {loading ? <p>Carregando dados...</p> : (
-          <div className={styles.tableContainer}>
-            {view === 'usuarios' ? renderUserTable() : renderVisitorTable()}
+        
+        {loading ? (
+          <div className={styles.loading}>
+            <div className={styles.spinner}></div>
+            <p>Carregando dados...</p>
           </div>
+        ) : (
+          view === 'usuarios' ? renderUserTable() : renderVisitorTable()
         )}
       </div>
-
+      
       {isModalOpen && renderModal()}
-    </>
+    </div>
   );
 }
 
