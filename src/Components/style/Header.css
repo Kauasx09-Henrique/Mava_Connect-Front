@@ -1,31 +1,43 @@
+/* Caminho: src/components/style/Header.module.css */
+
+/* --- Variáveis de Cor --- */
+:root {
+  --header-bg-light: #ffffff;
+  --header-border-light: #e5e7eb;
+  --text-light: #374151;
+  --text-muted-light: #6b7280;
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  
+  --header-bg-dark: #1f2937;
+  --header-border-dark: #374151;
+  --text-dark: #f9fafb;
+  --text-muted-dark: #9ca3af;
+}
+
+/* --- Layout Principal do Header --- */
 .header {
+  background-color: var(--header-bg-light);
+  border-bottom: 1px solid var(--header-border-light);
+  padding: 0.75rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 2rem;
-  height: 70px;
-  background-color: #4CAF50;
-  color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
   position: sticky;
   top: 0;
-  z-index: 1000;
-}
-
-.header.darkMode {
-  background-color: #2E7D32;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 50;
 }
 
 .brand {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
 }
 
 .logo {
   height: 40px;
-  object-fit: contain;
+  width: auto;
 }
 
 .userArea {
@@ -36,128 +48,119 @@
 
 .actions {
   display: flex;
-  gap: 1rem;
   align-items: center;
+  gap: 0.5rem;
 }
 
-.actionButton, .logoutButton, .themeToggle {
+/* --- Botões de Ação --- */
+.actionButton, .themeToggle, .logoutButton {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border-radius: 50px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--text-muted-light);
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: white;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: none;
+  text-decoration: none;
 }
 
-.actionButton:hover, .logoutButton:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
+.actionButton:hover, .themeToggle:hover, .logoutButton:hover {
+  background-color: #f3f4f6;
+  color: var(--text-light);
 }
 
-.themeToggle {
-  font-size: 1.1rem;
-  padding: 0.6rem;
-  background: none;
+.logoutButton {
+  color: #ef4444; /* Vermelho para logout */
 }
 
-.themeToggle:hover {
-  transform: scale(1.1);
+.logoutButton:hover {
+  background-color: #fee2e2;
+  color: #b91c1c;
 }
 
-.icon {
-  font-size: 1rem;
-}
-
+/* --- Perfil do Usuário --- */
 .profile {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  position: relative;
+  gap: 0.75rem;
 }
 
 .userInfo {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  text-align: right;
 }
 
 .greeting {
   font-size: 0.8rem;
-  opacity: 0.8;
+  color: var(--text-muted-light);
 }
 
 .userName {
+  display: block;
   font-weight: 600;
-  max-width: 150px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: var(--text-light);
 }
 
-.profileImage {
+.profileImage, .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--header-border-light);
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  color: white;
+  align-items: center;
   font-weight: bold;
-  font-size: 1.2rem;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
-/* Responsivo */
+/* --- Dark Mode --- */
+.darkMode {
+  background-color: var(--header-bg-dark);
+  border-bottom-color: var(--header-border-dark);
+}
+
+.darkMode .actionButton, .darkMode .themeToggle {
+  color: var(--text-muted-dark);
+}
+.darkMode .actionButton:hover, .darkMode .themeToggle:hover {
+  background-color: #374151;
+  color: var(--text-dark);
+}
+.darkMode .logoutButton { color: #f87171; }
+.darkMode .logoutButton:hover { background-color: #450a0a; color: #fecaca; }
+.darkMode .greeting { color: var(--text-muted-dark); }
+.darkMode .userName { color: var(--text-dark); }
+.darkMode .profileImage { border-color: var(--header-border-dark); }
+
+/* --- Responsividade --- */
 @media (max-width: 768px) {
   .header {
-    padding: 0 1rem;
-    height: 60px;
+    padding: 0.75rem 1rem;
   }
-  
-  .logo {
-    height: 30px;
+  .actions {
+    gap: 0.25rem;
   }
-  
-  .userArea {
-    gap: 0.8rem;
-  }
-  
   .actionButton span {
-    display: none;
+    display: none; /* Esconde o texto, mostra só o ícone */
   }
-  
-  .userName {
-    max-width: 100px;
+  .actionButton {
+    padding: 0.6rem;
   }
-  
-  .greeting {
-    display: none;
+  .userInfo {
+    display: none; /* Esconde "Olá, Nome" */
   }
 }
 
 @media (max-width: 480px) {
-  .brand {
-    flex: 1;
-  }
-  
   .logo {
-    height: 25px;
-  }
-  
-  .userName {
-    display: none;
+    display: none; /* Esconde a logo em telas muito pequenas */
   }
 }
