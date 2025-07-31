@@ -9,7 +9,7 @@ import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
-const WHATSAPP_MESSAGE = `Olá, tudo bem? ... Atenciosamente, Secretaria MAVA`; // Mensagem completa aqui
+const WHATSAPP_MESSAGE = `Olá, tudo bem? Seja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto. Queremos saber como foi sua experiência conosco. É sempre uma alegria receber pessoas que buscam crescer espiritualmente e viver em comunhão. Caso não consiga participar presencialmente, estamos disponíveis também pelas redes sociais: YouTube e Instagram: @IgrejaMava. “Grandes coisas fez o Senhor por nós, e por isso estamos alegres.” — Salmos 126:3. Esperamos revê-lo(a) em breve. Que Deus continue abençoando sua vida. Atenciosamente, Secretaria MAVA`;
 
 // --- COMPONENTES INTERNOS PARA UM CÓDIGO MAIS LIMPO ---
 
@@ -23,12 +23,69 @@ const StatCard = ({ icon, label, value, colorClass }) => (
   </div>
 );
 
+// --- ADICIONADO: Código completo do StatusBadge ---
 const StatusBadge = ({ status }) => {
-    // ... (código do StatusBadge sem alterações)
+    const statusInfo = useMemo(() => {
+        switch (status) {
+            case 'entrou em contato':
+                return { label: 'Contatado', className: styles.statusContacted };
+            case 'pendente':
+                return { label: 'Pendente', className: styles.statusPending };
+            case 'erro número':
+                return { label: 'Erro no Número', className: styles.statusError };
+            default:
+                return { label: status, className: styles.statusDefault };
+        }
+    }, [status]);
+
+    return (
+        <div className={`${styles.statusBadge} ${statusInfo.className}`}>
+            <span>{statusInfo.label}</span>
+        </div>
+    );
 };
 
+// --- ADICIONADO: Código completo do VisitorCard com a data de visita ---
 const VisitorCard = ({ visitante, onEdit, onDelete }) => {
-    // ... (código do VisitorCard sem alterações)
+    const whatsappUrl = useMemo(() => {
+        if (!visitante.telefone) return null;
+        const cleanPhone = visitante.telefone.replace(/\D/g, '');
+        const encodedMessage = encodeURIComponent(WHATSAPP_MESSAGE);
+        return `https://wa.me/55${cleanPhone}?text=${encodedMessage}`;
+    }, [visitante.telefone]);
+
+    return (
+        <div className={styles.visitorCard}>
+            <div className={styles.cardHeader}>
+                <h3 className={styles.visitorName}>{visitante.nome}</h3>
+                <StatusBadge status={visitante.status} />
+            </div>
+            <div className={styles.cardBody}>
+                {visitante.telefone && (
+                    <div className={styles.contactItem}><FiPhone /><span>{visitante.telefone}</span></div>
+                )}
+                {visitante.email && (
+                    <div className={styles.contactItem}><FiMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>
+                )}
+                {/* AQUI ESTÁ A DATA DE CADASTRO/VISITA */}
+                <div className={styles.contactItem}>
+                    <FiCalendar />
+                    <span>Visitou em: {new Date(visitante.data_visita).toLocaleDateString('pt-BR')}</span>
+                </div>
+            </div>
+            <div className={styles.cardFooter}>
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar WhatsApp">
+                    <FaWhatsapp />
+                </a>
+                <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
+                    <FiEdit />
+                </button>
+                <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir">
+                    <FiTrash2 />
+                </button>
+            </div>
+        </div>
+    );
 };
 
 const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
@@ -60,20 +117,21 @@ function Secretaria() {
   const navigate = useNavigate();
 
   // Busca de dados
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${API_URL}/visitantes`, { headers: { 'Authorization': `Bearer ${token}` } });
+      setVisitantes(res.data);
+    } catch (err) {
+      toast.error('Erro ao buscar visitantes.');
+      if (err.response?.status === 401) navigate('/');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_URL}/visitantes`, { headers: { 'Authorization': `Bearer ${token}` } });
-        setVisitantes(res.data);
-      } catch (err) {
-        toast.error('Erro ao buscar visitantes.');
-        if (err.response?.status === 401) navigate('/');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, [navigate]);
 
@@ -96,12 +154,50 @@ function Secretaria() {
     });
   }, [searchTerm, statusFilter, visitantes]);
 
+  // --- ADICIONADO: Lógica completa para Deletar e Atualizar ---
   const handleDelete = (id) => {
-    // ... (sua função de delete com confirmação aqui)
+    toast((t) => (
+        <div>
+            <p><strong>Confirmar exclusão?</strong></p>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                <button
+                    className={styles.toastConfirmButton}
+                    onClick={() => {
+                        toast.dismiss(t.id);
+                        const token = localStorage.getItem('token');
+                        const promise = axios.delete(`${API_URL}/visitantes/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        toast.promise(promise, {
+                            loading: 'Excluindo...',
+                            success: () => {
+                                fetchData();
+                                return 'Excluído com sucesso!';
+                            },
+                            error: 'Erro ao excluir.'
+                        });
+                    }}
+                >
+                    Excluir
+                </button>
+                <button className={styles.toastCancelButton} onClick={() => toast.dismiss(t.id)}>Cancelar</button>
+            </div>
+        </div>
+    ));
   };
   
   const handleUpdateVisitor = (e) => {
-    // ... (sua função de update aqui)
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const promise = axios.put(`${API_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` } });
+
+    toast.promise(promise, {
+        loading: 'Atualizando...',
+        success: () => {
+            fetchData();
+            setEditingVisitor(null);
+            return 'Visitante atualizado!';
+        },
+        error: 'Erro ao atualizar.'
+    });
   };
 
 
@@ -109,7 +205,6 @@ function Secretaria() {
     <div className={styles.pageContainer}>
       <Header />
       <main className={styles.dashboard}>
-        {/* --- NOVO: LINHA DE ESTATÍSTICAS --- */}
         <div className={styles.statsRow}>
           <StatCard icon={<FiUsers />} label="Total de Visitantes" value={stats.total} colorClass="total" />
           <StatCard icon={<FiClock />} label="Contatos Pendentes" value={stats.pending} colorClass="pending" />
@@ -117,7 +212,6 @@ function Secretaria() {
           <StatCard icon={<FiAlertCircle />} label="Números com Erro" value={stats.error} colorClass="error" />
         </div>
 
-        {/* --- MELHORADO: TOOLBAR DE AÇÕES --- */}
         <div className={styles.toolbar}>
           <div className={styles.filters}>
             <div className={styles.searchContainer}>
@@ -146,7 +240,6 @@ function Secretaria() {
           </Link>
         </div>
 
-        {/* --- ÁREA DE CONTEÚDO PRINCIPAL --- */}
         <div className={styles.content}>
           {loading ? (
             <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>
@@ -156,10 +249,32 @@ function Secretaria() {
         </div>
       </main>
 
-      {/* --- MODAL DE EDIÇÃO --- */}
+      {/* --- ADICIONADO: Código completo do Modal --- */}
       {editingVisitor && (
         <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
-           {/* ... (seu código do modal aqui, ele funcionará com o novo CSS) ... */}
+           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><FiX /></button>
+                <form onSubmit={handleUpdateVisitor}>
+                    <h2>Editando: {editingVisitor.nome}</h2>
+                    <div className={styles.formGroup}>
+                        <label>Nome Completo</label>
+                        <input value={editingVisitor.nome} onChange={e => setEditingVisitor({...editingVisitor, nome: e.target.value})} />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Status</label>
+                        <select value={editingVisitor.status} onChange={e => setEditingVisitor({...editingVisitor, status: e.target.value})}>
+                            <option value="pendente">Pendente</option>
+                            <option value="entrou em contato">Contatado</option>
+                            <option value="erro número">Erro no Número</option>
+                        </select>
+                    </div>
+                    {/* Adicione outros campos de edição aqui se precisar */}
+                    <div className={styles.modalActions}>
+                        <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>Cancelar</button>
+                        <button type="submit" className={styles.saveButton}>Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
         </div>
       )}
     </div>
