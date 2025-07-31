@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import styles from './style/Login.module.css';
-import logo from '../public/logo_mava.png';
+import logo from '../../public/logo_mava.png';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 
