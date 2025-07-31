@@ -9,7 +9,22 @@ import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
-const WHATSAPP_MESSAGE = `Olá, tudo bem? Seja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto. Queremos saber como foi sua experiência conosco. É sempre uma alegria receber pessoas que buscam crescer espiritualmente e viver em comunhão. Caso não consiga participar presencialmente, estamos disponíveis também pelas redes sociais: YouTube e Instagram: @IgrejaMava. “Grandes coisas fez o Senhor por nós, e por isso estamos alegres.” — Salmos 126:3. Esperamos revê-lo(a) em breve. Que Deus continue abençoando sua vida. Atenciosamente, Secretaria MAVA`;
+const WHATSAPP_MESSAGE = `Olá, tudo bem?
+
+Seja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.
+
+Queremos saber como foi sua experiência conosco. É sempre uma alegria receber pessoas que buscam crescer espiritualmente e viver em comunhão.
+
+Caso não consiga participar presencialmente, estamos disponíveis também pelas redes sociais:
+YouTube e Instagram: @IgrejaMava
+
+“Grandes coisas fez o Senhor por nós, e por isso estamos alegres.”
+— Salmos 126:3
+
+Esperamos revê-lo(a) em breve. Que Deus continue abençoando sua vida.
+
+Atenciosamente,
+Secretaria MAVA`;
 
 // --- COMPONENTES INTERNOS PARA UM CÓDIGO MAIS LIMPO ---
 
