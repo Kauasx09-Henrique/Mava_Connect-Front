@@ -51,10 +51,9 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
         return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
     }, [visitante?.telefone]);
 
-    // CORREÇÃO: Adicionado um check para garantir que a data é válida
     const visitDate = visitante?.data_visita && !isNaN(new Date(visitante.data_visita))
         ? new Date(visitante.data_visita).toLocaleDateString('pt-BR')
-        : 'Data inválida';
+        : 'Data Indisponível';
 
     return (
         <div className={styles.visitorCard}>
@@ -102,7 +101,10 @@ const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
   return (
     <div className={styles.visitorGrid}>
       {visitantes.map(visitante => (
-        <VisitorCard key={visitante.id} visitante={visitante} onEdit={onEdit} onDelete={onDelete} />
+        // ADICIONADO: Verificação para garantir que o item é válido antes de renderizar
+        visitante && visitante.id ? (
+            <VisitorCard key={visitante.id} visitante={visitante} onEdit={onEdit} onDelete={onDelete} />
+        ) : null
       ))}
     </div>
   );
@@ -124,7 +126,15 @@ function Secretaria() {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.get(`${API_URL}/visitantes`, { headers: { 'Authorization': `Bearer ${token}` } });
-      setVisitantes(res.data);
+      
+      // ADICIONADO: Verificação para garantir que a resposta é um array
+      if (Array.isArray(res.data)) {
+        setVisitantes(res.data);
+      } else {
+        console.error("A API não retornou um array de visitantes:", res.data);
+        setVisitantes([]); // Define como array vazio para evitar erros
+      }
+
     } catch (err) {
       toast.error('Erro ao buscar visitantes.');
       if (err.response?.status === 401) navigate('/');
@@ -144,9 +154,9 @@ function Secretaria() {
     error: visitantes.filter(v => v.status === 'erro número').length,
   }), [visitantes]);
 
-  // CORREÇÃO: Filtro mais seguro para evitar erros com dados nulos
   const filteredVisitantes = useMemo(() => {
     return visitantes.filter(v => {
+      if (!v) return false; // Garante que o item não é nulo
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = !searchLower || (v.nome && v.nome.toLowerCase().includes(searchLower));
       const matchesStatus = statusFilter === 'todos' || v.status === statusFilter;
@@ -183,6 +193,7 @@ function Secretaria() {
   const handleUpdateVisitor = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
+    // Nota: O backend precisa estar preparado para receber todos estes campos na rota PUT
     const promise = axios.put(`${API_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` } });
 
     toast.promise(promise, {
@@ -196,7 +207,6 @@ function Secretaria() {
     });
   };
 
-  // Função para lidar com mudanças nos inputs do modal
   const handleModalChange = (e) => {
     const { name, value } = e.target;
     setEditingVisitor(prev => ({ ...prev, [name]: value }));
@@ -238,7 +248,7 @@ function Secretaria() {
         </div>
       </main>
 
-      {/* MELHORIA: Modal de edição mais completo */}
+      {/* ADICIONADO: Modal de edição mais completo */}
       {editingVisitor && (
         <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
            <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
@@ -265,6 +275,14 @@ function Secretaria() {
                                 <option value="entrou em contato">Contatado</option>
                                 <option value="erro número">Erro no Número</option>
                             </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Profissão</label>
+                            <input name="profissao" value={editingVisitor.profissao || ''} onChange={handleModalChange} />
+                        </div>
+                         <div className={styles.formGroup}>
+                            <label>Como Conheceu</label>
+                            <input name="como_conheceu" value={editingVisitor.como_conheceu || ''} onChange={handleModalChange} />
                         </div>
                     </div>
                     <div className={styles.modalActions}>
