@@ -1,22 +1,28 @@
 // Caminho: src/components/Header.jsx
 import { Link, useNavigate } from 'react-router-dom';
-import { FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
+import { FaUserPlus, FaSignOutAlt, FaSun, FaMoon } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import styles from './style/Header.css';
+import styles from './style/Header.module.css';
 
 function Header() {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   
-  // Lendo os dados do usuário, com valores padrão para evitar erros
-  const userName = localStorage.getItem('nome') || 'Usuário';
+  // Dados do usuário
+  const userName = localStorage.getItem('nome_gf') || 'GF Mava';
   const userType = localStorage.getItem('tipo');
-  // Constrói a URL completa para a imagem
   const userLogoPath = localStorage.getItem('logo');
-  const userLogoUrl = userLogoPath ? `http://localhost:3001/${userLogoPath}` : null;
 
-  // Detecta o tema preferido do sistema
+  // Logo padrão (substitua pela sua logo)
+  const defaultLogo = 'https://via.placeholder.com/150x50?text=Mava+Connect';
+  
+  // URL completa da imagem (usa a do banco ou a padrão)
+  const userLogoUrl = userLogoPath 
+    ? `http://localhost:3001/${userLogoPath}`
+    : defaultLogo;
+
+  // Detecta o tema do sistema
   useEffect(() => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setDarkMode(prefersDark);
@@ -28,72 +34,95 @@ function Header() {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Aplica o tema ao body
+  // Aplica o tema
   useEffect(() => {
     document.body.className = darkMode ? 'dark-mode' : 'light-mode';
   }, [darkMode]);
 
   const handleLogout = () => {
-    // Limpa todos os dados da sessão
-    localStorage.removeItem('token');
-    localStorage.removeItem('tipo');
-    localStorage.removeItem('nome');
-    localStorage.removeItem('logo'); 
-    
+    localStorage.clear();
     toast.success('Logout realizado com sucesso!');
     navigate('/');
   };
-  
-  // Função para lidar com erros ao carregar a imagem do usuário
-  const handleImageError = (e) => {
-    // Se a imagem falhar, gera um placeholder com a inicial do nome
+
+  // Avatar personalizado com a inicial
+  const UserAvatar = () => {
     const initial = userName.charAt(0).toUpperCase();
-    e.target.onerror = null; // Evita loops infinitos se o placeholder também falhar
-    e.target.src = `https://placehold.co/40x40/007bff/FFFFFF?text=${initial}`;
+    const avatarColors = [
+      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 
+      'bg-pink-500', 'bg-red-500', 'bg-yellow-500'
+    ];
+    const randomColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+
+    return (
+      <div className={`${styles.avatar} ${randomColor}`}>
+        {initial}
+      </div>
+    );
   };
 
-  // Alternar manualmente entre dark/light mode
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
   return (
     <header className={`${styles.header} ${darkMode ? styles.darkMode : ''}`}>
-      {/* Seção de Perfil do Usuário */}
-      <div className={styles.userProfile}>
-        <img
-          src={userLogoUrl || `https://placehold.co/40x40/EFEFEF/333333?text=+`}
-          alt="Foto do usuário"
-          className={styles.profileImage}
-          onError={handleImageError}
+      {/* Logo + Nome */}
+      <div className={styles.brand}>
+        <img 
+          src={defaultLogo} 
+          alt="Logo Mava Connect" 
+          className={styles.logo}
         />
-        <span className={styles.userName}>Olá, {userName}</span>
       </div>
-      
-      {/* Seção de Ações */}
-      <div className={styles.actions}>
-        {/* O link para cadastro de visitante aparece para admin e secretaria */}
-        {(userType === 'secretaria' || userType === 'admin') && (
-          <Link to="/cadastrar-visitante" className={styles.actionButton} title="Cadastrar novo visitante">
-            <FaUserPlus />
-            <span className={styles.buttonText}>Novo Visitante</span>
-          </Link>
-        )}
 
-        {/* Botão de Toggle Dark/Light Mode */}
-        <button 
-          onClick={toggleDarkMode} 
-          className={styles.themeToggle}
-          title={darkMode ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
-        >
-          {darkMode ? '☀️' : '🌙'}
-        </button>
+      {/* Área do usuário */}
+      <div className={styles.userArea}>
+        {/* Botões de ação */}
+        <div className={styles.actions}>
+          {(userType === 'secretaria' || userType === 'admin') && (
+            <Link to="/cadastrar-visitante" className={styles.actionButton}>
+              <FaUserPlus className={styles.icon} />
+              <span>Novo Visitante</span>
+            </Link>
+          )}
 
-        {/* Botão de Logout */}
-        <button onClick={handleLogout} className={styles.logoutButton} title="Sair do sistema">
-          <FaSignOutAlt />
-          <span className={styles.buttonText}>Sair</span>
-        </button>
+          <button 
+            onClick={toggleDarkMode} 
+            className={styles.themeToggle}
+            aria-label={darkMode ? 'Modo claro' : 'Modo escuro'}
+          >
+            {darkMode ? <FaSun /> : <FaMoon />}
+          </button>
+
+          <button 
+            onClick={handleLogout} 
+            className={styles.logoutButton}
+            aria-label="Sair"
+          >
+            <FaSignOutAlt className={styles.icon} />
+          </button>
+        </div>
+
+        {/* Perfil do usuário */}
+        <div className={styles.profile}>
+          <div className={styles.userInfo}>
+            <span className={styles.greeting}>Olá,</span>
+            <span className={styles.userName}>{userName}</span>
+          </div>
+          {userLogoPath ? (
+            <img
+              src={userLogoUrl}
+              alt={userName}
+              className={styles.profileImage}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextElementSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <UserAvatar />
+        </div>
       </div>
     </header>
   );
