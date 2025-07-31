@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaUserPlus, FaSignOutAlt, FaSun, FaMoon } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import styles from './style/Header.module.css';
+import styles from './style/Header.css';
 
 function Header() {
   const navigate = useNavigate();
