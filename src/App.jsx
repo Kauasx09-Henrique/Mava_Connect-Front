@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast'; 
 
 // Importação das páginas
-import Login from './Pages/Login.js';
+import Login from './Pages/Login.jsx';
 import Admin from './Pages/Admin.jsx';
-import CadastrarUsuario from './Pages/CadastrarUsuario.js';
+import CadastrarUsuario from './Pages/CadastrarUsuario.jsx';
 import Secretaria from './Pages/Secretaria.jsx'; 
-import CadastroVisitante from './Pages/CadastroVisitante.js'; // 1. Importe a página de cadastro de visitante
+import CadastroVisitante from './Pages/CadastroVisitante.jsx'; // 1. Importe a página de cadastro de visitante
 
 // Importação dos componentes
 import ProtectedRoute from './Components/ProtectedRoute';
