@@ -9,7 +9,7 @@ import Header from '../src/Components/Header';
 import styles from './style/Secretaria.module.css';
 import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar } from 'react-icons/fi';
 import { useIMask } from 'react-imask';
-import { useViaCep } from '../hooks/useViaCep';
+import { useViaCep } from '../src/hooks/useViaCep';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 
