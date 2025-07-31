@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 
 // --> MELHORIA: Importe a sua logo diretamente. É a forma correta.
-import mavaLogo from '../../assets/mava-logo.svg'; // <-- COLOQUE SUA LOGO AQUI
+import mavaLogo from '../../public/logo_mava.png'; // <-- COLOQUE SUA LOGO AQUI
 
 import styles from './Header.module.css';
 
