@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useIMask } from 'react-imask';
 import toast from 'react-hot-toast';
 import { useViaCep } from '../../src/hooks/useViaCep';
-import Header from '../src/Components/Header';
+import Header from '../Components/Header';
 import styles from './style/Cadastro.module.css';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
