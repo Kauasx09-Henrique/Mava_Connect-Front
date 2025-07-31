@@ -9,7 +9,9 @@ import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
-const WHATSAPP_MESSAGE = `Olá, tudo bem?...`; // (truncado para clareza)
+const WHATSAPP_MESSAGE = `Olá, tudo bem? Seja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto. Queremos saber como foi sua experiência conosco. É sempre uma alegria receber pessoas que buscam crescer espiritualmente e viver em comunhão. Caso não consiga participar presencialmente, estamos disponíveis também pelas redes sociais: YouTube e Instagram: @IgrejaMava. “Grandes coisas fez o Senhor por nós, e por isso estamos alegres.” — Salmos 126:3. Esperamos revê-lo(a) em breve. Que Deus continue abençoando sua vida. Atenciosamente, Secretaria MAVA`;
+
+// --- COMPONENTES INTERNOS PARA UM CÓDIGO MAIS LIMPO ---
 
 const StatCard = ({ icon, label, value, colorClass }) => (
   <div className={styles.statCard}>
@@ -22,72 +24,70 @@ const StatCard = ({ icon, label, value, colorClass }) => (
 );
 
 const StatusBadge = ({ status }) => {
-  const statusInfo = useMemo(() => {
-    switch (status) {
-      case 'entrou em contato':
-        return { label: 'Contatado', className: styles.statusContacted };
-      case 'pendente':
-        return { label: 'Pendente', className: styles.statusPending };
-      case 'erro número':
-        return { label: 'Erro no Número', className: styles.statusError };
-      default:
-        return { label: status || 'Indefinido', className: styles.statusDefault };
-    }
-  }, [status]);
+    const statusInfo = useMemo(() => {
+        switch (status) {
+            case 'entrou em contato':
+                return { label: 'Contatado', className: styles.statusContacted };
+            case 'pendente':
+                return { label: 'Pendente', className: styles.statusPending };
+            case 'erro número':
+                return { label: 'Erro no Número', className: styles.statusError };
+            default:
+                return { label: status || 'Indefinido', className: styles.statusDefault };
+        }
+    }, [status]);
 
-  return (
-    <div className={`${styles.statusBadge} ${statusInfo.className}`}>
-      <span>{statusInfo.label}</span>
-    </div>
-  );
+    return (
+        <div className={`${styles.statusBadge} ${statusInfo.className}`}>
+            <span>{statusInfo.label}</span>
+        </div>
+    );
 };
 
 const VisitorCard = ({ visitante, onEdit, onDelete }) => {
-  const whatsappUrl = useMemo(() => {
-    if (!visitante?.telefone) return null;
-    const cleanPhone = visitante.telefone.replace(/\D/g, '');
-    return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
-  }, [visitante?.telefone]);
+    const whatsappUrl = useMemo(() => {
+        if (!visitante?.telefone) return null;
+        const cleanPhone = visitante.telefone.replace(/\D/g, '');
+        return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+    }, [visitante?.telefone]);
 
-  const visitDate = visitante?.data_visita && !isNaN(new Date(visitante.data_visita))
-    ? new Date(visitante.data_visita).toLocaleDateString('pt-BR')
-    : 'Data Indisponível';
+    const visitDate = visitante?.data_visita && !isNaN(new Date(visitante.data_visita))
+        ? new Date(visitante.data_visita).toLocaleDateString('pt-BR')
+        : 'Data Indisponível';
 
-  return (
-    <div className={styles.visitorCard}>
-      <div className={styles.cardHeader}>
-        <h3 className={styles.visitorName}>{visitante.nome || 'Nome não informado'}</h3>
-        <StatusBadge status={visitante.status} />
-      </div>
-
-      <div className={styles.cardBody}>
-        {visitante.telefone && (
-          <div className={styles.contactItem}><FiPhone /><span>{visitante.telefone}</span></div>
-        )}
-        {visitante.email && (
-          <div className={styles.contactItem}><FiMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>
-        )}
-        <div className={styles.contactItem}>
-          <FiCalendar />
-          <span>Visitou em: {visitDate}</span>
+    return (
+        <div className={styles.visitorCard}>
+            <div className={styles.cardHeader}>
+                <h3 className={styles.visitorName}>{visitante.nome || 'Nome não informado'}</h3>
+                <StatusBadge status={visitante.status} />
+            </div>
+            <div className={styles.cardBody}>
+                {visitante.telefone && (
+                    <div className={styles.contactItem}><FiPhone /><span>{visitante.telefone}</span></div>
+                )}
+                {visitante.email && (
+                    <div className={styles.contactItem}><FiMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>
+                )}
+                <div className={styles.contactItem}>
+                    <FiCalendar />
+                    <span>Visitou em: {visitDate}</span>
+                </div>
+            </div>
+            <div className={styles.cardFooter}>
+                {whatsappUrl && (
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar WhatsApp">
+                        <FaWhatsapp />
+                    </a>
+                )}
+                <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
+                    <FiEdit />
+                </button>
+                <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir">
+                    <FiTrash2 />
+                </button>
+            </div>
         </div>
-      </div>
-
-      <div className={styles.cardFooter}>
-        {whatsappUrl && (
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar WhatsApp">
-            <FaWhatsapp />
-          </a>
-        )}
-        <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
-          <FiEdit />
-        </button>
-        <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir">
-          <FiTrash2 />
-        </button>
-      </div>
-    </div>
-  );
+    );
 };
 
 const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
@@ -98,7 +98,6 @@ const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
       </div>
     );
   }
-
   return (
     <div className={styles.visitorGrid}>
       {visitantes.map(visitante =>
@@ -109,6 +108,9 @@ const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
     </div>
   );
 };
+
+
+// --- COMPONENTE PRINCIPAL DA PÁGINA ---
 
 function Secretaria() {
   const [visitantes, setVisitantes] = useState([]);
@@ -273,8 +275,13 @@ function Secretaria() {
                 </div>
               </div>
               <div className={styles.modalActions}>
-                <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>Cancelar</button>
-                <button type="submit" className={styles.saveButton}>Salvar Alterações</button>
+                {/* --- ÍCONES ADICIONADOS AQUI --- */}
+                <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>
+                  <FiX /> Cancelar
+                </button>
+                <button type="submit" className={styles.saveButton}>
+                  <FiCheck /> Salvar Alterações
+                </button>
               </div>
             </form>
           </div>
