@@ -11,7 +11,6 @@ import styles from './styles/Secretaria.module.css';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 
-// --- MENSAGEM PADRÃO DO WHATSAPP ---
 const WHATSAPP_MESSAGE = `Olá, tudo bem?
 
 Seja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.
@@ -29,10 +28,8 @@ Esperamos revê-lo(a) em breve. Que Deus continue abençoando sua vida.
 Atenciosamente,
 Secretaria MAVA`;
 
+// --- COMPONENTES AUXILIARES (Sem alterações) ---
 
-// --- COMPONENTES AUXILIARES PARA DEIXAR O CÓDIGO LIMPO ---
-
-// Componente para o Badge de Status
 const StatusBadge = ({ status }) => {
   const statusInfo = useMemo(() => {
     switch (status) {
@@ -55,7 +52,6 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// Componente do Card de Visitante
 const VisitorCard = ({ visitante, onEdit, onDelete }) => {
   const whatsappUrl = useMemo(() => {
     if (!visitante.telefone) return null;
@@ -70,36 +66,20 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
         <h3 className={styles.visitorName}>{visitante.nome}</h3>
         <StatusBadge status={visitante.status} />
       </div>
-
       <div className={styles.cardBody}>
         {visitante.telefone && (
-          <div className={styles.contactItem}>
-            <FiPhone />
-            <span>{visitante.telefone}</span>
-          </div>
+          <div className={styles.contactItem}><FiPhone /><span>{visitante.telefone}</span></div>
         )}
         {visitante.email && (
-          <div className={styles.contactItem}>
-            <FiMail />
-            <a href={`mailto:${visitante.email}`}>{visitante.email}</a>
-          </div>
+          <div className={styles.contactItem}><FiMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>
         )}
-        <div className={styles.contactItem}>
-          <FiCalendar />
-          <span>Visitou em: {new Date(visitante.data_visita).toLocaleDateString('pt-BR')}</span>
-        </div>
+        <div className={styles.contactItem}><FiCalendar /><span>Visitou em: {new Date(visitante.data_visita).toLocaleDateString('pt-BR')}</span></div>
       </div>
-
       <div className={styles.cardFooter}>
-        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar mensagem no WhatsApp">
-          <FaWhatsapp />
-        </a>
-        <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar Visitante">
-          <FiEdit />
-        </button>
-        <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Remover Visitante">
-          <FiTrash2 />
-        </button>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar mensagem no WhatsApp"><FaWhatsapp /></a>
+        <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar Visitante"><FiEdit /></button>
+        {/* CORREÇÃO: A função onDelete agora recebe o ID do visitante */}
+        <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Remover Visitante"><FiTrash2 /></button>
       </div>
     </div>
   );
@@ -116,7 +96,6 @@ function Secretaria() {
   const navigate = useNavigate();
   const [editingVisitor, setEditingVisitor] = useState(null);
 
-  // Lógica para buscar dados
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -137,7 +116,6 @@ function Secretaria() {
     fetchData();
   }, []);
 
-  // Lógica de filtro combinada
   const filteredVisitantes = useMemo(() => {
     return visitantes.filter(visitante => {
       const matchesSearch = searchTerm
@@ -150,12 +128,10 @@ function Secretaria() {
     });
   }, [searchTerm, statusFilter, visitantes]);
 
-  // Lógica para o modal de edição
   const handleUpdateVisitor = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
     const promise = axios.put(`${API_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` } });
-
     toast.promise(promise, {
       loading: 'Atualizando...',
       success: () => {
@@ -164,6 +140,44 @@ function Secretaria() {
         return 'Visitante atualizado!';
       },
       error: 'Erro ao atualizar.'
+    });
+  };
+
+  // --- CORREÇÃO 1: IMPLEMENTAÇÃO DA FUNÇÃO DE DELETAR ---
+  const handleDelete = (id) => {
+    toast((t) => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <span>Tem certeza que deseja excluir este visitante?</span>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            style={{ flex: 1, padding: '8px', border: 'none', borderRadius: '4px', background: '#ef4444', color: 'white', cursor: 'pointer' }}
+            onClick={() => {
+              toast.dismiss(t.id);
+              const token = localStorage.getItem('token');
+              const promise = axios.delete(`${API_URL}/visitantes/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+              
+              toast.promise(promise, {
+                loading: 'Excluindo...',
+                success: () => {
+                  fetchData(); // Atualiza a lista após deletar
+                  return 'Visitante excluído com sucesso!';
+                },
+                error: 'Não foi possível excluir o visitante.',
+              });
+            }}
+          >
+            Sim, excluir
+          </button>
+          <button
+            style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '4px', background: 'white', cursor: 'pointer' }}
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 6000, // A notificação fica aberta por mais tempo para dar tempo de decidir
     });
   };
 
@@ -199,10 +213,12 @@ function Secretaria() {
             </Link>
           </div>
         </div>
-
         <div className={styles.content}>
+          {/* --- MELHORIA: INDICADOR DE CARREGAMENTO VISUAL --- */}
           {loading ? (
-            <p>Carregando...</p>
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner}></div>
+            </div>
           ) : filteredVisitantes.length === 0 ? (
             <div className={styles.emptyState}>
               <p>Nenhum visitante encontrado.</p>
@@ -214,7 +230,8 @@ function Secretaria() {
                   key={visitante.id}
                   visitante={visitante}
                   onEdit={setEditingVisitor}
-                  onDelete={() => { /* Implementar lógica de delete */ }}
+                  // --- CORREÇÃO 2: CONECTANDO A FUNÇÃO AO CARD ---
+                  onDelete={handleDelete}
                 />
               ))}
             </div>
@@ -222,35 +239,34 @@ function Secretaria() {
         </div>
       </main>
 
-      {/* Modal de Edição (simplificado para focar na página principal) */}
       {editingVisitor && (
-         <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
-            <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-                <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><FiX /></button>
-                <form onSubmit={handleUpdateVisitor}>
-                    <h2>Editando: {editingVisitor.nome}</h2>
-                    <div className={styles.formGroup}>
-                        <label>Nome Completo</label>
-                        <input value={editingVisitor.nome} onChange={e => setEditingVisitor({...editingVisitor, nome: e.target.value})} />
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label>Status</label>
-                        <select value={editingVisitor.status} onChange={e => setEditingVisitor({...editingVisitor, status: e.target.value})}>
-                            <option value="pendente">Pendente</option>
-                            <option value="entrou em contato">Entrou em contato</option>
-                            <option value="erro número">Número inválido</option>
-                        </select>
-                    </div>
-                    <div className={styles.modalActions}>
-                        <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>Cancelar</button>
-                        <button type="submit" className={styles.saveButton}>Salvar</button>
-                    </div>
-                </form>
-            </div>
-         </div>
+        <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
+          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><FiX /></button>
+            <form onSubmit={handleUpdateVisitor}>
+              <h2>Editando: {editingVisitor.nome}</h2>
+              <div className={styles.formGroup}>
+                <label>Nome Completo</label>
+                <input value={editingVisitor.nome} onChange={e => setEditingVisitor({ ...editingVisitor, nome: e.target.value })} />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Status</label>
+                <select value={editingVisitor.status} onChange={e => setEditingVisitor({ ...editingVisitor, status: e.target.value })}>
+                  <option value="pendente">Pendente</option>
+                  <option value="entrou em contato">Entrou em contato</option>
+                  <option value="erro número">Número inválido</option>
+                </select>
+              </div>
+              <div className={styles.modalActions}>
+                <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>Cancelar</button>
+                <button type="submit" className={styles.saveButton}>Salvar</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-export default Secretaria;
+export default Secretaria;S
