@@ -1,9 +1,9 @@
-// src/Pages/Secretaria.jsx
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, Link } from 'react-router-dom';
-import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar, FiCheck, FiClock, FiAlertCircle, FiSearch, FiUsers, FiThumbsUp } from 'react-icons/fi';
+// Ícone FiAward adicionado para o campo 'evento'
+import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar, FiCheck, FiClock, FiAlertCircle, FiSearch, FiUsers, FiThumbsUp, FiAward } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
@@ -70,6 +70,17 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
         ? new Date(visitante.data_visita).toLocaleDateString('pt-BR')
         : 'Data Indisponível';
 
+    // Função para formatar o nome do evento para exibição
+    const formatEventName = (event) => {
+        if (!event) return 'Não informado';
+        switch (event.toLowerCase()) {
+            case 'gf': return 'GF';
+            case 'culto': return 'Culto';
+            case 'evangelismo': return 'Evangelismo';
+            default: return event.charAt(0).toUpperCase() + event.slice(1);
+        }
+    };
+
     return (
         <div className={styles.visitorCard}>
             <div className={styles.cardHeader}>
@@ -87,6 +98,13 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
                     <FiCalendar />
                     <span>Visitou em: {visitDate}</span>
                 </div>
+                {/* --- CAMPO EVENTO ADICIONADO AQUI --- */}
+                {visitante.evento && (
+                    <div className={styles.contactItem}>
+                        <FiAward />
+                        <span>Origem: {formatEventName(visitante.evento)}</span>
+                    </div>
+                )}
             </div>
             <div className={styles.cardFooter}>
                 {whatsappUrl && (
@@ -280,9 +298,15 @@ function Secretaria() {
                     <option value="erro número">Erro no Número</option>
                   </select>
                 </div>
+                {/* Também adicionei o campo de evento no modal de edição */}
                 <div className={styles.formGroup}>
-                  <label>Profissão</label>
-                  <input name="profissao" value={editingVisitor.profissao || ''} onChange={handleModalChange} />
+                  <label>Evento de Origem</label>
+                   <select name="evento" value={editingVisitor.evento || ''} onChange={handleModalChange}>
+                      <option value="">Selecione</option>
+                      <option value="culto">Culto</option>
+                      <option value="gf">GF</option>
+                      <option value="evangelismo">Evangelismo</option>
+                   </select>
                 </div>
                 <div className={styles.formGroup}>
                   <label>Como Conheceu</label>
@@ -290,7 +314,6 @@ function Secretaria() {
                 </div>
               </div>
               <div className={styles.modalActions}>
-                {/* --- ÍCONES ADICIONADOS AQUI --- */}
                 <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>
                   <FiX /> Cancelar
                 </button>
