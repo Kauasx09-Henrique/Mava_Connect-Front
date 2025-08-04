@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import styles from './style/Admin.module.css';
-import Header from '../Components/Header'; // Usando seu Header
+import Header from '../Components/Header';
 import {
     FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
     FaUserShield, FaUserFriends, FaPhone, FaEnvelope,
-    FaHome, FaMapMarkerAlt
+    FaHome, FaMapMarkerAlt, FaUsersCog
 } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 import { FiUser, FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
@@ -38,9 +38,14 @@ function Admin() {
     const [editingItem, setEditingItem] = useState(null);
     const [formData, setFormData] = useState({});
     const [activeFilter, setActiveFilter] = useState('all');
-    const [stats, setStats] = useState({
+    
+    // Stats para Visitantes
+    const [visitorStats, setVisitorStats] = useState({
         topGF: null, bottomGF: null, statusDistribution: {}, genderDistribution: {},
     });
+    
+    // Stats para Usuários
+    const [userStats, setUserStats] = useState({ total: 0, admins: 0, secretarias: 0 });
 
     const filteredUsuarios = useMemo(() => {
         if (!searchTerm) return usuarios;
@@ -67,7 +72,7 @@ function Admin() {
         return items;
     }, [visitantes, searchTerm, activeFilter]);
     
-    const calculateStats = (visitors) => {
+    const calculateVisitorStats = (visitors) => {
         const gfCounts = {}, statusCounts = {}, genderCounts = { Masculino: 0, Feminino: 0 };
         visitors.forEach(visitor => {
             const gf = visitor.gf_responsavel || 'Sem GF';
@@ -84,6 +89,13 @@ function Admin() {
             genderDistribution: genderCounts,
         };
     };
+
+    const calculateUserStats = (users) => {
+        const total = users.length;
+        const admins = users.filter(u => u.tipo_usuario === 'admin').length;
+        const secretarias = users.filter(u => u.tipo_usuario === 'secretaria').length;
+        return { total, admins, secretarias };
+    };
     
     const fetchAllData = async () => {
         setLoading(true);
@@ -95,9 +107,13 @@ function Admin() {
                 axios.get(`${API_BASE_URL}/api/usuarios`, { headers }),
                 axios.get(`${API_BASE_URL}/visitantes`, { headers })
             ]);
+            
             setUsuarios(usersRes.data);
             setVisitantes(visitorsRes.data);
-            setStats(calculateStats(visitorsRes.data));
+            
+            setVisitorStats(calculateVisitorStats(visitorsRes.data));
+            setUserStats(calculateUserStats(usersRes.data));
+
         } catch (error) { toast.error("Erro ao carregar dados."); } 
         finally { setLoading(false); }
     };
@@ -164,19 +180,28 @@ function Admin() {
         } catch (error) { toast.error("Falha ao salvar. Verifique os dados."); }
     };
 
-    const renderStatsCards = () => {
+    const renderVisitorStatsCards = () => {
         const totalVisitors = visitantes.length;
-        const pendingCount = stats.statusDistribution.pendente || 0;
-        const contactedCount = stats.statusDistribution['entrou em contato'] || 0;
-        const errorCount = stats.statusDistribution['erro número'] || 0;
+        const pendingCount = visitorStats.statusDistribution.pendente || 0;
+        const contactedCount = visitorStats.statusDistribution['entrou em contato'] || 0;
+        const errorCount = visitorStats.statusDistribution['erro número'] || 0;
         const statItems = [
             { icon: <FaUsers />, value: totalVisitors, label: 'Total de Visitantes', color: 'blue' },
             { icon: <FiUser />, value: pendingCount, label: 'Pendentes', color: 'yellow' },
             { icon: <FiUserCheck />, value: contactedCount, label: 'Contatados', color: 'green' },
             { icon: <FiUserX />, value: errorCount, label: 'Erros de Número', color: 'red' },
-            stats.topGF ? { icon: <FiTrendingUp />, value: stats.topGF.count, label: `GF Top: ${stats.topGF.name}`, color: 'purple' } : null,
-            stats.bottomGF ? { icon: <FiTrendingDown />, value: stats.bottomGF.count, label: `GF que menos cadastrou: ${stats.bottomGF.name}`, color: 'orange' } : null
+            visitorStats.topGF ? { icon: <FiTrendingUp />, value: visitorStats.topGF.count, label: `GF Top: ${visitorStats.topGF.name}`, color: 'purple' } : null,
+            visitorStats.bottomGF ? { icon: <FiTrendingDown />, value: visitorStats.bottomGF.count, label: `GF que menos cadastrou: ${visitorStats.bottomGF.name}`, color: 'orange' } : null
         ].filter(Boolean);
+        return (<div className={styles.statsGrid}>{statItems.map((item, index) => (<div key={index} className={`${styles.statCard} ${styles[item.color]}`}><div className={styles.statIcon}>{item.icon}</div><div className={styles.statInfo}><span className={styles.statValue}>{item.value}</span><span className={styles.statLabel}>{item.label}</span></div></div>))}</div>);
+    };
+
+    const renderUserStatsCards = () => {
+        const statItems = [
+            { icon: <FaUsersCog />, value: userStats.total, label: 'Total de Usuários', color: 'blue' },
+            { icon: <FaUserShield />, value: userStats.admins, label: 'Administradores', color: 'purple' },
+            { icon: <FaUserFriends />, value: userStats.secretarias, label: 'Secretarias', color: 'green' },
+        ];
         return (<div className={styles.statsGrid}>{statItems.map((item, index) => (<div key={index} className={`${styles.statCard} ${styles[item.color]}`}><div className={styles.statIcon}>{item.icon}</div><div className={styles.statInfo}><span className={styles.statValue}>{item.value}</span><span className={styles.statLabel}>{item.label}</span></div></div>))}</div>);
     };
 
@@ -301,7 +326,7 @@ function Admin() {
                          <div className={styles.loading}><div className={styles.spinner}></div><p>Carregando dados...</p></div>
                     ) : (
                         <>
-                            {view === 'visitantes' && renderStatsCards()}
+                            {view === 'visitantes' ? renderVisitorStatsCards() : renderUserStatsCards()}
                             {renderTable()}
                         </>
                     )}
@@ -313,4 +338,3 @@ function Admin() {
 }
 
 export default Admin;
-// FIM DO ARQUIVO

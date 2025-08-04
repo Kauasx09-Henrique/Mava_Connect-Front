@@ -22,11 +22,16 @@
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
 }
-.mainHeader h1 { font-size: 1.8rem; font-weight: 700; }
+.mainHeader h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
 .searchBox {
   display: flex; align-items: center; background-color: var(--card-bg);
   border: 1px solid var(--border-color); border-radius: 8px;
   padding: 0.5rem 1rem; width: 100%; max-width: 320px;
+  transition: all 0.2s;
+}
+.searchBox:focus-within {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(106, 90, 249, 0.2);
 }
 .searchBox svg { color: var(--text-muted); }
 .searchBox input {
@@ -36,19 +41,33 @@
 .searchBox input:focus { outline: none; }
 
 .viewToggle {
-  display: flex; gap: 0.5rem; margin-bottom: 2rem;
-  background-color: var(--card-bg); padding: 0.5rem;
-  border-radius: 10px; width: fit-content;
+  display: inline-flex;
+  position: relative;
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  padding: 0.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px var(--shadow-color);
 }
 .viewToggle button {
   background: none; border: none; color: var(--text-muted);
   padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;
   font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;
-  transition: all 0.3s;
+  transition: color 0.3s ease-in-out;
+  z-index: 1;
 }
 .viewToggle button.active {
-  background-color: var(--accent-color); color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  color: #fff;
+}
+.activeIndicator {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    height: auto;
+    border-radius: 8px;
+    background-color: var(--accent-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .statsGrid {
@@ -85,6 +104,7 @@
 .statInfo { display: flex; flex-direction: column; }
 .statValue { font-size: 2rem; font-weight: 700; line-height: 1.1; }
 .statLabel { font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 .tableContainer {
   background-color: var(--card-bg); border-radius: 12px;
   padding: 1.5rem; box-shadow: 0 4px 12px var(--shadow-color);
@@ -113,9 +133,9 @@
   background-color: var(--accent-color); color: #fff; border: none;
   border-radius: 8px; padding: 0.6rem 1.2rem; font-weight: 600;
   cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
-.addButton:hover { background-color: var(--accent-hover); }
+.addButton:hover { background-color: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
 .tableWrapper { width: 100%; overflow-x: auto; }
 .dataTable { width: 100%; border-collapse: collapse; }
 .dataTable th, .dataTable td {
