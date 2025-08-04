@@ -1,100 +1,28 @@
-/* GERAL & VARIÁVEIS DE TEMA */
-:root {
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-}
-
 :global(body.dark-mode) {
-  --bg-color: #1a1b21;
-  --sidebar-bg: #24252c;
-  --card-bg: #24252c;
-  --text-color: #e2e2e2;
-  --text-muted: #8c8c8c;
-  --border-color: #3a3b45;
-  --accent-color: #6a5af9;
-  --accent-hover: #5a4ae0;
-  --shadow-color: rgba(0, 0, 0, 0.2);
+  --bg-color: #1a1b21; --card-bg: #24252c; --text-color: #e2e2e2;
+  --text-muted: #8c8c8c; --border-color: #3a3b45; --accent-color: #6a5af9;
+  --accent-hover: #5a4ae0; --shadow-color: rgba(0, 0, 0, 0.2);
 }
-
 :global(body.light-mode) {
-  --bg-color: #f0f2f5;
-  --sidebar-bg: #ffffff;
-  --card-bg: #ffffff;
-  --text-color: #24252c;
-  --text-muted: #65676b;
-  --border-color: #e0e0e0;
-  --accent-color: #5845e0;
-  --accent-hover: #4a39cf;
-  --shadow-color: rgba(0, 0, 0, 0.08);
+  --bg-color: #f0f2f5; --card-bg: #ffffff; --text-color: #24252c;
+  --text-muted: #65676b; --border-color: #e0e0e0; --accent-color: #5845e0;
+  --accent-hover: #4a39cf; --shadow-color: rgba(0, 0, 0, 0.08);
 }
-
 :root {
   --green: #28a745; --yellow: #ffc107; --red: #dc3545;
   --blue: #007bff; --purple: #6f42c1; --orange: #fd7e14;
 }
 
-/* LAYOUT PRINCIPAL */
 .adminContainer {
-  display: flex; background-color: var(--bg-color); color: var(--text-color);
-  min-height: 100vh; font-family: var(--font-family);
-  transition: background-color 0.3s, color 0.3s;
+  background-color: var(--bg-color); color: var(--text-color);
+  min-height: 100vh; font-family: 'Inter', sans-serif;
 }
-.sidebar {
-  width: 240px; background-color: var(--sidebar-bg);
-  border-right: 1px solid var(--border-color); display: flex;
-  flex-direction: column; padding: 1.5rem 1rem;
-  transition: all 0.3s ease-in-out; flex-shrink: 0;
-}
-.sidebarHeader {
-  display: flex; align-items: center; gap: 0.75rem;
-  font-size: 1.25rem; font-weight: 600; margin-bottom: 2rem;
-  padding-left: 0.5rem; color: var(--accent-color);
-}
-.sidebarNav button {
-  display: flex; align-items: center; width: 100%;
-  padding: 0.75rem 1rem; border-radius: 8px; gap: 0.75rem;
-  font-size: 1rem; font-weight: 500; color: var(--text-muted);
-  background: none; border: none; cursor: pointer;
-  transition: background-color 0.2s, color 0.2s; text-align: left;
-}
-.sidebarNav button:hover {
-  background-color: rgba(106, 90, 249, 0.1);
-  color: var(--accent-color);
-}
-.sidebarNav button.active {
-  background-color: var(--accent-color); color: #fff; font-weight: 600;
-}
-.sidebarFooter {
-  margin-top: auto; border-top: 1px solid var(--border-color);
-  padding-top: 1rem; display: flex; justify-content: space-between;
-  align-items: center;
-}
-.footerInfo { color: var(--text-muted); font-size: 0.9rem; }
-.footerActions { display: flex; align-items: center; gap: 0.5rem; }
-
-/* BOTÕES DO RODAPÉ DA SIDEBAR (TEMA E LOGOUT) */
-.themeToggle, .logoutButton {
-  background: none; border: 1px solid var(--border-color);
-  color: var(--text-muted); width: 32px; height: 32px;
-  border-radius: 50%; cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
-  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
-}
-.themeToggle:hover {
-  color: var(--accent-color); border-color: var(--accent-color);
-}
-.logoutButton:hover {
-  color: var(--red); border-color: var(--red);
-  background-color: rgba(220, 53, 69, 0.1);
-}
-
-.mainContent { flex: 1; padding: 2rem; overflow-y: auto; width: 100%; }
+.mainContent { padding: 2rem; max-width: 1400px; margin: 0 auto; }
 .mainHeader {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;
 }
 .mainHeader h1 { font-size: 1.8rem; font-weight: 700; }
-
-/* ... (O restante do seu CSS para SearchBox, StatsCards, Tabela, Modal e Spinner permanece igual) ... */
 .searchBox {
   display: flex; align-items: center; background-color: var(--card-bg);
   border: 1px solid var(--border-color); border-radius: 8px;
@@ -106,6 +34,23 @@
   font-size: 1rem; margin-left: 0.5rem; width: 100%;
 }
 .searchBox input:focus { outline: none; }
+
+.viewToggle {
+  display: flex; gap: 0.5rem; margin-bottom: 2rem;
+  background-color: var(--card-bg); padding: 0.5rem;
+  border-radius: 10px; width: fit-content;
+}
+.viewToggle button {
+  background: none; border: none; color: var(--text-muted);
+  padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;
+  font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;
+  transition: all 0.3s;
+}
+.viewToggle button.active {
+  background-color: var(--accent-color); color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
 .statsGrid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem; margin-bottom: 2rem;
@@ -260,40 +205,12 @@
 }
 @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* RESPONSIVIDADE */
-.mobileHeader { display: none; }
-.mobileTitle { color: var(--text-color); }
-
-@media (max-width: 1024px) {
-  .adminContainer { flex-direction: column; }
-  .sidebar {
-    position: fixed; left: 0; top: 0; transform: translateX(-100%);
-    z-index: 2000; height: 100%; box-shadow: 5px 0px 15px rgba(0,0,0,0.2);
-  }
-  .adminContainer.sidebarOpen .sidebar { transform: translateX(0); }
-  .sidebarHeader { display: none; }
-  .mainContent { padding: 1.5rem; padding-top: calc(4rem + 1.5rem); }
-  .mainHeader h1 { font-size: 1.5rem; }
-  .mobileHeader {
-    display: flex; align-items: center; gap: 1rem; padding: 0 1.5rem;
-    height: 4rem; background-color: var(--sidebar-bg);
-    border-bottom: 1px solid var(--border-color); position: fixed;
-    top: 0; left: 0; width: 100%; z-index: 1001;
-  }
-  .menuToggle {
-    background: none; border: none; color: var(--text-color);
-    font-size: 1.5rem; cursor: pointer; z-index: 2001;
-  }
-}
-
 @media (max-width: 768px) {
-  .mainContent { padding: 1rem; padding-top: calc(4rem + 1rem); }
+  .mainContent { padding: 1rem; }
   .mainHeader { flex-direction: column; align-items: flex-start; }
   .searchBox { max-width: 100%; }
-  .statsGrid { gap: 1rem; }
-  .tableContainer, .modalContent { padding: 1rem; }
-  .mobileHeader { padding: 0 1rem; }
-  .mainHeader h1 { font-size: 1.3rem; }
+  .viewToggle { width: 100%; }
+  .viewToggle button { flex: 1; justify-content: center; }
   .dataTable thead { display: none; }
   .dataTable, .dataTable tbody, .dataTable tr, .dataTable td {
     display: block; width: 100%;
@@ -316,14 +233,4 @@
   .actionButtons { justify-content: flex-end; }
   .modalActions { flex-direction: column; }
   .modalActions button { width: 100%; }
-}
-
-@media (max-width: 480px) {
-  .filterButtons {
-    width: 100%; flex-direction: column; align-items: stretch;
-  }
-  .statCard {
-    flex-direction: column; align-items: flex-start; text-align: left;
-  }
-  .statInfo { margin-top: 0.5rem; }
 }

@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import styles from './style/Admin.module.css';
+import Header from '../Components/Header'; // Usando seu Header
 import {
     FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
-    FaUserShield, FaUserFriends, FaPhone, FaEnvelope, FaBars, FaTimes,
-    FaHome, FaMapMarkerAlt, FaUsersCog
+    FaUserShield, FaUserFriends, FaPhone, FaEnvelope,
+    FaHome, FaMapMarkerAlt
 } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
-// 1. Importar o ícone de Logout
-import { FiUser, FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown, FiMoon, FiSun, FiLogOut } from 'react-icons/fi';
+import { FiUser, FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
 import { BsGenderMale, BsGenderFemale, BsCalendarDate } from 'react-icons/bs';
 import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
@@ -29,7 +29,6 @@ const userRoles = {
 
 function Admin() {
     const navigate = useNavigate();
-    const [darkMode, setDarkMode] = useState(true);
     const [view, setView] = useState('visitantes');
     const [usuarios, setUsuarios] = useState([]);
     const [visitantes, setVisitantes] = useState([]);
@@ -39,31 +38,9 @@ function Admin() {
     const [editingItem, setEditingItem] = useState(null);
     const [formData, setFormData] = useState({});
     const [activeFilter, setActiveFilter] = useState('all');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [stats, setStats] = useState({
         topGF: null, bottomGF: null, statusDistribution: {}, genderDistribution: {},
     });
-
-    useEffect(() => {
-        const isDark = localStorage.getItem('darkMode') !== 'false';
-        setDarkMode(isDark);
-    }, []);
-
-    useEffect(() => {
-        document.body.className = darkMode ? 'dark-mode' : 'light-mode';
-        localStorage.setItem('darkMode', darkMode);
-    }, [darkMode]);
-
-    const toggleDarkMode = () => setDarkMode(prev => !prev);
-    
-    // 2. Adicionar a função de Logout
-    const handleLogout = () => {
-        if (window.confirm("Tem certeza que deseja sair?")) {
-            localStorage.removeItem('token');
-            toast.success('Você saiu com segurança!');
-            navigate('/');
-        }
-    };
 
     const filteredUsuarios = useMemo(() => {
         if (!searchTerm) return usuarios;
@@ -299,33 +276,27 @@ function Admin() {
 
     return (
         <IconContext.Provider value={{ size: '1em' }}>
-            <div className={`${styles.adminContainer} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-                <div className={styles.mobileHeader}>
-                    <button className={styles.menuToggle} onClick={() => setIsSidebarOpen(!isSidebarOpen)}>{isSidebarOpen ? <FaTimes /> : <FaBars />}</button>
-                    <div className={styles.mobileTitle}><h2>Painel</h2></div>
-                </div>
-                <aside className={styles.sidebar}>
-                    <div className={styles.sidebarHeader}><FaUsersCog /><h2>Painel</h2></div>
-                    <nav className={styles.sidebarNav}>
-                        <button onClick={() => { setView('visitantes'); setIsSidebarOpen(false); }} className={view === 'visitantes' ? styles.active : ''}><FaWalking /> Visitantes</button>
-                        <button onClick={() => { setView('usuarios'); setIsSidebarOpen(false); }} className={view === 'usuarios' ? styles.active : ''}><FaUsers /> Usuários</button>
-                    </nav>
-                    {/* 3. Adicionar o botão de Logout aqui no rodapé */}
-                    <div className={styles.sidebarFooter}>
-                        <div className={styles.footerInfo}>
-                            <span>Kauã Henrique</span>
-                        </div>
-                        <div className={styles.footerActions}>
-                            <button onClick={toggleDarkMode} className={styles.themeToggle} title="Mudar tema">{darkMode ? <FiSun /> : <FiMoon />}</button>
-                            <button onClick={handleLogout} className={styles.logoutButton} title="Sair"><FiLogOut /></button>
-                        </div>
-                    </div>
-                </aside>
+            <div className={styles.adminContainer}>
+                <Header />
                 <main className={styles.mainContent}>
-                     <header className={styles.mainHeader}>
-                        <h1>{view === 'visitantes' ? 'Dashboard de Visitantes' : 'Gerenciamento de Usuários'}</h1>
-                        <div className={styles.searchBox}><FaSearch /><input type="text" placeholder="Pesquisar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/></div>
+                    <header className={styles.mainHeader}>
+                        <h1>Painel de Administração</h1>
+                        <div className={styles.searchBox}>
+                            <FaSearch />
+                            <input
+                                type="text"
+                                placeholder={`Pesquisar em ${view}...`}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
                     </header>
+                    
+                    <div className={styles.viewToggle}>
+                        <button onClick={() => setView('visitantes')} className={view === 'visitantes' ? styles.active : ''}><FaWalking /> Visitantes</button>
+                        <button onClick={() => setView('usuarios')} className={view === 'usuarios' ? styles.active : ''}><FaUsers /> Usuários</button>
+                    </div>
+
                     {loading ? (
                          <div className={styles.loading}><div className={styles.spinner}></div><p>Carregando dados...</p></div>
                     ) : (
@@ -342,3 +313,4 @@ function Admin() {
 }
 
 export default Admin;
+// FIM DO ARQUIVO

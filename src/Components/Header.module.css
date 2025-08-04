@@ -1,124 +1,63 @@
-/* src/Components/Header.module.css */
-
-/*
-  Definição das variáveis de cor.
-  :root -> Cores do modo claro (padrão)
-  .darkMode -> Sobrescreve as variáveis para o modo escuro
-*/
-:root {
-  --header-bg: #ffffff;
-  --header-border: #e2e8f0;
-  --text-primary: #1a202c;
-  --text-secondary: #718096;
-  --button-bg-hover: #f7fafc;
-  --button-icon: #4a5568;
-}
-
-.darkMode {
-  --header-bg: #1a202c;
-  --header-border: #2d3748;
-  --text-primary: #edf2f7;
-  --text-secondary: #a0aec0;
-  --button-bg-hover: #2d3748;
-  --button-icon: #cbd5e0;
-}
-
-/* --- Estilo do Header --- */
 .header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.5rem;
-  background-color: var(--header-bg);
-  border-bottom: 1px solid var(--header-border);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.brand .logo {
-  height: 40px; /* Ajuste a altura da sua logo */
-  object-fit: contain;
-}
-
-.userArea {
-  display: flex;
   align-items: center;
-  gap: 1.5rem;
+  padding: 0.75rem 2rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
-/* --- Ações e Botões --- */
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.header.darkMode {
+  background-color: #24252c;
+  border-bottom: 1px solid #3a3b45;
 }
 
-.actionButton,
-.iconButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  border: none;
-  background-color: transparent;
-  color: var(--text-secondary);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  text-decoration: none;
+.brand { display: flex; align-items: center; }
+.logo { height: 40px; width: auto; }
+.userArea { display: flex; align-items: center; gap: 1.5rem; }
+.actions { display: flex; align-items: center; gap: 0.5rem; }
+
+.actionButton, .iconButton {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.6rem 1rem; border-radius: 8px;
+  background-color: transparent; border: none;
+  font-size: 1rem; font-weight: 500; cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  color: #65676b; text-decoration: none;
 }
 
-.actionButton:hover,
-.iconButton:hover {
-  background-color: var(--button-bg-hover);
-  color: var(--text-primary);
-}
+.header.darkMode .actionButton, .header.darkMode .iconButton { color: #b0b3b8; }
+.actionButton:hover, .iconButton:hover { background-color: #f0f2f5; }
+.header.darkMode .actionButton:hover, .header.darkMode .iconButton:hover { background-color: #3a3b45; }
+.actionButton { background-color: #5845e0; color: #fff; }
+.actionButton:hover { background-color: #4a39cf; }
+.header.darkMode .actionButton { background-color: #6a5af9; }
+.header.darkMode .actionButton:hover { background-color: #5a4ae0; }
+.iconButton { padding: 0.6rem; font-size: 1.25rem; }
 
-.iconButton {
-  padding: 0.6rem;
-  font-size: 1.1rem;
-}
+.profile { display: flex; align-items: center; gap: 0.75rem; }
+.userInfo { display: flex; flex-direction: column; align-items: flex-end; }
+.greeting { font-size: 0.8rem; color: #65676b; }
+.header.darkMode .greeting { color: #b0b3b8; }
+.userName { font-weight: 600; color: #24252c; }
+.header.darkMode .userName { color: #e4e6eb; }
 
-/* --- Perfil do Usuário --- */
-.profile {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding-left: 1.5rem;
-  border-left: 1px solid var(--header-border);
+.profileImage, .avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%; object-fit: cover;
 }
-
-.userInfo {
-  text-align: right;
-}
-
-.greeting {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  display: block;
-}
-
-.userName {
-  font-weight: 600;
-  color: var(--text-primary);
-  display: block;
-}
-
-.profileImage,
 .avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--header-border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; color: #fff; font-size: 1.2rem;
 }
 
-.avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  color: #fff;
+@media (max-width: 600px) {
+  .header { padding: 0.75rem 1rem; }
+  .actionButton span { display: none; }
+  .actionButton { padding: 0.6rem; }
+  .userInfo { display: none; }
 }
