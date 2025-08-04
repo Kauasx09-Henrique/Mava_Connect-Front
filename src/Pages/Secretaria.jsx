@@ -27,7 +27,7 @@ const StatCard = ({ icon, label, value, colorClass }) => (
 );
 
 // --- Componente de Card de Visitante ---
-const VisitorCard = ({ visitante, onEdit, onDelete, onStatusChange }) => {
+const VisitorCard = ({ visitante, onEdit, onDelete }) => {
     const whatsappUrl = useMemo(() => {
         if (!visitante?.telefone) return null;
         const cleanPhone = visitante.telefone.replace(/\D/g, '');
@@ -50,16 +50,9 @@ const VisitorCard = ({ visitante, onEdit, onDelete, onStatusChange }) => {
                 <MdCalendarToday /> {visitDate}
             </div>
             <div className={`${styles.visitorCell} ${styles.visitorStatus}`}>
-                <select 
-                    value={visitante.status} 
-                    onChange={(e) => onStatusChange(visitante.id, e.target.value)} 
-                    className={`${styles.statusSelect} ${styles[visitante.status?.replace(/ /g, '')]}`}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <option value="pendente">Pendente</option>
-                    <option value="entrou em contato">Contatado</option>
-                    <option value="erro número">Erro no Número</option>
-                </select>
+                <span className={`${styles.statusPill} ${styles[visitante.status?.replace(/ /g, '')]}`}>
+                    {visitante.status}
+                </span>
             </div>
             <div className={`${styles.visitorCell} ${styles.visitorActions}`}>
                 {whatsappUrl && (
@@ -74,7 +67,26 @@ const VisitorCard = ({ visitante, onEdit, onDelete, onStatusChange }) => {
     );
 };
 
-// --- Componente Principal ---
+// --- Componente de Grid de Visitantes ---
+const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
+    if (!visitantes || visitantes.length === 0) {
+        return <div className={styles.emptyState}><p>Nenhum visitante encontrado.</p></div>;
+    }
+    return (
+        <div className={styles.visitorList}>
+            <div className={styles.gridHeader}>
+                <div className={styles.headerCell}>Visitante</div>
+                <div className={styles.headerCell}>Contato</div>
+                <div className={styles.headerCell}>Data da Visita</div>
+                <div className={styles.headerCell}>Status</div>
+                <div className={styles.headerCell}>Ações</div>
+            </div>
+            {visitantes.map(v => v && v.id ? <VisitorCard key={v.id} visitante={v} onEdit={onEdit} onDelete={onDelete} /> : null)}
+        </div>
+    );
+};
+
+// --- Componente Principal da Página ---
 function Secretaria() {
     const [visitantes, setVisitantes] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -124,16 +136,6 @@ function Secretaria() {
             return matchesSearch && matchesStatus;
         });
     }, [searchTerm, statusFilter, visitantes]);
-
-    const handleStatusChange = async (id, status) => {
-        const token = localStorage.getItem('token');
-        const promise = axios.patch(`${API_URL}/visitantes/${id}/status`, { status }, { headers: { 'Authorization': `Bearer ${token}` } });
-        toast.promise(promise, {
-            loading: 'Alterando status...',
-            success: () => { fetchData(); return 'Status alterado!'; },
-            error: 'Erro ao alterar status.'
-        });
-    };
 
     const handleDelete = (id) => {
         toast((t) => (
@@ -212,24 +214,15 @@ function Secretaria() {
                         <Link to="/cadastrar-visitante" className={styles.addButton}><MdAdd /> Novo Visitante</Link>
                     </div>
 
-                    <div className={styles.visitorList}>
-                        <div className={styles.gridHeader}>
-                            <div className={styles.headerCell}>Visitante</div>
-                            <div className={styles.headerCell}>Contato</div>
-                            <div className={styles.headerCell}>Data da Visita</div>
-                            <div className={styles.headerCell}>Status</div>
-                            <div className={styles.headerCell}>Ações</div>
-                        </div>
-                        {loading ? (
-                            <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>
-                        ) : (
-                            filteredVisitantes.length > 0 ? (
-                                filteredVisitantes.map(v => v && v.id ? <VisitorCard key={v.id} visitante={v} onEdit={setEditingVisitor} onDelete={handleDelete} onStatusChange={handleStatusChange} /> : null)
-                            ) : (
-                                <div className={styles.emptyState}><p>Nenhum visitante encontrado.</p></div>
-                            )
-                        )}
-                    </div>
+                    {loading ? (
+                        <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>
+                    ) : (
+                        <VisitorGrid 
+                            visitantes={filteredVisitantes} 
+                            onEdit={setEditingVisitor} 
+                            onDelete={handleDelete}
+                        />
+                    )}
                 </div>
             </main>
             {editingVisitor && (
