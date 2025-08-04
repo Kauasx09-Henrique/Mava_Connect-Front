@@ -2,115 +2,66 @@ import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, Link } from 'react-router-dom';
-
-// Ícones de Material Design para a maioria da UI
 import { 
     MdPhone, MdOutlineMail, MdAdd, MdClose, 
     MdCalendarToday, MdCheck, MdOutlineAccessTime, MdErrorOutline, 
-    MdSearch, MdGroups, MdThumbUp, MdEmojiEvents, MdWhatsapp 
+    MdSearch, MdGroups, MdThumbUp, MdEmojiEvents, MdWhatsapp,
+    MdPerson, MdMale, MdFemale 
 } from 'react-icons/md';
-
-// Ícones da Heroicons para os botões de ação
 import { HiPencil, HiOutlineTrash } from 'react-icons/hi';
-
 import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
-const WHATSAPP_MESSAGE = `Olá, tudo bem?
+const WHATSAPP_MESSAGE = `Olá, tudo bem?\n\nSeja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.\n\nQueremos saber como foi sua experiência conosco. É sempre uma alegria receber pessoas que buscam crescer espiritualmente e viver em comunhão.\n\nCaso não consiga participar presencialmente, estamos disponíveis também pelas redes sociais:\nYouTube e Instagram: @IgrejaMava\n\n“Grandes coisas fez o Senhor por nós, e por isso estamos alegres.”\n— Salmos 126:3\n\nEsperamos revê-lo(a) em breve. Que Deus continue abençoando sua vida.\n\nAtenciosamente,\nSecretaria MAVA`;
 
-Seja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.
-
-Queremos saber como foi sua experiência conosco. É sempre uma alegria receber pessoas que buscam crescer espiritualmente e viver em comunhão.
-
-Caso não consiga participar presencialmente, estamos disponíveis também pelas redes sociais:
-YouTube e Instagram: @IgrejaMava
-
-“Grandes coisas fez o Senhor por nós, e por isso estamos alegres.”
-— Salmos 126:3
-
-Esperamos revê-lo(a) em breve. Que Deus continue abençoando sua vida.
-
-Atenciosamente,
-Secretaria MAVA`;
-
-// --- COMPONENTES INTERNOS PARA UM CÓDIGO MAIS LIMPO ---
-
+// --- Componente de Card de Estatística ---
 const StatCard = ({ icon, label, value, colorClass }) => (
-  <div className={styles.statCard}>
-    <div className={`${styles.statIcon} ${styles[colorClass]}`}>{icon}</div>
-    <div className={styles.statInfo}>
-      <p className={styles.label}>{label}</p>
-      <p className={styles.value}>{value}</p>
+    <div className={styles.statCard}>
+        <div className={`${styles.statIcon} ${styles[colorClass]}`}>{icon}</div>
+        <div className={styles.statInfo}>
+            <p className={styles.value}>{value}</p>
+            <p className={styles.label}>{label}</p>
+        </div>
     </div>
-  </div>
 );
 
-const StatusBadge = ({ status }) => {
-    const statusInfo = useMemo(() => {
-        switch (status) {
-            case 'entrou em contato':
-                return { label: 'Contatado', className: styles.statusContacted };
-            case 'pendente':
-                return { label: 'Pendente', className: styles.statusPending };
-            case 'erro número':
-                return { label: 'Erro no Número', className: styles.statusError };
-            default:
-                return { label: status || 'Indefinido', className: styles.statusDefault };
-        }
-    }, [status]);
-
-    return (
-        <div className={`${styles.statusBadge} ${statusInfo.className}`}>
-            <span>{statusInfo.label}</span>
-        </div>
-    );
-};
-
-const VisitorCard = ({ visitante, onEdit, onDelete }) => {
+// --- Componente de Card de Visitante ---
+const VisitorCard = ({ visitante, onEdit, onDelete, onStatusChange }) => {
     const whatsappUrl = useMemo(() => {
         if (!visitante?.telefone) return null;
         const cleanPhone = visitante.telefone.replace(/\D/g, '');
         return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
     }, [visitante?.telefone]);
 
-    const visitDate = visitante?.data_visita && !isNaN(new Date(visitante.data_visita))
-        ? new Date(visitante.data_visita).toLocaleDateString('pt-BR')
-        : 'Data Indisponível';
-
+    const visitDate = visitante?.data_visita ? new Date(visitante.data_visita).toLocaleDateString('pt-BR') : 'N/A';
+    
     const formatEventName = (event) => {
-        if (!event) return 'Não informado';
-        switch (event.toLowerCase()) {
-            case 'gf': return 'GF';
-            case 'culto': return 'Culto';
-            case 'evangelismo': return 'Evangelismo';
-            default: return event.charAt(0).toUpperCase() + event.slice(1);
-        }
+        if (!event) return 'N/A';
+        const formatted = event.charAt(0).toUpperCase() + event.slice(1);
+        return formatted === 'Gf' ? 'GF' : formatted;
     };
 
     return (
         <div className={styles.visitorCard}>
             <div className={styles.cardHeader}>
                 <h3 className={styles.visitorName}>{visitante.nome || 'Nome não informado'}</h3>
-                <StatusBadge status={visitante.status} />
+                <select 
+                    value={visitante.status} 
+                    onChange={(e) => onStatusChange(visitante.id, e.target.value)} 
+                    className={`${styles.statusSelect} ${styles[visitante.status?.replace(/ /g, '')]}`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <option value="pendente">Pendente</option>
+                    <option value="entrou em contato">Contatado</option>
+                    <option value="erro número">Erro no Número</option>
+                </select>
             </div>
             <div className={styles.cardBody}>
-                {visitante.telefone && (
-                    <div className={styles.contactItem}><MdPhone /><span>{visitante.telefone}</span></div>
-                )}
-                {visitante.email && (
-                    <div className={styles.contactItem}><MdOutlineMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>
-                )}
-                <div className={styles.contactItem}>
-                    <MdCalendarToday />
-                    <span>Visitou em: {visitDate}</span>
-                </div>
-                {visitante.evento && (
-                    <div className={styles.contactItem}>
-                        <MdEmojiEvents />
-                        <span>Origem: {formatEventName(visitante.evento)}</span>
-                    </div>
-                )}
+                {visitante.telefone && (<div className={styles.contactItem}><MdPhone /><span>{visitante.telefone}</span></div>)}
+                {visitante.email && (<div className={styles.contactItem}><MdOutlineMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>)}
+                <div className={styles.contactItem}><MdCalendarToday /><span>Visitou em: {visitDate}</span></div>
+                {visitante.evento && (<div className={styles.contactItem}><MdEmojiEvents /><span>Origem: {formatEventName(visitante.evento)}</span></div>)}
             </div>
             <div className={styles.cardFooter}>
                 {whatsappUrl && (
@@ -118,203 +69,190 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
                         <MdWhatsapp />
                     </a>
                 )}
-                <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
-                    <HiPencil />
-                </button>
-                <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir">
-                    <HiOutlineTrash />
-                </button>
+                <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar"><HiPencil /></button>
+                <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir"><HiOutlineTrash /></button>
             </div>
         </div>
     );
 };
 
-const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
-  if (!visitantes || visitantes.length === 0) {
-    return (
-      <div className={styles.emptyState}>
-        <p>Nenhum visitante encontrado com os filtros atuais.</p>
-      </div>
-    );
-  }
-  return (
-    <div className={styles.visitorGrid}>
-      {visitantes.map(visitante =>
-        visitante && visitante.id ? (
-          <VisitorCard key={visitante.id} visitante={visitante} onEdit={onEdit} onDelete={onDelete} />
-        ) : null
-      )}
-    </div>
-  );
-};
-
-
-// --- COMPONENTE PRINCIPAL DA PÁGINA ---
-
-function Secretaria() {
-  const [visitantes, setVisitantes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('todos');
-  const [editingVisitor, setEditingVisitor] = useState(null);
-  const navigate = useNavigate();
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`${API_URL}/visitantes`, { headers: { 'Authorization': `Bearer ${token}` } });
-      if (Array.isArray(res.data)) {
-        setVisitantes(res.data);
-      } else {
-        console.error("Resposta inesperada:", res.data);
-        setVisitantes([]);
-      }
-    } catch (err) {
-      toast.error('Erro ao buscar visitantes.');
-      if (err.response?.status === 401) navigate('/');
-    } finally {
-      setLoading(false);
+// --- Componente de Grid de Visitantes ---
+const VisitorGrid = ({ visitantes, onEdit, onDelete, onStatusChange }) => {
+    if (!visitantes || visitantes.length === 0) {
+        return <div className={styles.emptyState}><p>Nenhum visitante encontrado.</p></div>;
     }
-  };
+    return (
+        <div className={styles.visitorGrid}>
+            {visitantes.map(v => v && v.id ? <VisitorCard key={v.id} visitante={v} onEdit={onEdit} onDelete={onDelete} onStatusChange={onStatusChange} /> : null)}
+        </div>
+    );
+};
 
-  useEffect(() => {
-    fetchData();
-  }, [navigate]);
+// --- Componente Principal da Página ---
+function Secretaria() {
+    const [visitantes, setVisitantes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('todos');
+    const [editingVisitor, setEditingVisitor] = useState(null);
+    const navigate = useNavigate();
 
-  const stats = useMemo(() => ({
-    total: visitantes.length,
-    pending: visitantes.filter(v => v.status === 'pendente').length,
-    contacted: visitantes.filter(v => v.status === 'entrou em contato').length,
-    error: visitantes.filter(v => v.status === 'erro número').length,
-  }), [visitantes]);
-
-  const filteredVisitantes = useMemo(() => {
-    return visitantes.filter(v => {
-      if (!v) return false;
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch = !searchLower || (v.nome && v.nome.toLowerCase().includes(searchLower));
-      const matchesStatus = statusFilter === 'todos' || v.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [searchTerm, statusFilter, visitantes]);
-
-  const handleDelete = (id) => {
-    toast((t) => (
-      <div>
-        <p><strong>Confirmar exclusão?</strong></p>
-        <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-          <button className={styles.toastConfirmButton} onClick={() => {
-            toast.dismiss(t.id);
+    const fetchData = async () => {
+        setLoading(true);
+        try {
             const token = localStorage.getItem('token');
-            const promise = axios.delete(`${API_URL}/visitantes/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-            toast.promise(promise, {
-              loading: 'Excluindo...',
-              success: () => { fetchData(); return 'Excluído com sucesso!'; },
-              error: 'Erro ao excluir.'
-            });
-          }}>Excluir</button>
-          <button className={styles.toastCancelButton} onClick={() => toast.dismiss(t.id)}>Cancelar</button>
-        </div>
-      </div>
-    ));
-  };
+            const res = await axios.get(`${API_URL}/visitantes`, { headers: { 'Authorization': `Bearer ${token}` } });
+            setVisitantes(Array.isArray(res.data) ? res.data : []);
+        } catch (err) {
+            toast.error('Erro ao buscar visitantes.');
+            if (err.response?.status === 401 || err.response?.status === 403) navigate('/');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleUpdateVisitor = (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem('token');
-    const promise = axios.put(`${API_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` } });
+    useEffect(() => { fetchData(); }, [navigate]);
 
-    toast.promise(promise, {
-      loading: 'Atualizando...',
-      success: () => {
-        fetchData();
-        setEditingVisitor(null);
-        return 'Visitante atualizado!';
-      },
-      error: 'Erro ao atualizar.'
-    });
-  };
+    const stats = useMemo(() => {
+        const loggedInUserId = localStorage.getItem('usuario_id');
+        return {
+            total: visitantes.length,
+            pending: visitantes.filter(v => v.status === 'pendente').length,
+            contacted: visitantes.filter(v => v.status === 'entrou em contato').length,
+            error: visitantes.filter(v => v.status === 'erro número').length,
+            myRegisters: loggedInUserId ? visitantes.filter(v => v.usuario_id === parseInt(loggedInUserId, 10)).length : 0,
+            male: visitantes.filter(v => v.sexo === 'Masculino').length,
+            female: visitantes.filter(v => v.sexo === 'Feminino').length,
+        };
+    }, [visitantes]);
 
-  const handleModalChange = (e) => {
-    const { name, value } = e.target;
-    setEditingVisitor(prev => ({ ...prev, [name]: value }));
-  };
+    const filteredVisitantes = useMemo(() => {
+        return visitantes.filter(v => {
+            if (!v) return false;
+            const searchLower = searchTerm.toLowerCase();
+            const matchesSearch = !searchLower || 
+                (v.nome && v.nome.toLowerCase().includes(searchLower)) ||
+                (v.email && v.email.toLowerCase().includes(searchLower)) ||
+                (v.telefone && v.telefone.includes(searchTerm));
+            const matchesStatus = statusFilter === 'todos' || v.status === statusFilter;
+            return matchesSearch && matchesStatus;
+        });
+    }, [searchTerm, statusFilter, visitantes]);
 
-  return (
-    <div className={styles.pageContainer}>
-      <Header />
-      <main className={styles.dashboard}>
-        <div className={styles.statsRow}>
-          <StatCard icon={<MdGroups />} label="Total de Visitantes" value={stats.total} colorClass="total" />
-          <StatCard icon={<MdOutlineAccessTime />} label="Contatos Pendentes" value={stats.pending} colorClass="pending" />
-          <StatCard icon={<MdThumbUp />} label="Contatados" value={stats.contacted} colorClass="contacted" />
-          <StatCard icon={<MdErrorOutline />} label="Números com Erro" value={stats.error} colorClass="error" />
-        </div>
+    const handleStatusChange = async (id, status) => {
+        const token = localStorage.getItem('token');
+        const promise = axios.patch(`${API_URL}/visitantes/${id}/status`, { status }, { headers: { 'Authorization': `Bearer ${token}` } });
+        toast.promise(promise, {
+            loading: 'Alterando status...',
+            success: () => { fetchData(); return 'Status alterado!'; },
+            error: 'Erro ao alterar status.'
+        });
+    };
 
-        <div className={styles.toolbar}>
-          <div className={styles.filters}>
-            <div className={styles.searchContainer}>
-              <MdSearch className={styles.searchIcon} />
-              <input type="text" placeholder="Buscar por nome..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
+    const handleDelete = (id) => {
+        toast((t) => (
+            <div>
+                <p><strong>Confirmar exclusão?</strong></p>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                    <button className={styles.toastConfirmButton} onClick={() => {
+                        toast.dismiss(t.id);
+                        const token = localStorage.getItem('token');
+                        const promise = axios.delete(`${API_URL}/visitantes/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        toast.promise(promise, {
+                            loading: 'Excluindo...',
+                            success: () => { fetchData(); return 'Excluído com sucesso!'; },
+                            error: 'Erro ao excluir.'
+                        });
+                    }}>Excluir</button>
+                    <button className={styles.toastCancelButton} onClick={() => toast.dismiss(t.id)}>Cancelar</button>
+                </div>
             </div>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.statusFilter}>
-              <option value="todos">Todos os Status</option>
-              <option value="pendente">Pendente</option>
-              <option value="entrou em contato">Contatado</option>
-              <option value="erro número">Número Inválido</option>
-            </select>
-          </div>
-          <Link to="/cadastrar-visitante" className={styles.addButton}><MdAdd /> Novo Visitante</Link>
-        </div>
+        ));
+    };
 
-        <div className={styles.content}>
-          {loading ? (
-            <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>
-          ) : (
-            <VisitorGrid visitantes={filteredVisitantes} onEdit={setEditingVisitor} onDelete={handleDelete} />
-          )}
-        </div>
-      </main>
+    const handleUpdateVisitor = (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const promise = axios.put(`${API_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` } });
+        toast.promise(promise, {
+            loading: 'Atualizando...',
+            success: () => {
+                fetchData();
+                setEditingVisitor(null);
+                return 'Visitante atualizado!';
+            },
+            error: 'Erro ao atualizar.'
+        });
+    };
 
-      {editingVisitor && (
-        <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
-          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><MdClose /></button>
-            <form onSubmit={handleUpdateVisitor}>
-              <h2>Editando: {editingVisitor.nome}</h2>
-              <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label>Nome Completo</label>
-                  <input name="nome" value={editingVisitor.nome || ''} onChange={handleModalChange} />
+    const handleModalChange = (e) => {
+        const { name, value } = e.target;
+        setEditingVisitor(prev => ({ ...prev, [name]: value }));
+    };
+
+    return (
+        <div className={styles.pageContainer}>
+            <Header />
+            <main className={styles.dashboard}>
+                <div className={styles.statsGrid}>
+                    <StatCard icon={<MdPerson />} label="Meus Cadastros" value={stats.myRegisters} colorClass="myRegisters" />
+                    <StatCard icon={<MdGroups />} label="Total de Visitantes" value={stats.total} colorClass="total" />
+                    <StatCard icon={<MdOutlineAccessTime />} label="Contatos Pendentes" value={stats.pending} colorClass="pending" />
+                    <StatCard icon={<MdThumbUp />} label="Contatados" value={stats.contacted} colorClass="contacted" />
+                    <StatCard icon={<MdErrorOutline />} label="Números com Erro" value={stats.error} colorClass="error" />
+                    <StatCard icon={<MdMale />} label="Visitantes Homens" value={stats.male} colorClass="male" />
+                    <StatCard icon={<MdFemale />} label="Visitantes Mulheres" value={stats.female} colorClass="female" />
                 </div>
-                <div className={styles.formGroup}>
-                  <label>Telefone</label>
-                  <input name="telefone" value={editingVisitor.telefone || ''} onChange={handleModalChange} />
+                <div className={styles.toolbar}>
+                    <div className={styles.filters}>
+                        <div className={styles.searchContainer}>
+                            <MdSearch className={styles.searchIcon} />
+                            <input type="text" placeholder="Buscar por nome, email ou telefone..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
+                        </div>
+                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.statusFilter}>
+                            <option value="todos">Todos os Status</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="entrou em contato">Contatado</option>
+                            <option value="erro número">Número Inválido</option>
+                        </select>
+                    </div>
+                    <Link to="/cadastrar-visitante" className={styles.addButton}><MdAdd /> Novo Visitante</Link>
                 </div>
-                <div className={styles.formGroup}>
-                  <label>Email</label>
-                  <input name="email" type="email" value={editingVisitor.email || ''} onChange={handleModalChange} />
+                <div className={styles.content}>
+                    {loading ? (
+                        <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>
+                    ) : (
+                        <VisitorGrid 
+                            visitantes={filteredVisitantes} 
+                            onEdit={setEditingVisitor} 
+                            onDelete={handleDelete}
+                            onStatusChange={handleStatusChange} 
+                        />
+                    )}
                 </div>
-                <div className={styles.formGroup}>
-                  <label>Como Conheceu</label>
-                  <input name="como_conheceu" value={editingVisitor.como_conheceu || ''} onChange={handleModalChange} />
+            </main>
+            {editingVisitor && (
+                <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><MdClose /></button>
+                        <form onSubmit={handleUpdateVisitor}>
+                            <h2>Editando: {editingVisitor.nome}</h2>
+                            <div className={styles.formGrid}>
+                                <div className={styles.formGroup}><label>Nome Completo</label><input name="nome" value={editingVisitor.nome || ''} onChange={handleModalChange} /></div>
+                                <div className={styles.formGroup}><label>Telefone</label><input name="telefone" value={editingVisitor.telefone || ''} onChange={handleModalChange} /></div>
+                                <div className={styles.formGroup}><label>Email</label><input name="email" type="email" value={editingVisitor.email || ''} onChange={handleModalChange} /></div>
+                                <div className={styles.formGroup}><label>Como Conheceu</label><input name="como_conheceu" value={editingVisitor.como_conheceu || ''} onChange={handleModalChange} /></div>
+                            </div>
+                            <div className={styles.modalActions}>
+                                <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}><MdClose /> Cancelar</button>
+                                <button type="submit" className={styles.saveButton}><MdCheck /> Salvar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-              </div>
-              <div className={styles.modalActions}>
-                <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>
-                  <MdClose /> Cancelar
-                </button>
-                <button type="submit" className={styles.saveButton}>
-                  <MdCheck /> Salvar Alterações
-                </button>
-              </div>
-            </form>
-          </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
 
 export default Secretaria;
