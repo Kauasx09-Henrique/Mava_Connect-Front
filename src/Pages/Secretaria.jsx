@@ -2,12 +2,17 @@ import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, Link } from 'react-router-dom';
-// Ícones trocados para a biblioteca Material Design (react-icons/md)
+
+// Ícones de Material Design para a maioria da UI
 import { 
-    MdEdit, MdDeleteOutline, MdPhone, MdOutlineMail, MdAdd, MdClose, 
+    MdPhone, MdOutlineMail, MdAdd, MdClose, 
     MdCalendarToday, MdCheck, MdOutlineAccessTime, MdErrorOutline, 
     MdSearch, MdGroups, MdThumbUp, MdEmojiEvents, MdWhatsapp 
 } from 'react-icons/md';
+
+// Ícones da Heroicons para os botões de ação
+import { HiPencil, HiOutlineTrash } from 'react-icons/hi';
+
 import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 
@@ -113,11 +118,12 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
                         <MdWhatsapp />
                     </a>
                 )}
+                {/* ÍCONES DE EDITAR E EXCLUIR ATUALIZADOS */}
                 <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
-                    <MdEdit />
+                    <HiPencil />
                 </button>
                 <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir">
-                    <MdDeleteOutline />
+                    <HiOutlineTrash />
                 </button>
             </div>
         </div>
