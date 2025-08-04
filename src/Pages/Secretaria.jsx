@@ -2,9 +2,12 @@ import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, Link } from 'react-router-dom';
-// Ícone FiAward adicionado para o campo 'evento'
-import { FiEdit, FiTrash2, FiPhone, FiMail, FiPlus, FiX, FiCalendar, FiCheck, FiClock, FiAlertCircle, FiSearch, FiUsers, FiThumbsUp, FiAward } from 'react-icons/fi';
-import { FaWhatsapp } from 'react-icons/fa';
+// Ícones trocados para a biblioteca Material Design (react-icons/md)
+import { 
+    MdEdit, MdDeleteOutline, MdPhone, MdOutlineMail, MdAdd, MdClose, 
+    MdCalendarToday, MdCheck, MdOutlineAccessTime, MdErrorOutline, 
+    MdSearch, MdGroups, MdThumbUp, MdEmojiEvents, MdWhatsapp 
+} from 'react-icons/md';
 import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 
@@ -70,7 +73,6 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
         ? new Date(visitante.data_visita).toLocaleDateString('pt-BR')
         : 'Data Indisponível';
 
-    // Função para formatar o nome do evento para exibição
     const formatEventName = (event) => {
         if (!event) return 'Não informado';
         switch (event.toLowerCase()) {
@@ -89,19 +91,18 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
             </div>
             <div className={styles.cardBody}>
                 {visitante.telefone && (
-                    <div className={styles.contactItem}><FiPhone /><span>{visitante.telefone}</span></div>
+                    <div className={styles.contactItem}><MdPhone /><span>{visitante.telefone}</span></div>
                 )}
                 {visitante.email && (
-                    <div className={styles.contactItem}><FiMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>
+                    <div className={styles.contactItem}><MdOutlineMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>
                 )}
                 <div className={styles.contactItem}>
-                    <FiCalendar />
+                    <MdCalendarToday />
                     <span>Visitou em: {visitDate}</span>
                 </div>
-                {/* --- CAMPO EVENTO ADICIONADO AQUI --- */}
                 {visitante.evento && (
                     <div className={styles.contactItem}>
-                        <FiAward />
+                        <MdEmojiEvents />
                         <span>Origem: {formatEventName(visitante.evento)}</span>
                     </div>
                 )}
@@ -109,14 +110,14 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
             <div className={styles.cardFooter}>
                 {whatsappUrl && (
                     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar WhatsApp">
-                        <FaWhatsapp />
+                        <MdWhatsapp />
                     </a>
                 )}
                 <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
-                    <FiEdit />
+                    <MdEdit />
                 </button>
                 <button onClick={() => onDelete(visitante.id)} className={`${styles.actionButton} ${styles.deleteButton}`} title="Excluir">
-                    <FiTrash2 />
+                    <MdDeleteOutline />
                 </button>
             </div>
         </div>
@@ -240,16 +241,16 @@ function Secretaria() {
       <Header />
       <main className={styles.dashboard}>
         <div className={styles.statsRow}>
-          <StatCard icon={<FiUsers />} label="Total de Visitantes" value={stats.total} colorClass="total" />
-          <StatCard icon={<FiClock />} label="Contatos Pendentes" value={stats.pending} colorClass="pending" />
-          <StatCard icon={<FiThumbsUp />} label="Contatados" value={stats.contacted} colorClass="contacted" />
-          <StatCard icon={<FiAlertCircle />} label="Números com Erro" value={stats.error} colorClass="error" />
+          <StatCard icon={<MdGroups />} label="Total de Visitantes" value={stats.total} colorClass="total" />
+          <StatCard icon={<MdOutlineAccessTime />} label="Contatos Pendentes" value={stats.pending} colorClass="pending" />
+          <StatCard icon={<MdThumbUp />} label="Contatados" value={stats.contacted} colorClass="contacted" />
+          <StatCard icon={<MdErrorOutline />} label="Números com Erro" value={stats.error} colorClass="error" />
         </div>
 
         <div className={styles.toolbar}>
           <div className={styles.filters}>
             <div className={styles.searchContainer}>
-              <FiSearch className={styles.searchIcon} />
+              <MdSearch className={styles.searchIcon} />
               <input type="text" placeholder="Buscar por nome..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
             </div>
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.statusFilter}>
@@ -259,7 +260,7 @@ function Secretaria() {
               <option value="erro número">Número Inválido</option>
             </select>
           </div>
-          <Link to="/cadastrar-visitante" className={styles.addButton}><FiPlus /> Novo Visitante</Link>
+          <Link to="/cadastrar-visitante" className={styles.addButton}><MdAdd /> Novo Visitante</Link>
         </div>
 
         <div className={styles.content}>
@@ -274,7 +275,7 @@ function Secretaria() {
       {editingVisitor && (
         <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
           <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><FiX /></button>
+            <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><MdClose /></button>
             <form onSubmit={handleUpdateVisitor}>
               <h2>Editando: {editingVisitor.nome}</h2>
               <div className={styles.formGrid}>
@@ -298,7 +299,6 @@ function Secretaria() {
                     <option value="erro número">Erro no Número</option>
                   </select>
                 </div>
-                {/* Também adicionei o campo de evento no modal de edição */}
                 <div className={styles.formGroup}>
                   <label>Evento de Origem</label>
                    <select name="evento" value={editingVisitor.evento || ''} onChange={handleModalChange}>
@@ -315,10 +315,10 @@ function Secretaria() {
               </div>
               <div className={styles.modalActions}>
                 <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}>
-                  <FiX /> Cancelar
+                  <MdClose /> Cancelar
                 </button>
                 <button type="submit" className={styles.saveButton}>
-                  <FiCheck /> Salvar Alterações
+                  <MdCheck /> Salvar Alterações
                 </button>
               </div>
             </form>
