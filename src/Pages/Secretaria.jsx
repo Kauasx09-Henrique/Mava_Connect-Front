@@ -13,13 +13,12 @@ import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
-const WHATSAPP_MESSAGE = `Olá, tudo bem?\n\nSeja muito bem-vindo(a) à MAVA...\n\nAtenciosamente,\nSecretaria MAVA`;
+const WHATSAPP_MESSAGE = `Olá, tudo bem?\n\nSeja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.\n\nAtenciosamente,\nSecretaria MAVA`;
 
-// --- Componentes Internos ---
-
+// --- Componente de Card de Estatística ---
 const StatCard = ({ icon, label, value, colorClass }) => (
-    <div className={styles.statCard}>
-        <div className={`${styles.statIcon} ${styles[colorClass]}`}>{icon}</div>
+    <div className={`${styles.statCard} ${styles[colorClass]}`}>
+        <div className={styles.statIcon}>{icon}</div>
         <div className={styles.statInfo}>
             <p className={styles.value}>{value}</p>
             <p className={styles.label}>{label}</p>
@@ -27,6 +26,7 @@ const StatCard = ({ icon, label, value, colorClass }) => (
     </div>
 );
 
+// --- Componente de Card de Visitante ---
 const VisitorCard = ({ visitante, onEdit, onDelete, onStatusChange }) => {
     const whatsappUrl = useMemo(() => {
         if (!visitante?.telefone) return null;
@@ -83,14 +83,98 @@ function Secretaria() {
     const [editingVisitor, setEditingVisitor] = useState(null);
     const navigate = useNavigate();
 
-    const fetchData = async () => { /* ...Lógica sem alterações... */ };
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.get(`${API_URL}/visitantes`, { headers: { 'Authorization': `Bearer ${token}` } });
+            setVisitantes(Array.isArray(res.data) ? res.data : []);
+        } catch (err) {
+            toast.error('Erro ao buscar visitantes.');
+            if (err.response?.status === 401 || err.response?.status === 403) navigate('/');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => { fetchData(); }, [navigate]);
-    const stats = useMemo(() => { /* ...Lógica sem alterações... */ }, [visitantes]);
-    const filteredVisitantes = useMemo(() => { /* ...Lógica sem alterações... */ }, [searchTerm, statusFilter, visitantes]);
-    const handleStatusChange = async (id, status) => { /* ...Lógica sem alterações... */ };
-    const handleDelete = (id) => { /* ...Lógica sem alterações... */ };
-    const handleUpdateVisitor = (e) => { /* ...Lógica sem alterações... */ };
-    const handleModalChange = (e) => { /* ...Lógica sem alterações... */ };
+
+    const stats = useMemo(() => {
+        const loggedInUserId = localStorage.getItem('usuario_id');
+        return {
+            total: visitantes.length,
+            pending: visitantes.filter(v => v.status === 'pendente').length,
+            contacted: visitantes.filter(v => v.status === 'entrou em contato').length,
+            error: visitantes.filter(v => v.status === 'erro número').length,
+            myRegisters: loggedInUserId ? visitantes.filter(v => v.usuario_id === parseInt(loggedInUserId, 10)).length : 0,
+            male: visitantes.filter(v => v.sexo === 'Masculino').length,
+            female: visitantes.filter(v => v.sexo === 'Feminino').length,
+        };
+    }, [visitantes]);
+
+    const filteredVisitantes = useMemo(() => {
+        return visitantes.filter(v => {
+            if (!v) return false;
+            const searchLower = searchTerm.toLowerCase();
+            const matchesSearch = !searchLower || 
+                (v.nome && v.nome.toLowerCase().includes(searchLower)) ||
+                (v.email && v.email.toLowerCase().includes(searchLower)) ||
+                (v.telefone && v.telefone.includes(searchTerm));
+            const matchesStatus = statusFilter === 'todos' || v.status === statusFilter;
+            return matchesSearch && matchesStatus;
+        });
+    }, [searchTerm, statusFilter, visitantes]);
+
+    const handleStatusChange = async (id, status) => {
+        const token = localStorage.getItem('token');
+        const promise = axios.patch(`${API_URL}/visitantes/${id}/status`, { status }, { headers: { 'Authorization': `Bearer ${token}` } });
+        toast.promise(promise, {
+            loading: 'Alterando status...',
+            success: () => { fetchData(); return 'Status alterado!'; },
+            error: 'Erro ao alterar status.'
+        });
+    };
+
+    const handleDelete = (id) => {
+        toast((t) => (
+            <div>
+                <p><strong>Confirmar exclusão?</strong></p>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                    <button className={styles.toastConfirmButton} onClick={() => {
+                        toast.dismiss(t.id);
+                        const token = localStorage.getItem('token');
+                        const promise = axios.delete(`${API_URL}/visitantes/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        toast.promise(promise, {
+                            loading: 'Excluindo...',
+                            success: () => { fetchData(); return 'Excluído com sucesso!'; },
+                            error: 'Erro ao excluir.'
+                        });
+                    }}>Excluir</button>
+                    <button className={styles.toastCancelButton} onClick={() => toast.dismiss(t.id)}>Cancelar</button>
+                </div>
+            </div>
+        ));
+    };
+
+    const handleUpdateVisitor = (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const promise = axios.put(`${API_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` } });
+        toast.promise(promise, {
+            loading: 'Atualizando...',
+            success: () => {
+                fetchData();
+                setEditingVisitor(null);
+                return 'Visitante atualizado!';
+            },
+            error: 'Erro ao atualizar.'
+        });
+    };
+
+    const handleModalChange = (e) => {
+        const { name, value } = e.target;
+        setEditingVisitor(prev => ({ ...prev, [name]: value }));
+    };
 
     return (
         <div className={styles.pageContainer}>
@@ -150,7 +234,22 @@ function Secretaria() {
             </main>
             {editingVisitor && (
                 <div className={styles.modalOverlay} onClick={() => setEditingVisitor(null)}>
-                    {/* ... O seu modal continua igual ... */}
+                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                        <button className={styles.closeModal} onClick={() => setEditingVisitor(null)}><MdClose /></button>
+                        <form onSubmit={handleUpdateVisitor}>
+                            <h2>Editando: {editingVisitor.nome}</h2>
+                            <div className={styles.formGrid}>
+                                <div className={styles.formGroup}><label>Nome Completo</label><input name="nome" value={editingVisitor.nome || ''} onChange={handleModalChange} /></div>
+                                <div className={styles.formGroup}><label>Telefone</label><input name="telefone" value={editingVisitor.telefone || ''} onChange={handleModalChange} /></div>
+                                <div className={styles.formGroup}><label>Email</label><input name="email" type="email" value={editingVisitor.email || ''} onChange={handleModalChange} /></div>
+                                <div className={styles.formGroup}><label>Como Conheceu</label><input name="como_conheceu" value={editingVisitor.como_conheceu || ''} onChange={handleModalChange} /></div>
+                            </div>
+                            <div className={styles.modalActions}>
+                                <button type="button" onClick={() => setEditingVisitor(null)} className={styles.cancelButton}><MdClose /> Cancelar</button>
+                                <button type="submit" className={styles.saveButton}><MdCheck /> Salvar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>
