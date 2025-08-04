@@ -54,7 +54,7 @@
   display: flex;
   flex-direction: column;
   padding: 1.5rem 1rem;
-  transition: all 0.3s;
+  transition: all 0.3s ease-in-out;
   flex-shrink: 0;
 }
 
@@ -165,7 +165,6 @@
 }
 .searchBox input:focus { outline: none; }
 
-/* STATS CARDS */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -208,7 +207,6 @@
 .statValue { font-size: 2rem; font-weight: 700; line-height: 1.1; }
 .statLabel { font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* TABELA */
 .tableContainer {
   background-color: var(--card-bg); border-radius: 12px;
   padding: 1.5rem; box-shadow: 0 4px 12px var(--shadow-color);
@@ -283,13 +281,13 @@
 .editButton:hover { color: var(--blue); }
 .deleteButton:hover { color: var(--red); }
 
-/* MODAL */
 .modalOverlay {
   position: fixed; top: 0; left: 0;
   width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
   display: flex; align-items: center; justify-content: center;
   z-index: 1000; padding: 1rem;
+  transition: opacity 0.3s;
 }
 .modalContent {
   background-color: var(--card-bg); color: var(--text-color);
@@ -297,6 +295,7 @@
   width: 100%; max-width: 800px;
   max-height: 90vh; overflow-y: auto;
   position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 .closeModal {
   position: absolute; top: 1rem; right: 1rem;
@@ -337,9 +336,8 @@
 }
 .saveButton { background-color: var(--accent-color); color: #fff; }
 .saveButton:hover { background-color: var(--accent-hover); }
-.cancelButton:hover { background-color: var(--text-muted); }
+.cancelButton:hover { filter: brightness(1.2); }
 
-/* SPINNER */
 .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; gap: 1rem; color: var(--text-muted); }
 .spinner {
   width: 48px; height: 48px; border: 5px solid var(--border-color);
@@ -352,97 +350,108 @@
 /* ============== RESPONSIVIDADE =================== */
 /* ================================================= */
 
-/* TABLETS E TELAS MENORES */
+.mobileHeader {
+  display: none;
+}
+.mobileTitle {
+    color: var(--text-color);
+}
+
 @media (max-width: 1024px) {
+  .adminContainer {
+    flex-direction: column;
+  }
   .sidebar {
     position: fixed;
-    left: -250px; /* Esconde a sidebar fora da tela */
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
     z-index: 2000;
     height: 100%;
+    box-shadow: 5px 0px 15px rgba(0,0,0,0.2);
   }
+  
+  .adminContainer.sidebarOpen .sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebarHeader {
+      display: none;
+  }
+  
   .mainContent {
     padding: 1.5rem;
+    padding-top: calc(4rem + 1.5rem);
   }
+  
   .mainHeader h1 {
     font-size: 1.5rem;
   }
+
+  .mobileHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1.5rem;
+    height: 4rem;
+    background-color: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1001;
+  }
+
+  .menuToggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 2001;
+  }
 }
 
-/* CELULARES */
 @media (max-width: 768px) {
-  .sidebar {
-    display: none; /* Em vez de mover, simplesmente escondemos em telas mobile */
-  }
-
-  .mainContent {
+  .mainContent { 
     padding: 1rem;
+    padding-top: calc(4rem + 1rem);
   }
+  .mainHeader { flex-direction: column; align-items: flex-start; }
+  .searchBox { max-width: 100%; }
+  .statsGrid { gap: 1rem; }
+  .tableContainer, .modalContent { padding: 1rem; }
+  .mobileHeader { padding: 0 1rem; }
+  .mainHeader h1 { font-size: 1.3rem; }
 
-  .mainHeader {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .searchBox {
-    max-width: 100%;
-  }
-  
-  .statsGrid {
-    gap: 1rem;
-  }
-  
-  .tableContainer, .modalContent {
-    padding: 1rem;
-  }
-
-  /* A MÁGICA DA TABELA RESPONSIVA */
-  .dataTable thead {
-    display: none;
-  }
-
+  .dataTable thead { display: none; }
   .dataTable, .dataTable tbody, .dataTable tr, .dataTable td {
-    display: block;
-    width: 100%;
+    display: block; width: 100%;
   }
-
   .dataTable tr {
-    margin-bottom: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
+    margin-bottom: 1rem; border: 1px solid var(--border-color);
+    border-radius: 8px; padding: 0.5rem;
   }
-  
   .dataTable td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0.5rem;
-    border: none;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.75rem 0.5rem; border: none;
     border-bottom: 1px dashed var(--border-color);
   }
-
-  .dataTable td:last-child {
-    border-bottom: none;
-  }
-
+  .dataTable td:last-child { border-bottom: none; }
   .dataTable td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: var(--text-muted);
-    margin-right: 1rem;
+    content: attr(data-label); font-weight: 600;
+    color: var(--text-muted); margin-right: 1rem;
+  }
+  
+  .statusSelect {
+    flex-grow: 1;
+    max-width: 60%;
   }
 
-  .actionButtons {
-    justify-content: flex-end;
-  }
-
-  .modalActions {
-    flex-direction: column;
-  }
-
-  .modalActions button {
-    width: 100%;
-  }
+  .actionButtons { justify-content: flex-end; }
+  .modalActions { flex-direction: column; }
+  .modalActions button { width: 100%; }
 }
 
 @media (max-width: 480px) {
@@ -451,14 +460,9 @@
       flex-direction: column;
       align-items: stretch;
     }
-
     .statCard {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: column; align-items: flex-start;
         text-align: left;
     }
-
-    .statInfo {
-        margin-top: 0.5rem;
-    }
+    .statInfo { margin-top: 0.5rem; }
 }
