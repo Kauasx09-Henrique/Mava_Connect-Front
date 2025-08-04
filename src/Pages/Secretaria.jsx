@@ -118,7 +118,6 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
                         <MdWhatsapp />
                     </a>
                 )}
-                {/* ÍCONES DE EDITAR E EXCLUIR ATUALIZADOS */}
                 <button onClick={() => onEdit(visitante)} className={`${styles.actionButton} ${styles.editButton}`} title="Editar">
                     <HiPencil />
                 </button>
@@ -296,23 +295,6 @@ function Secretaria() {
                 <div className={styles.formGroup}>
                   <label>Email</label>
                   <input name="email" type="email" value={editingVisitor.email || ''} onChange={handleModalChange} />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Status</label>
-                  <select name="status" value={editingVisitor.status || 'pendente'} onChange={handleModalChange}>
-                    <option value="pendente">Pendente</option>
-                    <option value="entrou em contato">Contatado</option>
-                    <option value="erro número">Erro no Número</option>
-                  </select>
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Evento de Origem</label>
-                   <select name="evento" value={editingVisitor.evento || ''} onChange={handleModalChange}>
-                      <option value="">Selecione</option>
-                      <option value="culto">Culto</option>
-                      <option value="gf">GF</option>
-                      <option value="evangelismo">Evangelismo</option>
-                   </select>
                 </div>
                 <div className={styles.formGroup}>
                   <label>Como Conheceu</label>
