@@ -27,7 +27,7 @@ const StatCard = ({ icon, label, value, colorClass }) => (
 );
 
 // --- Componente de Card de Visitante ---
-const VisitorCard = ({ visitante, onEdit, onDelete }) => {
+const VisitorCard = ({ visitante, onEdit, onDelete, onStatusChange }) => {
     const whatsappUrl = useMemo(() => {
         if (!visitante?.telefone) return null;
         const cleanPhone = visitante.telefone.replace(/\D/g, '');
@@ -36,25 +36,34 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
 
     const visitDate = visitante?.data_visita ? new Date(visitante.data_visita).toLocaleDateString('pt-BR') : 'N/A';
     
+    const formatEventName = (event) => {
+        if (!event) return 'N/A';
+        const formatted = event.charAt(0).toUpperCase() + event.slice(1);
+        return formatted === 'Gf' ? 'GF' : formatted;
+    };
+
     return (
-        <div className={styles.visitorRow}>
-            <div className={`${styles.visitorCell} ${styles.visitorInfo}`}>
-                <span className={styles.visitorName}>{visitante.nome || 'Nome não informado'}</span>
-                <span className={styles.visitorEvent}>{visitante.evento || 'Origem não informada'}</span>
+        <div className={styles.visitorCard}>
+            <div className={styles.cardHeader}>
+                <h3 className={styles.visitorName}>{visitante.nome || 'Nome não informado'}</h3>
+                <select 
+                    value={visitante.status} 
+                    onChange={(e) => onStatusChange(visitante.id, e.target.value)} 
+                    className={`${styles.statusSelect} ${styles[visitante.status?.replace(/ /g, '')]}`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <option value="pendente">Pendente</option>
+                    <option value="entrou em contato">Contatado</option>
+                    <option value="erro número">Erro no Número</option>
+                </select>
             </div>
-            <div className={`${styles.visitorCell} ${styles.visitorContact}`}>
-                <span><MdPhone /> {visitante.telefone || 'N/A'}</span>
-                <span><MdOutlineMail /> {visitante.email || 'N/A'}</span>
+            <div className={styles.cardBody}>
+                {visitante.telefone && (<div className={styles.contactItem}><MdPhone /><span>{visitante.telefone}</span></div>)}
+                {visitante.email && (<div className={styles.contactItem}><MdOutlineMail /><a href={`mailto:${visitante.email}`}>{visitante.email}</a></div>)}
+                <div className={styles.contactItem}><MdCalendarToday /><span>Visitou em: {visitDate}</span></div>
+                {visitante.evento && (<div className={styles.contactItem}><MdEmojiEvents /><span>Origem: {formatEventName(visitante.evento)}</span></div>)}
             </div>
-            <div className={`${styles.visitorCell} ${styles.visitorDate}`}>
-                <MdCalendarToday /> {visitDate}
-            </div>
-            <div className={`${styles.visitorCell} ${styles.visitorStatus}`}>
-                <span className={`${styles.statusPill} ${styles[visitante.status?.replace(/ /g, '')]}`}>
-                    {visitante.status}
-                </span>
-            </div>
-            <div className={`${styles.visitorCell} ${styles.visitorActions}`}>
+            <div className={styles.cardFooter}>
                 {whatsappUrl && (
                     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={`${styles.actionButton} ${styles.whatsappButton}`} title="Enviar WhatsApp">
                         <MdWhatsapp />
@@ -68,20 +77,13 @@ const VisitorCard = ({ visitante, onEdit, onDelete }) => {
 };
 
 // --- Componente de Grid de Visitantes ---
-const VisitorGrid = ({ visitantes, onEdit, onDelete }) => {
+const VisitorGrid = ({ visitantes, onEdit, onDelete, onStatusChange }) => {
     if (!visitantes || visitantes.length === 0) {
         return <div className={styles.emptyState}><p>Nenhum visitante encontrado.</p></div>;
     }
     return (
-        <div className={styles.visitorList}>
-            <div className={styles.gridHeader}>
-                <div className={styles.headerCell}>Visitante</div>
-                <div className={styles.headerCell}>Contato</div>
-                <div className={styles.headerCell}>Data da Visita</div>
-                <div className={styles.headerCell}>Status</div>
-                <div className={styles.headerCell}>Ações</div>
-            </div>
-            {visitantes.map(v => v && v.id ? <VisitorCard key={v.id} visitante={v} onEdit={onEdit} onDelete={onDelete} /> : null)}
+        <div className={styles.visitorGrid}>
+            {visitantes.map(v => v && v.id ? <VisitorCard key={v.id} visitante={v} onEdit={onEdit} onDelete={onDelete} onStatusChange={onStatusChange} /> : null)}
         </div>
     );
 };
@@ -136,6 +138,16 @@ function Secretaria() {
             return matchesSearch && matchesStatus;
         });
     }, [searchTerm, statusFilter, visitantes]);
+
+    const handleStatusChange = async (id, status) => {
+        const token = localStorage.getItem('token');
+        const promise = axios.patch(`${API_URL}/visitantes/${id}/status`, { status }, { headers: { 'Authorization': `Bearer ${token}` } });
+        toast.promise(promise, {
+            loading: 'Alterando status...',
+            success: () => { fetchData(); return 'Status alterado!'; },
+            error: 'Erro ao alterar status.'
+        });
+    };
 
     const handleDelete = (id) => {
         toast((t) => (
@@ -197,23 +209,23 @@ function Secretaria() {
                     <StatCard icon={<MdFemale />} label="Visitantes Mulheres" value={stats.female} colorClass="female" />
                 </div>
                 
-                <div className={styles.contentContainer}>
-                    <div className={styles.toolbar}>
-                        <div className={styles.filters}>
-                            <div className={styles.searchContainer}>
-                                <MdSearch className={styles.searchIcon} />
-                                <input type="text" placeholder="Buscar por nome, email ou telefone..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
-                            </div>
-                            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.statusFilter}>
-                                <option value="todos">Todos os Status</option>
-                                <option value="pendente">Pendente</option>
-                                <option value="entrou em contato">Contatado</option>
-                                <option value="erro número">Número Inválido</option>
-                            </select>
+                <div className={styles.toolbar}>
+                    <div className={styles.filters}>
+                        <div className={styles.searchContainer}>
+                            <MdSearch className={styles.searchIcon} />
+                            <input type="text" placeholder="Buscar por nome, email ou telefone..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
                         </div>
-                        <Link to="/cadastrar-visitante" className={styles.addButton}><MdAdd /> Novo Visitante</Link>
+                        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.statusFilter}>
+                            <option value="todos">Todos os Status</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="entrou em contato">Contatado</option>
+                            <option value="erro número">Número Inválido</option>
+                        </select>
                     </div>
+                    <Link to="/cadastrar-visitante" className={styles.addButton}><MdAdd /> Novo Visitante</Link>
+                </div>
 
+                <div className={styles.content}>
                     {loading ? (
                         <div className={styles.loadingContainer}><div className={styles.spinner}></div></div>
                     ) : (
@@ -221,6 +233,7 @@ function Secretaria() {
                             visitantes={filteredVisitantes} 
                             onEdit={setEditingVisitor} 
                             onDelete={handleDelete}
+                            onStatusChange={handleStatusChange} 
                         />
                     )}
                 </div>

@@ -1,224 +1,204 @@
 /* --- VARIAVEIS DE TEMA --- */
 :global(body.dark-mode) {
   --bg-page: #1a1b21;
-  --bg-card: #24252c;
+  --bg-form: #24252c;
   --text-primary: #e2e2e2;
   --text-secondary: #8c8c8c;
   --border-color: #3a3b45;
+  --input-bg: #1a1b21;
   --accent-primary: #6a5af9;
   --accent-hover: #5a4ae0;
   --shadow-color: rgba(0, 0, 0, 0.2);
 }
 :global(body.light-mode) {
   --bg-page: #f4f7fc;
-  --bg-card: #ffffff;
+  --bg-form: #ffffff;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --border-color: #e2e8f0;
+  --input-bg: #f8fafc;
   --accent-primary: #4f46e5;
   --accent-hover: #4338ca;
   --shadow-color: rgba(149, 157, 165, 0.1);
 }
 
-/* --- ANIMAÇÕES --- */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* --- LAYOUT GERAL --- */
 .pageContainer {
   background-color: var(--bg-page);
+  padding: 2rem;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
-}
-.dashboard {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2.5rem;
-}
-.dashboardHeader {
-  margin-bottom: 2rem;
-  animation: fadeIn 0.5s ease-out;
-}
-.dashboardHeader h1 {
-  font-size: 2rem;
-  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-.dashboardHeader p {
-  font-size: 1rem;
-  color: var(--text-secondary);
+  transition: background-color 0.3s;
 }
 
-/* --- CARDS DE ESTATÍSTICA (NOVO DESIGN) --- */
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-}
-.statCard {
-  background-color: var(--bg-card);
+.formContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: var(--bg-form);
+  padding: 2.5rem;
+  border-radius: 16px;
   border: 1px solid var(--border-color);
-  border-top-width: 4px;
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  animation: fadeIn 0.5s ease-out backwards;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.statCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px var(--shadow-color);
-}
-.statIcon {
-  font-size: 1.75rem;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.statInfo { display: flex; flex-direction: column; }
-.value { font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1.1; }
-.label { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; }
-
-/* Cores dos cards */
-.total, .male, .female { border-top-color: #3b82f6; }
-.total .statIcon, .male .statIcon, .female .statIcon { color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
-
-.pending { border-top-color: #f59e0b; }
-.pending .statIcon { color: #f59e0b; background-color: rgba(245, 158, 11, 0.1); }
-
-.contacted { border-top-color: #10b981; }
-.contacted .statIcon { color: #10b981; background-color: rgba(16, 185, 129, 0.1); }
-
-.error { border-top-color: #ef4444; }
-.error .statIcon { color: #ef4444; background-color: rgba(239, 68, 68, 0.1); }
-
-.myRegisters { border-top-color: var(--accent-primary); }
-.myRegisters .statIcon { color: var(--accent-primary); background-color: rgba(106, 90, 249, 0.1); }
-
-/* --- CONTAINER DE CONTEÚDO PRINCIPAL --- */
-.contentContainer {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    animation: fadeIn 0.6s ease-out backwards;
+  box-shadow: 0 8px 24px var(--shadow-color);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
-.toolbar {
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 1rem; flex-wrap: wrap; padding-bottom: 1.5rem;
+.formContainer h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.formContainer h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border-color);
 }
-.filters { display: flex; gap: 1rem; flex-wrap: wrap; }
-.searchContainer {
-  display: flex; align-items: center; background-color: var(--bg-page);
-  border: 1px solid var(--border-color); border-radius: 8px; padding: 0 1rem;
-}
-.searchIcon { color: var(--text-secondary); font-size: 1.2rem; }
-.searchInput, .statusFilter {
-  background: none; border: none; color: var(--text-primary);
-  height: 44px; font-size: 0.95rem; font-family: 'Inter', sans-serif;
-}
-.searchInput { padding-left: 0.75rem; }
-.statusFilter {
-  background-color: var(--bg-page); border: 1px solid var(--border-color);
-  border-radius: 8px; padding: 0 1rem; cursor: pointer;
-}
-.addButton {
-  background-color: var(--accent-primary); color: #fff; border-radius: 8px;
-  padding: 0.7rem 1.25rem; font-weight: 600; text-decoration: none;
-  display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;
-  border: none; cursor: pointer;
-}
-.addButton:hover {
-  background-color: var(--accent-hover); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+/* --- GRID E CAMPOS DO FORMULÁRIO --- */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
-/* --- LISTA DE VISITANTES (GRID-TABLE) --- */
-.visitorList { margin-top: 1.5rem; }
-.gridHeader {
-    display: grid;
-    grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr;
-    gap: 1rem; padding: 0 1rem;
+.formGroup {
+  display: flex;
+  flex-direction: column;
 }
-.headerCell {
-    padding: 0.75rem 0; font-size: 0.8rem; font-weight: 600;
-    color: var(--text-secondary); text-transform: uppercase;
-}
-.visitorRow {
-    display: grid; grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr;
-    gap: 1rem; align-items: center; padding: 1rem;
-    border-bottom: 1px solid var(--border-color); transition: background-color 0.2s;
-}
-.visitorRow:hover { background-color: var(--bg-page); }
-.visitorRow:last-child { border-bottom: none; }
-.visitorCell { display: flex; align-items: center; gap: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
-.visitorInfo { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
-.visitorName { font-weight: 600; font-size: 1rem; color: var(--text-primary); }
-.visitorEvent { font-size: 0.8rem; }
-.visitorContact { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
-.visitorContact span { display: flex; align-items: center; gap: 0.5rem; }
-.statusSelect {
-  background-color: transparent; border: none; font-size: 0.9rem;
-  color: var(--text-primary); font-family: 'Inter', sans-serif;
-  cursor: pointer; padding: 0.25rem; border-radius: 4px;
-}
-.pendente { color: #f59e0b; }
-.entrouemcontato { color: #10b981; }
-.erronumero { color: #ef4444; }
 
-.visitorActions { justify-content: flex-end; }
-.actionButton {
-  background-color: transparent; border: none; color: var(--text-secondary);
-  width: 36px; height: 36px; border-radius: 50%; display: flex;
-  align-items: center; justify-content: center; font-size: 1.2rem;
-  cursor: pointer; transition: all 0.2s; text-decoration: none;
+.formGroup label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
 }
-.actionButton:hover { background-color: var(--bg-page); }
-.whatsappButton:hover { color: #25d366; }
-.editButton:hover { color: #f59e0b; }
-.deleteButton:hover { color: #ef4444; }
 
-/* ... (O restante do CSS para Modal, Loading, etc. permanece o mesmo) ... */
-.loadingContainer, .emptyState { text-align: center; padding: 4rem; color: var(--text-secondary); }
-.modalOverlay { /* ... */ }
-.modalContent { /* ... */ }
+.formGroup input,
+.formGroup select {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(106, 90, 249, 0.2);
+}
+
+.formGroup input:disabled,
+.formGroup select:disabled {
+  background-color: var(--border-color);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+/* --- CAMPO DE CEP --- */
+.cepContainer {
+  display: flex;
+  gap: 0.5rem;
+}
+.cepContainer input {
+  flex-grow: 1;
+}
+.cepButton {
+  flex-shrink: 0;
+  padding: 0 1.25rem;
+  background-color: var(--accent-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.cepButton:hover {
+  background-color: var(--accent-hover);
+}
+.cepButton:disabled {
+  background-color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* --- GRUPO DE BOTÕES DE AÇÃO --- */
+.buttonGroup {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.primaryButton, .secondaryButton {
+  padding: 0.8rem 1.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.primaryButton {
+  background-color: var(--accent-primary);
+  color: #fff;
+}
+.primaryButton:hover {
+  background-color: var(--accent-hover);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.primaryButton:disabled {
+  background-color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+.secondaryButton:hover {
+  filter: brightness(0.9);
+}
+:global(body.light-mode) .secondaryButton:hover {
+    filter: brightness(0.95);
+}
 
 /* --- RESPONSIVIDADE --- */
-@media (max-width: 992px) {
-    .gridHeader { display: none; }
-    .visitorList { margin-top: 0; }
-    .visitorRow {
-        display: block; background-color: var(--bg-card);
-        border: 1px solid var(--border-color); border-radius: 12px;
-        margin-bottom: 1rem; padding: 1.5rem; box-shadow: 0 4px 12px var(--shadow-color);
-    }
-    .visitorCell { padding: 0.5rem 0; display: block; }
-    .visitorInfo, .visitorContact, .visitorDate, .visitorStatus { margin-bottom: 1rem; }
-    .visitorActions { 
-        padding-top: 1rem; border-top: 1px solid var(--border-color);
-        justify-content: flex-end; display: flex;
-    }
-    .statusSelect { background-color: var(--bg-page); padding: 0.5rem; }
-}
 @media (max-width: 768px) {
-  .dashboard { padding: 1.5rem; }
-  .statsGrid { grid-template-columns: 1fr 1fr; }
-  .toolbar { flex-direction: column; align-items: stretch; }
-  .filters { flex-direction: column; width: 100%; }
+  .pageContainer {
+    padding: 1rem;
+  }
+  .formContainer {
+    padding: 1.5rem;
+  }
+  .dashboardHeader h1 {
+    font-size: 1.5rem;
+  }
 }
+
 @media (max-width: 480px) {
-  .dashboard { padding: 1rem; }
-  .statsGrid { grid-template-columns: 1fr; }
+    .formGrid {
+        grid-template-columns: 1fr; /* Uma coluna em telas pequenas */
+    }
+    .buttonGroup {
+        flex-direction: column-reverse; /* Empilha os botões */
+    }
+    .primaryButton, .secondaryButton {
+        width: 100%;
+        text-align: center;
+    }
 }
