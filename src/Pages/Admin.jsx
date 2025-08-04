@@ -9,7 +9,8 @@ import {
     FaHome, FaMapMarkerAlt, FaUsersCog
 } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
-import { FiUser, FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown, FiMoon, FiSun } from 'react-icons/fi';
+// 1. Importar o ícone de Logout
+import { FiUser, FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown, FiMoon, FiSun, FiLogOut } from 'react-icons/fi';
 import { BsGenderMale, BsGenderFemale, BsCalendarDate } from 'react-icons/bs';
 import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
@@ -54,6 +55,15 @@ function Admin() {
     }, [darkMode]);
 
     const toggleDarkMode = () => setDarkMode(prev => !prev);
+    
+    // 2. Adicionar a função de Logout
+    const handleLogout = () => {
+        if (window.confirm("Tem certeza que deseja sair?")) {
+            localStorage.removeItem('token');
+            toast.success('Você saiu com segurança!');
+            navigate('/');
+        }
+    };
 
     const filteredUsuarios = useMemo(() => {
         if (!searchTerm) return usuarios;
@@ -139,7 +149,6 @@ function Admin() {
         const token = localStorage.getItem('token');
         const headers = { 'Authorization': `Bearer ${token}` };
         try {
-            // ALTERAÇÃO AQUI: Usando PATCH em vez de PUT
             await axios.patch(`${API_BASE_URL}/visitantes/${id}/status`, { status }, { headers });
             toast.success("Status atualizado!");
             fetchAllData(); 
@@ -189,7 +198,7 @@ function Admin() {
             { icon: <FiUserCheck />, value: contactedCount, label: 'Contatados', color: 'green' },
             { icon: <FiUserX />, value: errorCount, label: 'Erros de Número', color: 'red' },
             stats.topGF ? { icon: <FiTrendingUp />, value: stats.topGF.count, label: `GF Top: ${stats.topGF.name}`, color: 'purple' } : null,
-            stats.bottomGF ? { icon: <FiTrendingDown />, value: stats.bottomGF.count, label: `GF Menos Ativo: ${stats.bottomGF.name}`, color: 'orange' } : null
+            stats.bottomGF ? { icon: <FiTrendingDown />, value: stats.bottomGF.count, label: `GF que menos cadastrou: ${stats.bottomGF.name}`, color: 'orange' } : null
         ].filter(Boolean);
         return (<div className={styles.statsGrid}>{statItems.map((item, index) => (<div key={index} className={`${styles.statCard} ${styles[item.color]}`}><div className={styles.statIcon}>{item.icon}</div><div className={styles.statInfo}><span className={styles.statValue}>{item.value}</span><span className={styles.statLabel}>{item.label}</span></div></div>))}</div>);
     };
@@ -301,9 +310,15 @@ function Admin() {
                         <button onClick={() => { setView('visitantes'); setIsSidebarOpen(false); }} className={view === 'visitantes' ? styles.active : ''}><FaWalking /> Visitantes</button>
                         <button onClick={() => { setView('usuarios'); setIsSidebarOpen(false); }} className={view === 'usuarios' ? styles.active : ''}><FaUsers /> Usuários</button>
                     </nav>
+                    {/* 3. Adicionar o botão de Logout aqui no rodapé */}
                     <div className={styles.sidebarFooter}>
-                        <button onClick={toggleDarkMode} className={styles.themeToggle}>{darkMode ? <FiSun /> : <FiMoon />}</button>
-                        <span>Kauã Henrique</span>
+                        <div className={styles.footerInfo}>
+                            <span>Kauã Henrique</span>
+                        </div>
+                        <div className={styles.footerActions}>
+                            <button onClick={toggleDarkMode} className={styles.themeToggle} title="Mudar tema">{darkMode ? <FiSun /> : <FiMoon />}</button>
+                            <button onClick={handleLogout} className={styles.logoutButton} title="Sair"><FiLogOut /></button>
+                        </div>
                     </div>
                 </aside>
                 <main className={styles.mainContent}>
