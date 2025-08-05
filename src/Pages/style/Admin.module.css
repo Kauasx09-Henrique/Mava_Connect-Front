@@ -334,43 +334,55 @@
   color: #fff;
 }
 
-/* --- TOTALMENTE CORRIGIDO E MELHORADO --- */
+/* --- BOTÃO DE STATUS MELHORADO --- */
 .statusSelect {
   /* 1. Usa a variável de cor passada pelo React para o fundo */
   background-color: var(--status-color);
   
-  /* 2. Garante que o texto seja legível (branco) */
+  /* 2. Garante que o texto seja legível e tenha profundidade */
   color: white;
   font-weight: 600;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   
   /* 3. Remove a aparência padrão do navegador para permitir estilização */
   -webkit-appearance: none;
   moz-appearance: none;
   appearance: none;
   
-  /* 4. Estilos de layout e borda */
-  padding: 0.5rem 2rem 0.5rem 0.8rem; /* Espaço extra à direita para a seta */
-  border-radius: 6px;
-  border: 1px solid transparent;
+  /* 4. Estilos de layout e borda aprimorados */
+  padding: 0.6rem 2.2rem 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
   font-size: 0.9rem;
   cursor: pointer;
   
-  /* 5. Adiciona uma seta personalizada (SVG embutido) */
+  /* 5. Efeito de profundidade com sombra interna e externa */
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 
+              0 1px 2px rgba(0, 0, 0, 0.1);
+
+  /* 6. Adiciona uma seta personalizada (SVG embutido) */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 0.7rem center;
+  background-position: right 0.8rem center;
   background-size: 1em;
   
-  transition: filter 0.2s ease;
+  /* 7. Transição suave para todas as propriedades animáveis */
+  transition: all 0.2s ease-in-out;
 }
 
 .statusSelect:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 
+              0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .statusSelect:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 4px var(--status-color);
+  /* Anel de foco mais destacado e temático */
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25),
+              0 0 0 2px var(--bg-card), 
+              0 0 0 4px var(--status-color);
 }
 
 
