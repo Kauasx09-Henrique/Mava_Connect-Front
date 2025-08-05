@@ -7,28 +7,17 @@
   box-sizing: border-box;
 }
 
-/* --- 2. ESTILOS GLOBAIS COM VARIÁVEIS --- */
+/* --- 2. ESTILOS GLOBAIS --- */
 body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* PONTO-CHAVE:
-    Aqui, definimos que o fundo e a cor do texto do corpo da página
-    DEVEM usar as variáveis. Quando o JavaScript trocar a classe no body
-    (para light-mode ou dark-mode), as variáveis serão atualizadas
-    e o tema da página inteira mudará automaticamente.
-  */
-  background-color: var(--bg-color);
-  color: var(--text-color);
   
-  /* Adiciona uma transição suave na mudança de tema */
+  /* NOTA: As cores de fundo e texto são agora controladas pelas variáveis
+    definidas no seu Admin.module.css e aplicadas pela classe no body.
+    Este arquivo não deve definir cores fixas.
+  */
   transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Remove a margem padrão do h1 dentro do header para evitar espaçamentos inesperados */
-header h1 {
-  margin: 0;
 }
 
 /* Garante que imagens se comportem bem */
@@ -37,7 +26,9 @@ img, picture, video, canvas, svg {
   max-width: 100%;
 }
 
-/* Remove a aparência padrão de botões */
-button {
+/* Remove estilos padrão que podem causar inconsistências */
+button, a {
   font-family: inherit;
+  color: inherit;
+  text-decoration: none;
 }

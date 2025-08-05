@@ -1,63 +1,118 @@
+/* --- ESTILOS PARA O NOVO HEADER.JSX --- */
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 2rem;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
   transition: background-color 0.3s, border-color 0.3s;
+  height: 70px;
 }
 
-.header.darkMode {
-  background-color: #24252c;
-  border-bottom: 1px solid #3a3b45;
+.brand {
+  display: flex;
+  align-items: center;
 }
 
-.brand { display: flex; align-items: center; }
-.logo { height: 40px; width: auto; }
-.userArea { display: flex; align-items: center; gap: 1.5rem; }
-.actions { display: flex; align-items: center; gap: 0.5rem; }
-
-.actionButton, .iconButton {
-  display: flex; align-items: center; gap: 0.5rem;
-  padding: 0.6rem 1rem; border-radius: 8px;
-  background-color: transparent; border: none;
-  font-size: 1rem; font-weight: 500; cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-  color: #65676b; text-decoration: none;
+.logo {
+  height: 40px;
+  width: auto;
 }
 
-.header.darkMode .actionButton, .header.darkMode .iconButton { color: #b0b3b8; }
-.actionButton:hover, .iconButton:hover { background-color: #f0f2f5; }
-.header.darkMode .actionButton:hover, .header.darkMode .iconButton:hover { background-color: #3a3b45; }
-.actionButton { background-color: #5845e0; color: #fff; }
-.actionButton:hover { background-color: #4a39cf; }
-.header.darkMode .actionButton { background-color: #6a5af9; }
-.header.darkMode .actionButton:hover { background-color: #5a4ae0; }
-.iconButton { padding: 0.6rem; font-size: 1.25rem; }
-
-.profile { display: flex; align-items: center; gap: 0.75rem; }
-.userInfo { display: flex; flex-direction: column; align-items: flex-end; }
-.greeting { font-size: 0.8rem; color: #65676b; }
-.header.darkMode .greeting { color: #b0b3b8; }
-.userName { font-weight: 600; color: #24252c; }
-.header.darkMode .userName { color: #e4e6eb; }
-
-.profileImage, .avatar {
-  width: 40px; height: 40px;
-  border-radius: 50%; object-fit: cover;
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  background-color: var(--accent-color);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.actionButton:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.iconButton {
+  background-color: var(--bg-input);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.iconButton:hover {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+  transform: scale(1.1) rotate(15deg);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-left: 1.5rem;
+  border-left: 1px solid var(--border-color);
+}
+
+.userInfo {
+  text-align: right;
+}
+
+.greeting {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.userName {
+  display: block;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+.avatar, .profileImage {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-color);
+}
+
 .avatar {
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 600; color: #fff; font-size: 1.2rem;
-}
-
-@media (max-width: 600px) {
-  .header { padding: 0.75rem 1rem; }
-  .actionButton span { display: none; }
-  .actionButton { padding: 0.6rem; }
-  .userInfo { display: none; }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
 }

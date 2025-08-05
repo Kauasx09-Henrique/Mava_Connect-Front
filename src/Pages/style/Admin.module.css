@@ -36,11 +36,11 @@
   --accent-hover: #d35400;
   --shadow-color: rgba(44, 62, 80, 0.1);
 
-  /* --- CORES DO MODO CLARO (MELHORADAS) --- */
+  /* Cores do modo claro (Melhoradas) */
   --success-color: #27ae60;
   --success-bg: #eafaf1;
   --warning-color: #f39c12;
-  --warning-bg: #0077ff;
+  --warning-bg: #fef5e7;
   --danger-color: #e74c3c;
   --danger-bg: #fdedec;
   --info-color: #3498db;
