@@ -35,10 +35,12 @@
   text-align: center;
 }
 
+/* --- LOGO CORRIGIDA --- */
 .logo {
+  display: block; /* Garante que o elemento seja um bloco */
+  margin: 0 auto 1rem auto; /* Centraliza horizontalmente e aplica margem inferior */
   max-width: 150px;
   height: auto;
-  margin-bottom: 1rem;
 }
 
 .loginForm h2 {
