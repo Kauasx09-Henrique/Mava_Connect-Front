@@ -1,16 +1,33 @@
+/* --- VARIÁVEIS DE TEMA (COM LARANJA) --- */
 :global(body.dark-mode) {
-  --bg-color: #1a1b21; --card-bg: #24252c; --text-color: #e2e2e2;
-  --text-muted: #8c8c8c; --border-color: #3a3b45; --accent-color: #6a5af9;
-  --accent-hover: #5a4ae0; --shadow-color: rgba(0, 0, 0, 0.2);
+  --bg-color: #1a1b21;
+  --bg-card: #24252c;
+  --text-color: #e2e2e2;
+  --text-muted: #8c8c8c;
+  --border-color: #3a3b45;
+  --accent-color: #f97316; /* Laranja Principal */
+  --accent-hover: #ea580c; /* Laranja mais escuro para hover */
+  --shadow-color: rgba(0, 0, 0, 0.2);
 }
 :global(body.light-mode) {
-  --bg-color: #f0f2f5; --card-bg: #ffffff; --text-color: #24252c;
-  --text-muted: #65676b; --border-color: #e0e0e0; --accent-color: #5845e0;
-  --accent-hover: #4a39cf; --shadow-color: rgba(0, 0, 0, 0.08);
+  --bg-page: #f0f2f5;
+  --bg-card: #ffffff;
+  --text-color: #1e293b;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --accent-color: #f97316; /* Laranja Principal */
+  --accent-hover: #ea580c; /* Laranja mais escuro para hover */
+  --shadow-color: rgba(149, 157, 165, 0.1);
 }
+
+/* Cores semânticas */
 :root {
-  --green: #28a745; --yellow: #ffc107; --red: #dc3545;
-  --blue: #007bff; --purple: #6f42c1; --orange: #fd7e14;
+  --green: #28a745;
+  --yellow: #ffc107;
+  --red: #dc3545;
+  --blue: #007bff;
+  --purple: #6f42c1;
+  --teal: #14b8a6; /* Usando Teal no lugar do antigo laranja para evitar conflito */
 }
 
 .adminContainer {
@@ -31,7 +48,7 @@
 }
 .searchBox:focus-within {
   border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(106, 90, 249, 0.2);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25); /* Sombra de foco Laranja */
 }
 .searchBox svg { color: var(--text-muted); }
 .searchBox input {
@@ -60,14 +77,14 @@
   color: #fff;
 }
 .activeIndicator {
-    position: absolute;
-    top: 0.5rem;
-    bottom: 0.5rem;
-    height: auto;
-    border-radius: 8px;
-    background-color: var(--accent-color);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  height: auto;
+  border-radius: 8px;
+  background-color: var(--accent-color);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .statsGrid {
@@ -90,7 +107,7 @@
 .statCard.green { border-color: var(--green); }
 .statCard.red { border-color: var(--red); }
 .statCard.purple { border-color: var(--purple); }
-.statCard.orange { border-color: var(--orange); }
+.statCard.orange { border-color: var(--teal); } /* Alterado para Teal */
 .statIcon {
   font-size: 2rem; padding: 0.75rem; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -100,7 +117,7 @@
 .green .statIcon { background-color: rgba(40, 167, 69, 0.1); color: var(--green); }
 .red .statIcon { background-color: rgba(220, 53, 69, 0.1); color: var(--red); }
 .purple .statIcon { background-color: rgba(111, 66, 193, 0.1); color: var(--purple); }
-.orange .statIcon { background-color: rgba(253, 126, 20, 0.1); color: var(--orange); }
+.orange .statIcon { background-color: rgba(20, 184, 166, 0.1); color: var(--teal); } /* Alterado para Teal */
 .statInfo { display: flex; flex-direction: column; }
 .statValue { font-size: 2rem; font-weight: 700; line-height: 1.1; }
 .statLabel { font-size: 0.9rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -169,6 +186,7 @@
 .actionButtons button:hover { background-color: var(--border-color); }
 .editButton:hover { color: var(--blue); }
 .deleteButton:hover { color: var(--red); }
+
 .modalOverlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0.7); display: flex;
@@ -199,6 +217,7 @@
 }
 .formGroup input:focus, .formGroup select:focus, .formGroup textarea:focus {
   outline: none; border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25); /* Sombra de foco Laranja */
 }
 .formGroup textarea { resize: vertical; min-height: 80px; }
 .modalActions {
