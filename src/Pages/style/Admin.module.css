@@ -9,9 +9,20 @@
   --accent-color: #ff8c00; /* Laranja mais vibrante */
   --accent-hover: #ffA500;
   --shadow-color: rgba(0, 0, 0, 0.4);
+  
+  /* Cores semânticas para Dark Mode */
   --success-color: #20c997;
+  --success-bg: rgba(32, 201, 151, 0.15);
   --warning-color: #ffc107;
+  --warning-bg: rgba(255, 193, 7, 0.15);
   --danger-color: #dc3545;
+  --danger-bg: rgba(220, 53, 69, 0.15);
+  --info-color: #3498db;
+  --info-bg: rgba(52, 152, 219, 0.15);
+  --purple-color: #9b59b6;
+  --purple-bg: rgba(155, 89, 182, 0.15);
+  --orange-color: #f39c12;
+  --orange-bg: rgba(243, 156, 18, 0.15);
 }
 
 :global(body.light-mode) {
@@ -24,9 +35,20 @@
   --accent-color: #e67e22; /* Laranja mais sóbrio */
   --accent-hover: #d35400;
   --shadow-color: rgba(44, 62, 80, 0.1);
+
+  /* Cores semânticas para Light Mode */
   --success-color: #28a745;
+  --success-bg: #e9f7ef;
   --warning-color: #ffc107;
+  --warning-bg: #fff8e1;
   --danger-color: #dc3545;
+  --danger-bg: #fbe9e7;
+  --info-color: #3498db;
+  --info-bg: #e3f2fd;
+  --purple-color: #9b59b6;
+  --purple-bg: #f3e5f5;
+  --orange-color: #f39c12;
+  --orange-bg: #fff3e0;
 }
 
 /* --- 2. ANIMAÇÕES (KEYFRAMES) --- */
@@ -171,7 +193,7 @@
   box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
 }
 
-/* Cards de Estatísticas */
+/* --- CARDS DE ESTATÍSTICAS (MELHORADOS) --- */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -193,57 +215,90 @@
   overflow: hidden;
 }
 
+/* Barra lateral colorida */
 .statCard::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 4px;
+  width: 5px;
   height: 100%;
-  background: var(--card-accent-color, var(--accent-color));
+  background: var(--card-accent-color);
   transition: width 0.3s ease;
 }
 
 .statCard:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-8px);
   box-shadow: 0 12px 25px var(--shadow-color);
 }
+
 .statCard:hover::before {
   width: 8px;
 }
 
-.statCard.blue { --card-accent-color: #3498db; }
-.statCard.yellow { --card-accent-color: var(--warning-color); }
-.statCard.green { --card-accent-color: var(--success-color); }
-.statCard.red { --card-accent-color: var(--danger-color); }
-.statCard.purple { --card-accent-color: #9b59b6; }
-.statCard.orange { --card-accent-color: #f39c12; }
+/* Definindo as cores para cada tipo de card */
+.statCard.blue { 
+  --card-accent-color: var(--info-color);
+  --icon-bg-color: var(--info-bg);
+}
+.statCard.yellow { 
+  --card-accent-color: var(--warning-color);
+  --icon-bg-color: var(--warning-bg);
+}
+.statCard.green { 
+  --card-accent-color: var(--success-color);
+  --icon-bg-color: var(--success-bg);
+}
+.statCard.red { 
+  --card-accent-color: var(--danger-color);
+  --icon-bg-color: var(--danger-bg);
+}
+.statCard.purple { 
+  --card-accent-color: var(--purple-color);
+  --icon-bg-color: var(--purple-bg);
+}
+.statCard.orange { 
+  --card-accent-color: var(--orange-color);
+  --icon-bg-color: var(--orange-bg);
+}
 
 .statIcon {
-  font-size: 2.2rem;
-  padding: 1rem;
-  border-radius: 12px;
+  font-size: 2rem;
+  flex-shrink: 0; /* Impede que o ícone encolha */
+  width: 60px;
+  height: 60px;
+  border-radius: 50%; /* Ícone circular */
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(127, 140, 141, 0.1);
   color: var(--card-accent-color);
-  transition: transform 0.3s ease;
+  background-color: var(--icon-bg-color); /* Fundo do ícone */
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
+
 .statCard:hover .statIcon {
-  transform: scale(1.1) rotate(-5deg);
+  transform: scale(1.1) rotate(-8deg);
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .statValue {
   font-size: 2.2rem;
   font-weight: 800;
   line-height: 1;
+  color: var(--text-color);
 }
+
 .statLabel {
   font-size: 0.9rem;
   color: var(--text-muted);
   font-weight: 500;
 }
+
 
 /* Tabela de Dados */
 .tableContainer {
