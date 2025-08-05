@@ -1,25 +1,44 @@
-/* --- ESTILOS PARA O NOVO HEADER.JSX --- */
+/* src/Components/Header.module.css */
 
+/*
+  Definição das variáveis de cor.
+  :root -> Cores do modo claro (padrão)
+  .darkMode -> Sobrescreve as variáveis para o modo escuro
+*/
+:root {
+  --header-bg: #ffffff;
+  --header-border: #e2e8f0;
+  --text-primary: #1a202c;
+  --text-secondary: #718096;
+  --button-bg-hover: #f7fafc;
+  --button-icon: #4a5568;
+}
+
+.darkMode {
+  --header-bg: #1a202c;
+  --header-border: #2d3748;
+  --text-primary: #edf2f7;
+  --text-secondary: #a0aec0;
+  --button-bg-hover: #2d3748;
+  --button-icon: #cbd5e0;
+}
+
+/* --- Estilo do Header --- */
 .header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 2rem;
-  background-color: var(--bg-card);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 4px 12px var(--shadow-color);
-  transition: background-color 0.3s, border-color 0.3s;
-  height: 70px;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  height: 40px;
-  width: auto;
+.brand .logo {
+  height: 40px; /* Ajuste a altura da sua logo */
+  object-fit: contain;
 }
 
 .userArea {
@@ -28,59 +47,47 @@
   gap: 1.5rem;
 }
 
+/* --- Ações e Botões --- */
 .actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
-.actionButton {
+.actionButton,
+.iconButton {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1.2rem;
-  background-color: var(--accent-color);
-  color: #fff;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
 }
 
-.actionButton:hover {
-  background-color: var(--accent-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+.actionButton:hover,
+.iconButton:hover {
+  background-color: var(--button-bg-hover);
+  color: var(--text-primary);
 }
 
 .iconButton {
-  background-color: var(--bg-input);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0.6rem;
   font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.iconButton:hover {
-  color: var(--accent-color);
-  border-color: var(--accent-color);
-  transform: scale(1.1) rotate(15deg);
-}
-
+/* --- Perfil do Usuário --- */
 .profile {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   padding-left: 1.5rem;
-  border-left: 1px solid var(--border-color);
+  border-left: 1px solid var(--header-border);
 }
 
 .userInfo {
@@ -88,31 +95,30 @@
 }
 
 .greeting {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
   display: block;
-  font-size: 0.85rem;
-  color: var(--text-muted);
 }
 
 .userName {
-  display: block;
   font-weight: 600;
-  font-size: 1rem;
-  color: var(--text-color);
+  color: var(--text-primary);
+  display: block;
 }
 
-.avatar, .profileImage {
-  width: 44px;
-  height: 44px;
+.profileImage,
+.avatar {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--accent-color);
+  border: 2px solid var(--header-border);
 }
 
 .avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #fff;
 }
