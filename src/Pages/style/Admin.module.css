@@ -11,7 +11,6 @@
 }
 
 :global(body.light-mode) {
-  /* CORRIGIDO: Renomeado de --bg-page para --bg-color para consistência */
   --bg-color: #f0f2f5;      
   --bg-card: #ffffff;
   --text-color: #1e293b;
@@ -24,9 +23,9 @@
 
 /* Cores semânticas globais */
 :root {
-  --green: #28a745;
-  --yellow: #ffc107;
-  --red: #dc3545;
+  --green: #16A34A;  /* Verde Corrigido */
+  --yellow: #D97706; /* Amarelo Corrigido */
+  --red: #DC2626;    /* Vermelho Corrigido */
   --blue: #007bff;
   --purple: #6f42c1;
   --teal: #14b8a6;
@@ -63,7 +62,6 @@
 .searchBox {
   display: flex; 
   align-items: center; 
-  /* CORRIGIDO: --card-bg para --bg-card */
   background-color: var(--bg-card);
   border: 1px solid var(--border-color); 
   border-radius: 8px;
@@ -98,7 +96,6 @@
 .viewToggle {
   display: inline-flex;
   position: relative;
-  /* CORRIGIDO: --card-bg para --bg-card */
   background-color: var(--bg-card);
   border-radius: 10px;
   padding: 0.5rem;
@@ -145,7 +142,6 @@
 }
 
 .statCard {
-  /* CORRIGIDO: --card-bg para --bg-card */
   background-color: var(--bg-card); 
   border-radius: 12px;
   padding: 1.5rem; 
@@ -179,9 +175,9 @@
 }
 
 .blue .statIcon { background-color: rgba(0, 123, 255, 0.1); color: var(--blue); }
-.yellow .statIcon { background-color: rgba(255, 193, 7, 0.1); color: var(--yellow); }
-.green .statIcon { background-color: rgba(40, 167, 69, 0.1); color: var(--green); }
-.red .statIcon { background-color: rgba(220, 53, 69, 0.1); color: var(--red); }
+.yellow .statIcon { background-color: rgba(217, 119, 6, 0.1); color: var(--yellow); }
+.green .statIcon { background-color: rgba(22, 163, 74, 0.1); color: var(--green); }
+.red .statIcon { background-color: rgba(220, 38, 38, 0.1); color: var(--red); }
 .purple .statIcon { background-color: rgba(111, 66, 193, 0.1); color: var(--purple); }
 .orange .statIcon { background-color: rgba(20, 184, 166, 0.1); color: var(--teal); }
 
@@ -205,7 +201,6 @@
 }
 
 .tableContainer {
-  /* CORRIGIDO: --card-bg para --bg-card */
   background-color: var(--bg-card); 
   border-radius: 12px;
   padding: 1.5rem; 
@@ -255,9 +250,6 @@
 }
 
 .filterButtons button.active {
-  /* FIX: Using !important to ensure these styles apply. */
-  /* There might be a conflicting style elsewhere in the project overriding the background color. */
-  /* This ensures the active button is always visible with the correct accent color. */
   background-color: var(--accent-color) !important;
   color: #fff !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -265,7 +257,6 @@
 
 .addButton {
   background-color: var(--accent-color); 
-  /* CORRIGIDO: Cor do texto para branco para melhor legibilidade */
   color: #fff; 
   border: none;
   border-radius: 8px; 
@@ -336,37 +327,24 @@
 
 /* --- BOTÃO DE STATUS MELHORADO --- */
 .statusSelect {
-  /* 1. Usa a variável de cor passada pelo React para o fundo */
   background-color: var(--status-color);
-  
-  /* 2. Garante que o texto seja legível e tenha profundidade */
   color: white;
   font-weight: 600;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-  
-  /* 3. Remove a aparência padrão do navegador para permitir estilização */
   -webkit-appearance: none;
   moz-appearance: none;
   appearance: none;
-  
-  /* 4. Estilos de layout e borda aprimorados */
   padding: 0.6rem 2.2rem 0.6rem 1rem;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.15);
   font-size: 0.9rem;
   cursor: pointer;
-  
-  /* 5. Efeito de profundidade com sombra interna e externa */
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), 
               0 1px 2px rgba(0, 0, 0, 0.1);
-
-  /* 6. Adiciona uma seta personalizada (SVG embutido) */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.8rem center;
   background-size: 1em;
-  
-  /* 7. Transição suave para todas as propriedades animáveis */
   transition: all 0.2s ease-in-out;
 }
 
@@ -379,7 +357,6 @@
 
 .statusSelect:focus {
   outline: none;
-  /* Anel de foco mais destacado e temático */
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25),
               0 0 0 2px var(--bg-card), 
               0 0 0 4px var(--status-color);
@@ -432,7 +409,6 @@
 }
 
 .modalContent {
-  /* CORRIGIDO: --card-bg para --bg-card */
   background-color: var(--bg-card); 
   color: var(--text-color);
   padding: 2rem; 

@@ -16,10 +16,11 @@ import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
 
+// --- CORES CORRIGIDAS PARA MELHOR CONTRASTE ---
 const statusOptions = [
-    { value: 'pendente', label: 'Pendente', color: '#ffc107', icon: <FiUser /> },
-    { value: 'entrou em contato', label: 'Contatado', color: '#28a745', icon: <FiUserCheck /> },
-    { value: 'erro número', label: 'Erro no Número', color: '#dc3545', icon: <FiUserX /> }
+    { value: 'pendente', label: 'Pendente', color: '#D97706', icon: <FiUser /> },          // Laranja/Âmbar escuro
+    { value: 'entrou em contato', label: 'Contatado', color: '#16A34A', icon: <FiUserCheck /> }, // Verde escuro
+    { value: 'erro número', label: 'Erro no Número', color: '#DC2626', icon: <FiUserX /> }  // Vermelho escuro
 ];
 
 const userRoles = {
