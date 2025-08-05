@@ -255,9 +255,12 @@
 }
 
 .filterButtons button.active {
-  background-color: var(--accent-color); 
-  color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  /* FIX: Using !important to ensure these styles apply. */
+  /* There might be a conflicting style elsewhere in the project overriding the background color. */
+  /* This ensures the active button is always visible with the correct accent color. */
+  background-color: var(--accent-color) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .addButton {
