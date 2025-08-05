@@ -29,22 +29,22 @@
   --bg-color: #f7f8fc;
   --bg-card: #ffffff;
   --bg-input: #f0f2f5;
-  --text-color: #2c3e50;
-  --text-muted: #7f8c8d;
-  --border-color: #e0e0e0;
-  --accent-color: #e67e22; /* Laranja mais sóbrio */
-  --accent-hover: #d35400;
+  --text-color: #1d2d3d; /* Mais escuro */
+  --text-muted: #6b7a8c; /* Mais escuro */
+  --border-color: #dfe4ea; /* Mais visível */
+  --accent-color: #f26522; /* Laranja mais vibrante */
+  --accent-hover: #d9521a;
   --shadow-color: rgba(44, 62, 80, 0.1);
 
-  /* Cores do modo claro (Melhoradas) */
-  --success-color: #27ae60;
-  --success-bg: #eafaf1;
-  --warning-color: #f39c12;
-  --warning-bg: #fef5e7;
+  /* Cores do modo claro (VIBRANTES E CORRIGIDAS) */
+  --success-color: #1db954;
+  --success-bg: #e8f8ee;
+  --warning-color: #ffc107;
+  --warning-bg: #fff9e6;
   --danger-color: #e74c3c;
   --danger-bg: #fdedec;
-  --info-color: #3498db;
-  --info-bg: #eaf2f8;
+  --info-color: #007bff;
+  --info-bg: #e6f2ff;
   --purple-color: #8e44ad;
   --purple-bg: #f4ecf7;
   --orange-color: #f39c12;
