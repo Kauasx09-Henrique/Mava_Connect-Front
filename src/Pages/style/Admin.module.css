@@ -36,19 +36,19 @@
   --accent-hover: #d35400;
   --shadow-color: rgba(44, 62, 80, 0.1);
 
-  /* Cores semânticas para Light Mode */
-  --success-color: #28a745;
-  --success-bg: #e9f7ef;
-  --warning-color: #ffc107;
-  --warning-bg: #fff8e1;
-  --danger-color: #dc3545;
-  --danger-bg: #fbe9e7;
+  /* --- CORES DO MODO CLARO (MELHORADAS) --- */
+  --success-color: #27ae60;
+  --success-bg: #eafaf1;
+  --warning-color: #f39c12;
+  --warning-bg: #fef5e7;
+  --danger-color: #e74c3c;
+  --danger-bg: #fdedec;
   --info-color: #3498db;
-  --info-bg: #e3f2fd;
-  --purple-color: #9b59b6;
-  --purple-bg: #f3e5f5;
+  --info-bg: #eaf2f8;
+  --purple-color: #8e44ad;
+  --purple-bg: #f4ecf7;
   --orange-color: #f39c12;
-  --orange-bg: #fff3e0;
+  --orange-bg: #fef5e7;
 }
 
 /* --- 2. ANIMAÇÕES (KEYFRAMES) --- */
@@ -325,6 +325,12 @@
 .filterButtons button {
   background-color: var(--bg-input);
   border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+/* HOVER MELHORADO */
+.filterButtons button:not(.active):hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 .filterButtons button.active {
   background-color: var(--accent-color);
@@ -373,6 +379,7 @@
   padding: 1.25rem 1rem;
   text-align: left;
   background-color: var(--bg-color);
+  transition: background-color 0.2s ease;
 }
 .dataTable tr td:first-child {
   border-top-left-radius: 10px;
@@ -387,11 +394,15 @@
   box-shadow: 0 2px 5px var(--shadow-color);
   border-radius: 10px;
 }
+/* HOVER DA TABELA MELHORADO */
 .dataTable tbody tr:hover {
   transform: scale(1.01);
   box-shadow: 0 5px 15px var(--shadow-color);
   z-index: 2;
   position: relative;
+}
+.dataTable tbody tr:hover td {
+    background-color: var(--bg-card);
 }
 
 .statusSelect {
