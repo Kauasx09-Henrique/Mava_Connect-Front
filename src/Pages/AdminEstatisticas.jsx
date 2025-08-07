@@ -9,7 +9,7 @@ import { Pie, Bar } from 'react-chartjs-2';
 
 // Importações de Componentes e Estilos
 import Header from '../../Components/Header'; // Ajuste o caminho se necessário
-import styles from './style/adminestatisticas.css';
+import styles from './style/AdminEstatisticas.css';
 import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay } from 'react-icons/fa';
 
 // Registro dos componentes do Chart.js

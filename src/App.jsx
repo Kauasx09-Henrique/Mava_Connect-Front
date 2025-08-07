@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 // Importação das páginas
 import Login from './Pages/Login.jsx';
 import Admin from './Pages/Admin.jsx';
-import AdminEstatisticas from './Pages/AdminEstatisticas.jsx'; // 1. IMPORTE A NOVA PÁGINA
+import AdminEstatisticas from './Pages/AdminEstatisticas.jsx'
 import CadastrarUsuario from './Pages/CadastrarUsuario.jsx';
 import Secretaria from './Pages/Secretaria.jsx'; 
 import CadastroVisitante from './Pages/CadastroVisitante.jsx';
