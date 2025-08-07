@@ -154,32 +154,6 @@
   width: 8px;
 }
 
-/* Definindo as cores para cada tipo de card */
-.statCard.blue { 
-  --card-accent-color: var(--info-color);
-  --icon-bg-color: var(--info-bg);
-}
-.statCard.yellow { 
-  --card-accent-color: var(--warning-color);
-  --icon-bg-color: var(--warning-bg);
-}
-.statCard.green { 
-  --card-accent-color: var(--success-color);
-  --icon-bg-color: var(--success-bg);
-}
-.statCard.red { 
-  --card-accent-color: var(--danger-color);
-  --icon-bg-color: var(--danger-bg);
-}
-.statCard.purple { 
-  --card-accent-color: var(--purple-color);
-  --icon-bg-color: var(--purple-bg);
-}
-.statCard.orange { 
-  --card-accent-color: var(--orange-color);
-  --icon-bg-color: var(--orange-bg);
-}
-
 .statIcon {
   font-size: 2rem;
   flex-shrink: 0;
@@ -189,10 +163,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--card-accent-color);
-  background-color: var(--icon-bg-color);
+  color: #fff; /* Ícone sempre branco para contraste */
   transition: transform 0.3s ease;
 }
+
+/* --- CORREÇÃO DAS CORES DOS CARDS --- */
+.statCard.blue { --card-accent-color: var(--info-color); }
+.statCard.yellow { --card-accent-color: var(--warning-color); }
+.statCard.green { --card-accent-color: var(--success-color); }
+.statCard.red { --card-accent-color: var(--danger-color); }
+.statCard.purple { --card-accent-color: var(--purple-color); }
+.statCard.orange { --card-accent-color: var(--orange-color); }
+
+.statCard.blue .statIcon { background-color: var(--info-color); }
+.statCard.yellow .statIcon { background-color: var(--warning-color); }
+.statCard.green .statIcon { background-color: var(--success-color); }
+.statCard.red .statIcon { background-color: var(--danger-color); }
+.statCard.purple .statIcon { background-color: var(--purple-color); }
+.statCard.orange .statIcon { background-color: var(--orange-color); }
+
 
 .statCard:hover .statIcon {
   transform: scale(1.1) rotate(-8deg);
@@ -403,6 +392,16 @@
   border: 1px solid var(--border-color);
   animation: modal-content-pop 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   color: var(--text-primary);
+}
+
+@keyframes modal-fade-in {
+  from { background-color: rgba(0, 0, 0, 0); }
+  to { background-color: rgba(0, 0, 0, 0.7); }
+}
+
+@keyframes modal-content-pop {
+  from { opacity: 0; transform: scale(0.95) translateY(-20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .closeModal {
