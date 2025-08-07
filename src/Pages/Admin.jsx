@@ -7,7 +7,7 @@ import Header from '../Components/Header';
 import {
     FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
     FaUserShield, FaUserFriends, FaPhone, FaEnvelope,
-    FaHome, FaMapMarkerAlt, FaUsersCog
+    FaHome, FaMapMarkerAlt, FaUsersCog, FaChurch
 } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 import { FiUser, FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
@@ -16,11 +16,10 @@ import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
 
-// --- CORES CORRIGIDAS PARA MELHOR CONTRASTE ---
 const statusOptions = [
-    { value: 'pendente', label: 'Pendente', color: '#D97706', icon: <FiUser /> },          // Laranja/Âmbar escuro
-    { value: 'entrou em contato', label: 'Contatado', color: '#16A34A', icon: <FiUserCheck /> }, // Verde escuro
-    { value: 'erro número', label: 'Erro no Número', color: '#DC2626', icon: <FiUserX /> }  // Vermelho escuro
+    { value: 'pendente', label: 'Pendente', color: '#D97706', icon: <FiUser /> },
+    { value: 'entrou em contato', label: 'Contatado', color: '#16A34A', icon: <FiUserCheck /> },
+    { value: 'erro número', label: 'Erro no Número', color: '#DC2626', icon: <FiUserX /> }
 ];
 
 const userRoles = {
@@ -40,12 +39,10 @@ function Admin() {
     const [formData, setFormData] = useState({});
     const [activeFilter, setActiveFilter] = useState('all');
     
-    // Stats para Visitantes
     const [visitorStats, setVisitorStats] = useState({
         topGF: null, bottomGF: null, statusDistribution: {}, genderDistribution: {},
     });
     
-    // Stats para Usuários
     const [userStats, setUserStats] = useState({ total: 0, admins: 0, secretarias: 0 });
 
     const filteredUsuarios = useMemo(() => {
@@ -277,6 +274,10 @@ function Admin() {
                                     <div className={styles.formGroup}><label><MdEmail /> Email</label><input type="email" name="email" value={formData.email || ''} onChange={handleFormChange} /></div>
                                     <div className={styles.formGroup}><label><FiUserCheck /> Status*</label><select name="status" value={formData.status || 'pendente'} onChange={handleFormChange} required>{statusOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></div>
                                     <div className={styles.formGroup}><label><FaUserFriends /> GF Responsável</label><input type="text" name="gf_responsavel" value={formData.gf_responsavel || ''} onChange={handleFormChange} /></div>
+                                    
+                                    {/* CAMPO 'EVENTO' ADICIONADO AQUI */}
+                                    <div className={styles.formGroup}><label><FaChurch /> Evento da Visita*</label><select name="evento" value={formData.evento || ''} onChange={handleFormChange} required><option value="" disabled>Selecione...</option><option value="gf">GF</option><option value="evangelismo">Evangelismo</option><option value="culto">Culto</option></select></div>
+
                                     <div className={styles.formGroup} style={{ gridColumn: 'span 2' }}><label><FaHome /> Como conheceu a igreja?</label><textarea name="como_conheceu" value={formData.como_conheceu || ''} onChange={handleFormChange}></textarea></div>
                                 </div></div>
                                 <div className={styles.formSection}><h3><FaMapMarkerAlt /> Endereço</h3><div className={styles.formGrid}>
@@ -324,7 +325,7 @@ function Admin() {
                     </div>
 
                     {loading ? (
-                         <div className={styles.loading}><div className={styles.spinner}></div><p>Carregando dados...</p></div>
+                        <div className={styles.loading}><div className={styles.spinner}></div><p>Carregando dados...</p></div>
                     ) : (
                         <>
                             {view === 'visitantes' ? renderVisitorStatsCards() : renderUserStatsCards()}
