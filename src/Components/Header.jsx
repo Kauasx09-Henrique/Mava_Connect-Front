@@ -72,9 +72,9 @@ function Header() {
                         </Link>
                     )}
 
-                    {/* 2. ADICIONEI O NOVO LINK PARA ESTATÍSTICAS AQUI */}
+                    {/* Link de Estatísticas corrigido */}
                     {userType === 'admin' && (
-                        <Link to="/AdminEstatistaca" className={styles.actionButton} title="Estatísticas">
+                        <Link to="/admin/estatisticas" className={styles.actionButton} title="Estatísticas">
                             <FaChartBar />
                             <span>Estatísticas</span>
                         </Link>
