@@ -3,16 +3,15 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-// Importações do Chart.js
+
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 
-// Importações de Componentes e Estilos
-import Header from '../Components/Header'; // Ajuste o caminho se necessário
+
+import Header from '../Components/Header'; 
 import styles from './style/AdminEstatisticas.css';
 import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay } from 'react-icons/fa';
 
-// Registro dos componentes do Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
@@ -27,9 +26,8 @@ function AdminEstatisticas() {
         visitsByDate: null,
     });
 
-    // Função para processar os dados para os gráficos
     const processDataForCharts = (data) => {
-        // 1. Gráfico de Gênero (Pizza)
+    
         const genderCounts = data.reduce((acc, visitor) => {
             const gender = visitor.sexo || 'Não informado';
             acc[gender] = (acc[gender] || 0) + 1;
@@ -46,7 +44,6 @@ function AdminEstatisticas() {
             }],
         };
 
-        // 2. Gráfico de Faixa Etária (Barras)
         const ageGroups = { '0-17': 0, '18-25': 0, '26-35': 0, '36-50': 0, '51+': 0, 'Não informado': 0 };
         data.forEach(visitor => {
             if (visitor.data_nascimento) {
@@ -70,13 +67,13 @@ function AdminEstatisticas() {
             }],
         };
 
-        // 3. Gráfico de Visitas por Data (Barras)
+
         const dateCounts = data.reduce((acc, visitor) => {
             const visitDate = new Date(visitor.data_visita).toLocaleDateString('pt-BR');
             acc[visitDate] = (acc[visitDate] || 0) + 1;
             return acc;
         }, {});
-        // Pega as 7 datas com mais visitas
+
         const topDates = Object.entries(dateCounts).sort((a, b) => b[1] - a[1]).slice(0, 7);
         const visitsByDateChart = {
             labels: topDates.map(item => item[0]),
@@ -130,7 +127,7 @@ function AdminEstatisticas() {
                 </header>
 
                 <div className={styles.chartsGrid}>
-                    {/* Card do Gráfico de Gênero */}
+                 
                     <div className={styles.chartCard}>
                         <h2 className={styles.chartTitle}><FaVenusMars /> Distribuição por Gênero</h2>
                         <div className={styles.chartWrapper}>
@@ -138,7 +135,7 @@ function AdminEstatisticas() {
                         </div>
                     </div>
 
-                    {/* Card do Gráfico de Idade */}
+                 
                     <div className={styles.chartCard}>
                         <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
                         <div className={styles.chartWrapper}>
@@ -146,7 +143,6 @@ function AdminEstatisticas() {
                         </div>
                     </div>
 
-                    {/* Card do Gráfico de Visitas por Data */}
                     <div className={styles.chartCard} style={{ gridColumn: '1 / -1' }}>
                         <h2 className={styles.chartTitle}><FaCalendarDay /> Top 7 Dias com Mais Visitas</h2>
                         <div className={styles.chartWrapper}>
