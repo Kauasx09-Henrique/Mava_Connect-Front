@@ -22,6 +22,48 @@ function AdminEstatisticas() {
         visitsByDate: null,
         location: null,
     });
+    const [chartOptions, setChartOptions] = useState({ pie: {}, bar: {} });
+
+    // Efeito para configurar as opções dos gráficos de acordo com o tema (claro/escuro)
+    useEffect(() => {
+        // Esta função lê as variáveis de cor do seu theme.css
+        const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+        const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+
+        const barChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    ticks: { color: textColor, font: { size: 12 } },
+                    grid: { color: gridColor }
+                },
+                x: {
+                    ticks: { color: textColor, font: { size: 12 } },
+                    grid: { color: 'transparent' }
+                }
+            }
+        };
+
+        const pieChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: textColor,
+                        font: { size: 14 }
+                    }
+                }
+            }
+        };
+        
+        setChartOptions({ bar: barChartOptions, pie: pieChartOptions });
+    }, []); // Executa uma vez ao montar o componente
 
     const processDataForCharts = (data) => {
         const genderCounts = data.reduce((acc, visitor) => {
@@ -154,28 +196,28 @@ function AdminEstatisticas() {
                     <div className={styles.chartCard}>
                         <h2 className={styles.chartTitle}><FaVenusMars /> Distribuição por Gênero</h2>
                         <div className={styles.chartWrapper}>
-                            {chartData.gender && <Pie data={chartData.gender} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }} />}
+                            {chartData.gender && <Pie data={chartData.gender} options={chartOptions.pie} />}
                         </div>
                     </div>
 
                     <div className={styles.chartCard}>
                         <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
                         <div className={styles.chartWrapper}>
-                           {chartData.age && <Bar data={chartData.age} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} />}
+                           {chartData.age && <Bar data={chartData.age} options={chartOptions.bar} />}
                         </div>
                     </div>
 
                     <div className={`${styles.chartCard} ${styles.fullWidthCard}`}>
                         <h2 className={styles.chartTitle}><FaMapMarkedAlt /> Visitantes por Localização</h2>
                         <div className={styles.chartWrapper}>
-                            {chartData.location && <Bar data={chartData.location} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} />}
+                            {chartData.location && <Bar data={chartData.location} options={chartOptions.bar} />}
                         </div>
                     </div>
 
                     <div className={`${styles.chartCard} ${styles.fullWidthCard}`}>
                         <h2 className={styles.chartTitle}><FaCalendarDay /> Top 10 Dias com Mais Visitas</h2>
                         <div className={styles.chartWrapper}>
-                            {chartData.visitsByDate && <Bar data={chartData.visitsByDate} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} />}
+                            {chartData.visitsByDate && <Bar data={chartData.visitsByDate} options={chartOptions.bar} />}
                         </div>
                     </div>
                 </div>
