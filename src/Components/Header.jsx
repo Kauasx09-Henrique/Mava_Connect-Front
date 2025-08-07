@@ -26,9 +26,6 @@ function Header() {
     const userType = localStorage.getItem('tipo');
     const userLogoPath = localStorage.getItem('logo');
 
-    // LINHA DE DEPURAÇÃO: Verifique a consola do navegador para ver este valor
-    console.log("DEBUG: O Header está a ver o tipo de utilizador como:", userType);
-
     const API_URL = import.meta.env.VITE_API_URL || 'https://mava-connect-backend.onrender.com';
     const userProfileImageUrl = userLogoPath ? `${API_URL}/${userLogoPath}` : null;
 
@@ -75,15 +72,15 @@ function Header() {
                     {(userType === 'secretaria' || userType === 'admin') && (
                         <Link to="/cadastrar-visitante" className={styles.actionButton} title="Novo Visitante">
                             <FaUserPlus />
-                            <span>Novo Visitante</span>
+                            <span className={styles.actionText}>Novo Visitante</span>
                         </Link>
                     )}
 
                     {/* Link para Estatísticas (Apenas Admin) */}
                     {userType === 'admin' && (
-                    <Link to="/AdminEstatisticas" className={styles.actionButton} title="Estatísticas">
+                        <Link to="/admin/estatisticas" className={styles.actionButton} title="Estatísticas">
                             <FaChartBar />
-                            <span>Estatísticas</span>
+                            <span className={styles.actionText}>Estatísticas</span>
                         </Link>
                     )}
 

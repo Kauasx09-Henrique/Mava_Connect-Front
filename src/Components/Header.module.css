@@ -1,43 +1,18 @@
-/* src/Components/Header.module.css */
-
-/*
-  Definição das variáveis de cor.
-  :root -> Cores do modo claro (padrão)
-  .darkMode -> Sobrescreve as variáveis para o modo escuro
-*/
-:root {
-  --header-bg: #ffffff;
-  --header-border: #e2e8f0;
-  --text-primary: #1a202c;
-  --text-secondary: #718096;
-  --button-bg-hover: #f7fafc;
-  --button-icon: #4a5568;
-}
-
-.darkMode {
-  --header-bg: #1a202c;
-  --header-border: #2d3748;
-  --text-primary: #edf2f7;
-  --text-secondary: #a0aec0;
-  --button-bg-hover: #2d3748;
-  --button-icon: #cbd5e0;
-}
-
 /* --- Estilo do Header --- */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background-color: var(--header-bg);
-  border-bottom: 1px solid var(--header-border);
+  background-color: var(--bg-header, #ffffff);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   transition: background-color 0.3s ease, border-color 0.3s ease;
   width: 100%;
   box-sizing: border-box;
 }
 
 .brand .logo {
-  height: 40px; /* Ajuste a altura da sua logo */
+  height: 40px;
   object-fit: contain;
 }
 
@@ -63,7 +38,7 @@
   border-radius: 6px;
   border: none;
   background-color: transparent;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #718096);
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -72,8 +47,8 @@
 
 .actionButton:hover,
 .iconButton:hover {
-  background-color: var(--button-bg-hover);
-  color: var(--text-primary);
+  background-color: var(--bg-hover, #f7fafc);
+  color: var(--text-primary, #1a202c);
 }
 
 .iconButton {
@@ -87,7 +62,7 @@
   align-items: center;
   gap: 0.75rem;
   padding-left: 1.5rem;
-  border-left: 1px solid var(--header-border);
+  border-left: 1px solid var(--border-color, #e2e8f0);
 }
 
 .userInfo {
@@ -96,13 +71,13 @@
 
 .greeting {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #718096);
   display: block;
 }
 
 .userName {
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-primary, #1a202c);
   display: block;
 }
 
@@ -112,7 +87,7 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--header-border);
+  border: 2px solid var(--border-color, #e2e8f0);
 }
 
 .avatar {
@@ -121,4 +96,30 @@
   justify-content: center;
   font-weight: 600;
   color: #fff;
+}
+
+/* --- RESPONSIVIDADE PARA TELEMÓVEIS --- */
+@media (max-width: 768px) {
+  .header {
+    padding: 0.5rem 1rem; /* Menos padding */
+  }
+
+  /* Esconde o texto dos botões de ação */
+  .actionText {
+    display: none;
+  }
+
+  /* Esconde a saudação e o nome do utilizador */
+  .userInfo {
+    display: none;
+  }
+
+  .profile {
+    padding-left: 0.5rem;
+    border-left: none; /* Remove a borda */
+  }
+
+  .userArea {
+    gap: 0.5rem; /* Menos espaço entre os elementos */
+  }
 }
