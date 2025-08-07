@@ -9,7 +9,7 @@ import { Pie, Bar } from 'react-chartjs-2';
 
 
 import Header from '../Components/Header'; 
-import styles from './style/AdminEstatisticas.css';
+import styles from 'style/AdminEstatisticas.module.css';
 import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay } from 'react-icons/fa';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
