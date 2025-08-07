@@ -1,39 +1,4 @@
-/* --- 1. VARIÁVEIS DE TEMA E CORES --- */
-/* Este ficheiro agora usa as variáveis globais de theme.css */
-
-/* --- 2. ANIMAÇÕES (KEYFRAMES) --- */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes modal-fade-in {
-  from {
-    background-color: rgba(0, 0, 0, 0);
-  }
-  to {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
-}
-
-@keyframes modal-content-pop {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* --- 3. ESTILOS GERAIS E LAYOUT --- */
+/* --- 1. ESTILOS GERAIS E LAYOUT --- */
 .adminContainer {
   background-color: var(--bg-page);
   color: var(--text-primary);
@@ -49,6 +14,17 @@
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .mainHeader {
   display: flex;
   justify-content: space-between;
@@ -59,9 +35,8 @@
 }
 
 .mainHeader h1 {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  letter-spacing: -1px;
   color: var(--text-primary);
 }
 
@@ -103,11 +78,11 @@
   outline: none;
 }
 
-/* --- 4. COMPONENTES PRINCIPAIS --- */
+/* --- 2. COMPONENTES PRINCIPAIS --- */
 
 /* Botões de Visão (Visitantes/Usuários) */
 .viewToggle {
-  display: flex;
+  display: inline-flex;
   background-color: var(--bg-card);
   border-radius: 12px;
   padding: 6px;
@@ -243,11 +218,11 @@
 }
 
 
-/* Tabela de Dados */
+/* --- 3. TABELA DE DADOS --- */
 .tableContainer {
   background-color: var(--bg-card);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 5px 20px var(--shadow-color);
   border: 1px solid var(--border-color);
 }
@@ -257,12 +232,18 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
   gap: 1rem;
+}
+
+.tableHeader h3 {
+    color: var(--text-primary);
 }
 
 .headerActions {
   display: flex;
   gap: 1rem;
+  align-items: center;
 }
 
 .filterButtons button {
@@ -271,8 +252,9 @@
   color: var(--text-secondary);
   transition: all 0.2s ease;
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -307,6 +289,10 @@
   box-shadow: 0 7px 15px rgba(102, 126, 234, 0.4);
 }
 
+.tableWrapper {
+    overflow-x: auto;
+}
+
 .dataTable {
   width: 100%;
   border-collapse: separate;
@@ -327,6 +313,7 @@
   text-align: left;
   background-color: var(--bg-page);
   transition: background-color 0.2s ease;
+  color: var(--text-primary);
 }
 .dataTable tr td:first-child {
   border-top-left-radius: 10px;
@@ -351,6 +338,17 @@
     background-color: var(--bg-card);
 }
 
+.roleBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-weight: 500;
+    color: white;
+    background-color: var(--role-color, #6c757d);
+}
+
 .statusSelect {
   color: white;
   font-weight: 600;
@@ -361,7 +359,6 @@
   cursor: pointer;
 }
 
-/* Cores específicas para o status select */
 .statusSelect[style*="--status-color: rgb(217, 119, 6)"] { background-color: var(--status-pending-bg); }
 .statusSelect[style*="--status-color: rgb(22, 163, 74)"] { background-color: var(--status-contacted-bg); }
 .statusSelect[style*="--status-color: rgb(220, 38, 38)"] { background-color: var(--status-error-bg); }
@@ -378,13 +375,17 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.2s;
 }
 .actionButtons button:hover {
   background-color: var(--border-color);
   color: var(--text-primary);
 }
+.editButton:hover { color: var(--success-color); border-color: var(--success-color); }
+.deleteButton:hover { color: var(--danger-color); border-color: var(--danger-color); }
 
-/* --- 5. MODAL --- */
+
+/* --- 4. MODAL --- */
 .modalOverlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   backdrop-filter: blur(5px);
@@ -401,6 +402,7 @@
   box-shadow: 0 15px 40px rgba(0,0,0,0.3);
   border: 1px solid var(--border-color);
   animation: modal-content-pop 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  color: var(--text-primary);
 }
 
 .closeModal {
@@ -412,9 +414,51 @@
   transition: all 0.3s;
 }
 .closeModal:hover {
-  background-color: var(--status-error-bg);
+  background-color: var(--danger-color);
   color: #fff;
   transform: rotate(90deg);
+}
+
+.modalContent h2 {
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+}
+
+.formGroup label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.8rem;
+    font-size: 1rem;
+}
+.formGroup textarea {
+    min-height: 80px;
+    resize: vertical;
 }
 
 .modalActions {
@@ -431,6 +475,7 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 .saveButton:hover {
   transform: translateY(-2px);
@@ -447,7 +492,7 @@
     cursor: pointer;
 }
 
-/* --- 6. RESPONSIVIDADE --- */
+/* --- 5. RESPONSIVIDADE --- */
 @media (max-width: 768px) {
   .mainContent { padding: 1rem; }
   .dataTable { border-spacing: 0 0.5rem; }
