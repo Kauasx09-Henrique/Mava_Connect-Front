@@ -43,8 +43,8 @@ function App() {
         />
 
         {/* 2. ADICIONE A NOVA ROTA DE ESTATÍSTICAS AQUI */}
-        <Route 
-          path="/AdminEstatisticas"
+       <Route 
+          path="/admin/estatisticas" // O caminho foi corrigido aqui
           element={
             <ProtectedRoute role="admin">
               <AdminEstatisticas />
