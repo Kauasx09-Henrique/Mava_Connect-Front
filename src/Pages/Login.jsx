@@ -1,103 +1,118 @@
-import { useState } from 'react';
+// Caminho: src/Pages/Login.jsx
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import styles from './style/Login.module.css'; // Certifique-se que o caminho está correto
-import mavaLogo from '../../public/logo_mava.png';
-import { FaUser, FaLock } from 'react-icons/fa';
+import styles from './style/Login.module.css';
+import logo from '../../public/logo_mava.png';
 
+const API_URL = 'https://mava-connect-backend.onrender.com';
 function Login() {
-    const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [senha, setSenha] = useState('');
-    const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const navigate = useNavigate();
 
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://mava-connect-backend.onrender.com';
-
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        if (!email || !senha) {
-            toast.error('Por favor, preencha todos os campos.');
-            return;
-        }
-        setLoading(true);
-
-        try {
-            // A sua rota de login no backend. Ajuste se for diferente (ex: /auth/login)
-            // 1. CORREÇÃO: Enviando os campos com os nomes que o backend espera (email_gf, senha_gf)
-            const response = await axios.post(`${API_BASE_URL}/api/login`, {
-                email_gf: email,
-                senha_gf: senha,
-            });
-
-            const { token, usuario } = response.data;
-
-            if (!token || !usuario) {
-                toast.error('Resposta inválida do servidor.');
-                setLoading(false);
-                return;
-            }
-
-            // Guardar os dados no localStorage
-            localStorage.setItem('token', token);
-            localStorage.setItem('nome_gf', usuario.nome_gf);
-            
-            // 2. CORREÇÃO: Usando a chave 'tipo', que é a mesma que o Header.jsx procura.
-            localStorage.setItem('tipo', usuario.tipo_usuario); 
-            
-            localStorage.setItem('logo', usuario.logo || '');
-
-            toast.success(`Bem-vindo(a), ${usuario.nome_gf}!`);
-
-            // Redireciona o usuário com base no seu tipo
-            if (usuario.tipo_usuario === 'admin') {
-                navigate('/admin');
-            } else {
-                navigate('/secretaria');
-            }
-
-        } catch (error) {
-            const errorMessage = error.response?.data?.error || 'Email ou senha incorretos. Tente novamente.';
-            toast.error(errorMessage);
-        } finally {
-            setLoading(false);
-        }
+  // Verifica o modo do sistema ao carregar o componente
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(isDark);
+      
+      // Adiciona listener para mudanças no tema
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e) => setDarkMode(e.matches);
+      mediaQuery.addListener(handleChange);
+      
+      return () => mediaQuery.removeListener(handleChange);
     };
 
-    return (
-        <div className={styles.loginContainer}>
-            <div className={styles.loginBox}>
-                <img src={mavaLogo} alt="Logo Mava Connect" className={styles.logo} />
-                <h1 className={styles.title}>Bem-vindo de volta!</h1>
-                <p className={styles.subtitle}>Faça login para continuar</p>
-                <form onSubmit={handleLogin} className={styles.loginForm}>
-                    <div className={styles.inputGroup}>
-                        <FaUser className={styles.icon} />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <FaLock className={styles.icon} />
-                        <input
-                            type="password"
-                            placeholder="Senha"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button type="submit" className={styles.loginButton} disabled={loading}>
-                        {loading ? 'A entrar...' : 'Entrar'}
-                    </button>
-                </form>
-            </div>
+    checkDarkMode();
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    console.log('[Login.jsx] DADOS QUE SERÃO ENVIADOS PARA A API:', { email, senha });
+
+    const loginPromise = axios.post(`${API_URL}/auth/login`, { email, senha });
+
+    toast.promise(loginPromise, {
+      loading: 'Verificando credenciais...',
+      success: (res) => {
+        const { token, usuario } = res.data;
+
+        if (!token || !usuario || !usuario.tipo) {
+          throw new Error('Resposta inválida do servidor. Faltando dados essenciais.');
+        }
+
+        localStorage.setItem('token', token);
+        localStorage.setItem('user_tipo', usuario.tipo);
+        localStorage.setItem('user_nome', usuario.nome);
+        if (usuario.logo) {
+          localStorage.setItem('user_logo', usuario.logo);
+        }
+
+        setTimeout(() => {
+          if (usuario.tipo === 'admin') {
+            navigate('/admin');
+          } else if (usuario.tipo === 'secretaria') {
+            navigate('/secretaria');
+          } else {
+            navigate('/');
+          }
+        }, 800);
+
+        return `Bem-vindo(a), ${usuario.nome || 'usuário'}!`;
+      },
+      error: (err) => {
+        console.error('[Login.jsx] Erro ao fazer login:', err);
+        return err.response?.data?.mensagem || 'Credenciais inválidas ou erro no servidor.';
+      },
+    }).finally(() => {
+      setLoading(false);
+    });
+  };
+
+  return (
+    <div className={`${styles.loginContainer} ${darkMode ? styles.darkMode : ''}`}>
+      <form className={styles.loginForm} onSubmit={handleLogin}>
+        <div className={styles.logoContainer}>
+          <img src={logo} alt="Logo da Empresa" className={styles.logo} />
         </div>
-    );
+        <h2>Acessar o Sistema</h2>
+        <div className={styles.inputGroup}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="password">Senha</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Sua senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+        <button type="submit" className={styles.loginButton} disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar'}
+        </button>
+      </form>
+    </div>
+  );
 }
 
 export default Login;
