@@ -2,17 +2,12 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
-// Importações do Chart.js
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
-
-// Importações de Componentes e Estilos
 import Header from '../Components/Header'; 
-import styles from './style/AdminEstatisticas.module.css'; // Importando o novo CSS
-import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay } from 'react-icons/fa';
+import styles from './style/AdminEstatisticas.module.css';
+import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt } from 'react-icons/fa';
 
-// Registro dos componentes do Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
@@ -25,28 +20,32 @@ function AdminEstatisticas() {
         gender: null,
         age: null,
         visitsByDate: null,
+        location: null,
     });
 
-    // Função para processar os dados para os gráficos
     const processDataForCharts = (data) => {
-        // 1. Gráfico de Gênero (Pizza)
         const genderCounts = data.reduce((acc, visitor) => {
             const gender = visitor.sexo || 'Não informado';
             acc[gender] = (acc[gender] || 0) + 1;
             return acc;
         }, {});
+
+        const genderLabels = Object.keys(genderCounts);
         const genderChart = {
-            labels: Object.keys(genderCounts),
+            labels: genderLabels,
             datasets: [{
                 label: 'Visitantes',
                 data: Object.values(genderCounts),
-                backgroundColor: ['#4299E1', '#F56565', '#A0AEC0'], // Cores mais modernas
-                borderColor: '#fff',
-                borderWidth: 3,
+                backgroundColor: genderLabels.map(label => {
+                    if (label === 'Masculino') return '#3b82f6'; // Azul
+                    if (label === 'Feminino') return '#ec4899'; // Rosa
+                    return '#a0aec0'; // Cinza
+                }),
+                borderColor: 'var(--bg-card)',
+                borderWidth: 4,
             }],
         };
 
-        // 2. Gráfico de Faixa Etária (Barras)
         const ageGroups = { '0-17': 0, '18-25': 0, '26-35': 0, '36-50': 0, '51+': 0, 'Não informado': 0 };
         data.forEach(visitor => {
             if (visitor.data_nascimento) {
@@ -66,29 +65,50 @@ function AdminEstatisticas() {
             datasets: [{
                 label: 'Nº de Visitantes',
                 data: Object.values(ageGroups),
-                backgroundColor: '#4FD1C5', // Cor de destaque
+                backgroundColor: 'var(--accent-secondary)',
                 borderRadius: 4,
             }],
         };
 
-        // 3. Gráfico de Visitas por Data (Barras)
         const dateCounts = data.reduce((acc, visitor) => {
             const visitDate = new Date(visitor.data_visita).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             acc[visitDate] = (acc[visitDate] || 0) + 1;
             return acc;
         }, {});
-        const topDates = Object.entries(dateCounts).sort((a, b) => b[1] - a[1]).slice(0, 10); // Mostrando top 10
+        const topDates = Object.entries(dateCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
         const visitsByDateChart = {
             labels: topDates.map(item => item[0]),
             datasets: [{
                 label: 'Nº de Visitantes',
                 data: topDates.map(item => item[1]),
-                backgroundColor: '#7F9CF5', // Cor complementar
+                backgroundColor: 'var(--accent-primary)',
                 borderRadius: 4,
             }],
         };
 
-        setChartData({ gender: genderChart, age: ageChart, visitsByDate: visitsByDateChart });
+        const mainCities = ['Ceilândia', 'Taguatinga', 'Samambaia', 'Recanto das Emas', 'Guará', 'Águas Claras', 'Park Way'];
+        const locationCounts = data.reduce((acc, visitor) => {
+            const city = visitor.endereco?.cidade || 'Não informado';
+            const formattedCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
+            
+            if (mainCities.includes(formattedCity)) {
+                acc[formattedCity] = (acc[formattedCity] || 0) + 1;
+            } else {
+                acc['Outras'] = (acc['Outras'] || 0) + 1;
+            }
+            return acc;
+        }, {});
+        const locationChart = {
+            labels: Object.keys(locationCounts),
+            datasets: [{
+                label: 'Nº de Visitantes',
+                data: Object.values(locationCounts),
+                backgroundColor: '#34d399',
+                borderRadius: 4,
+            }],
+        };
+
+        setChartData({ gender: genderChart, age: ageChart, visitsByDate: visitsByDateChart, location: locationChart });
     };
 
     useEffect(() => {
@@ -131,15 +151,13 @@ function AdminEstatisticas() {
                 </header>
 
                 <div className={styles.chartsGrid}>
-                    {/* Card do Gráfico de Gênero */}
                     <div className={styles.chartCard}>
                         <h2 className={styles.chartTitle}><FaVenusMars /> Distribuição por Gênero</h2>
                         <div className={styles.chartWrapper}>
-                            {chartData.gender && <Pie data={chartData.gender} options={{ maintainAspectRatio: false }} />}
+                            {chartData.gender && <Pie data={chartData.gender} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }} />}
                         </div>
                     </div>
 
-                    {/* Card do Gráfico de Idade */}
                     <div className={styles.chartCard}>
                         <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
                         <div className={styles.chartWrapper}>
@@ -147,7 +165,13 @@ function AdminEstatisticas() {
                         </div>
                     </div>
 
-                    {/* Card do Gráfico de Visitas por Data */}
+                    <div className={`${styles.chartCard} ${styles.fullWidthCard}`}>
+                        <h2 className={styles.chartTitle}><FaMapMarkedAlt /> Visitantes por Localização</h2>
+                        <div className={styles.chartWrapper}>
+                            {chartData.location && <Bar data={chartData.location} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} />}
+                        </div>
+                    </div>
+
                     <div className={`${styles.chartCard} ${styles.fullWidthCard}`}>
                         <h2 className={styles.chartTitle}><FaCalendarDay /> Top 10 Dias com Mais Visitas</h2>
                         <div className={styles.chartWrapper}>
