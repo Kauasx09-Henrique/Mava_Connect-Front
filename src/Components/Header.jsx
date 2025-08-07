@@ -74,7 +74,7 @@ function Header() {
 
                     {/* Link de Estatísticas corrigido */}
                     {userType === 'admin' && (
-                        <Link to="/admin/estatisticas" className={styles.actionButton} title="Estatísticas">
+                        <Link to="/AdminEstatisticas" className={styles.actionButton} title="Estatísticas">
                             <FaChartBar />
                             <span>Estatísticas</span>
                         </Link>
