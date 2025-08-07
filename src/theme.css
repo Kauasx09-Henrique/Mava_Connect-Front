@@ -1,0 +1,43 @@
+/* Define as variáveis de cor para o tema claro (padrão) */
+:root {
+  --bg-page: #f7f9fc;
+  --bg-card: #ffffff;
+  --bg-header: #ffffff;
+  --bg-input: #f0f2f5;
+  --bg-hover: #e9ecef;
+  
+  --text-primary: #2d3748;
+  --text-secondary: #718096;
+  
+  --border-color: #e2e8f0;
+  --shadow-color: rgba(0, 0, 0, 0.05);
+
+  --accent-primary: #667eea;
+  --accent-secondary: #764ba2;
+
+  --status-pending-bg: #f6ad55;
+  --status-contacted-bg: #48bb78;
+  --status-error-bg: #f56565;
+}
+
+/* Sobrescreve as variáveis quando a classe .dark-mode está presente no body */
+body.dark-mode {
+  --bg-page: #1a202c;
+  --bg-card: #2d3748;
+  --bg-header: #2d3748;
+  --bg-input: #4a5568;
+  --bg-hover: #4a5568;
+
+  --text-primary: #edf2f7;
+  --text-secondary: #a0aec0;
+
+  --border-color: #4a5568;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+
+  --accent-primary: #7f9cf5;
+  --accent-secondary: #9f7aea;
+
+  --status-pending-bg: #dd6b20;
+  --status-contacted-bg: #38a169;
+  --status-error-bg: #c53030;
+}
