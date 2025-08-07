@@ -3,15 +3,16 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-
+// Importações do Chart.js
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 
-
+// Importações de Componentes e Estilos
 import Header from '../Components/Header'; 
-import styles from './style/AdminEstatisticas.module.css';
+import styles from './style/AdminEstatisticas.module.css'; // Importando o novo CSS
 import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay } from 'react-icons/fa';
 
+// Registro dos componentes do Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
@@ -26,8 +27,9 @@ function AdminEstatisticas() {
         visitsByDate: null,
     });
 
+    // Função para processar os dados para os gráficos
     const processDataForCharts = (data) => {
-    
+        // 1. Gráfico de Gênero (Pizza)
         const genderCounts = data.reduce((acc, visitor) => {
             const gender = visitor.sexo || 'Não informado';
             acc[gender] = (acc[gender] || 0) + 1;
@@ -36,14 +38,15 @@ function AdminEstatisticas() {
         const genderChart = {
             labels: Object.keys(genderCounts),
             datasets: [{
-                label: 'Visitantes por Gênero',
+                label: 'Visitantes',
                 data: Object.values(genderCounts),
-                backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)', 'rgba(201, 203, 207, 0.7)'],
-                borderColor: ['#fff'],
-                borderWidth: 2,
+                backgroundColor: ['#4299E1', '#F56565', '#A0AEC0'], // Cores mais modernas
+                borderColor: '#fff',
+                borderWidth: 3,
             }],
         };
 
+        // 2. Gráfico de Faixa Etária (Barras)
         const ageGroups = { '0-17': 0, '18-25': 0, '26-35': 0, '36-50': 0, '51+': 0, 'Não informado': 0 };
         data.forEach(visitor => {
             if (visitor.data_nascimento) {
@@ -61,26 +64,27 @@ function AdminEstatisticas() {
         const ageChart = {
             labels: Object.keys(ageGroups),
             datasets: [{
-                label: 'Visitantes por Faixa Etária',
+                label: 'Nº de Visitantes',
                 data: Object.values(ageGroups),
-                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                backgroundColor: '#4FD1C5', // Cor de destaque
+                borderRadius: 4,
             }],
         };
 
-
+        // 3. Gráfico de Visitas por Data (Barras)
         const dateCounts = data.reduce((acc, visitor) => {
-            const visitDate = new Date(visitor.data_visita).toLocaleDateString('pt-BR');
+            const visitDate = new Date(visitor.data_visita).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             acc[visitDate] = (acc[visitDate] || 0) + 1;
             return acc;
         }, {});
-
-        const topDates = Object.entries(dateCounts).sort((a, b) => b[1] - a[1]).slice(0, 7);
+        const topDates = Object.entries(dateCounts).sort((a, b) => b[1] - a[1]).slice(0, 10); // Mostrando top 10
         const visitsByDateChart = {
             labels: topDates.map(item => item[0]),
             datasets: [{
-                label: 'Top 7 Dias com Mais Visitas',
+                label: 'Nº de Visitantes',
                 data: topDates.map(item => item[1]),
-                backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                backgroundColor: '#7F9CF5', // Cor complementar
+                borderRadius: 4,
             }],
         };
 
@@ -111,7 +115,7 @@ function AdminEstatisticas() {
     }, [navigate]);
 
     if (loading) {
-        return <div className={styles.loading}><div className={styles.spinner}></div><p>Carregando estatísticas...</p></div>;
+        return <div className={styles.loading}><div className={styles.spinner}></div><p>A carregar estatísticas...</p></div>;
     }
 
     return (
@@ -119,7 +123,7 @@ function AdminEstatisticas() {
             <Header />
             <main className={styles.mainContent}>
                 <header className={styles.mainHeader}>
-                    <h1>Estatísticas de Visitantes</h1>
+                    <h1>Dashboard de Visitantes</h1>
                     <div className={styles.totalVisitorsCard}>
                         <FaUsers />
                         <span><strong>{visitantes.length}</strong> Visitantes Totais</span>
@@ -127,26 +131,27 @@ function AdminEstatisticas() {
                 </header>
 
                 <div className={styles.chartsGrid}>
-                 
+                    {/* Card do Gráfico de Gênero */}
                     <div className={styles.chartCard}>
                         <h2 className={styles.chartTitle}><FaVenusMars /> Distribuição por Gênero</h2>
                         <div className={styles.chartWrapper}>
-                            {chartData.gender && <Pie data={chartData.gender} />}
+                            {chartData.gender && <Pie data={chartData.gender} options={{ maintainAspectRatio: false }} />}
                         </div>
                     </div>
 
-                 
+                    {/* Card do Gráfico de Idade */}
                     <div className={styles.chartCard}>
                         <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
                         <div className={styles.chartWrapper}>
-                           {chartData.age && <Bar data={chartData.age} options={{ responsive: true, plugins: { legend: { display: false } } }} />}
+                           {chartData.age && <Bar data={chartData.age} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} />}
                         </div>
                     </div>
 
-                    <div className={styles.chartCard} style={{ gridColumn: '1 / -1' }}>
-                        <h2 className={styles.chartTitle}><FaCalendarDay /> Top 7 Dias com Mais Visitas</h2>
+                    {/* Card do Gráfico de Visitas por Data */}
+                    <div className={`${styles.chartCard} ${styles.fullWidthCard}`}>
+                        <h2 className={styles.chartTitle}><FaCalendarDay /> Top 10 Dias com Mais Visitas</h2>
                         <div className={styles.chartWrapper}>
-                            {chartData.visitsByDate && <Bar data={chartData.visitsByDate} options={{ responsive: true, plugins: { legend: { display: false } } }} />}
+                            {chartData.visitsByDate && <Bar data={chartData.visitsByDate} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} />}
                         </div>
                     </div>
                 </div>

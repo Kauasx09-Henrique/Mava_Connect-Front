@@ -10,7 +10,7 @@ import {
 } from 'react-icons/md';
 import { HiPencil, HiOutlineTrash } from 'react-icons/hi';
 import Header from '../Components/Header';
-import styles from './style/Secretaria.module.css';
+import styles from './style/Secretaria.module.css'; // Importando o novo CSS
 
 const API_URL = 'https://mava-connect-backend.onrender.com';
 const WHATSAPP_MESSAGE = `Olá, tudo bem?\n\nSeja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.\n\nAtenciosamente,\nSecretaria MAVA`;
@@ -79,7 +79,7 @@ const VisitorCard = ({ visitante, onEdit, onDelete, onStatusChange }) => {
 // --- Componente de Grid de Visitantes ---
 const VisitorGrid = ({ visitantes, onEdit, onDelete, onStatusChange }) => {
     if (!visitantes || visitantes.length === 0) {
-        return <div className={styles.emptyState}><p>Nenhum visitante encontrado.</p></div>;
+        return <div className={styles.emptyState}><p>Nenhum visitante encontrado para os filtros selecionados.</p></div>;
     }
     return (
         <div className={styles.visitorGrid}>
@@ -263,4 +263,3 @@ function Secretaria() {
 }
 
 export default Secretaria;
-// FIM DO ARQUIVO
