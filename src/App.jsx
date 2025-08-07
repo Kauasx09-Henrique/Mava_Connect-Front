@@ -4,9 +4,10 @@ import { Toaster } from 'react-hot-toast';
 // Importação das páginas
 import Login from './Pages/Login.jsx';
 import Admin from './Pages/Admin.jsx';
+import AdminEstatisticas from './Pages/AdminEstatisticas.jsx'; // 1. IMPORTE A NOVA PÁGINA
 import CadastrarUsuario from './Pages/CadastrarUsuario.jsx';
 import Secretaria from './Pages/Secretaria.jsx'; 
-import CadastroVisitante from './Pages/CadastroVisitante.jsx'; // 1. Importe a página de cadastro de visitante
+import CadastroVisitante from './Pages/CadastroVisitante.jsx';
 
 // Importação dos componentes
 import ProtectedRoute from './Components/ProtectedRoute';
@@ -40,6 +41,16 @@ function App() {
             </ProtectedRoute>
           } 
         />
+
+        {/* 2. ADICIONE A NOVA ROTA DE ESTATÍSTICAS AQUI */}
+        <Route 
+          path="/AdminEstatistaca"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminEstatisticas />
+            </ProtectedRoute>
+          }
+        />
         
         {/* Rota para a PÁGINA de cadastro de usuário */}
         <Route 
@@ -53,12 +64,10 @@ function App() {
         
         {/* Rota para a PÁGINA de cadastro de VISITANTE */}
         <Route 
-          path="/cadastrar-visitante" // CORREÇÃO: Caminho padronizado para minúsculas
+          path="/cadastrar-visitante"
           element={
-            // CORREÇÃO: A rota deve ser acessível tanto pela secretaria quanto pelo admin.
-            // A lógica do ProtectedRoute já permite que 'admin' acesse tudo.
             <ProtectedRoute role="secretaria"> 
-              <CadastroVisitante /> {/* CORREÇÃO: Apontando para o componente correto */}
+              <CadastroVisitante />
             </ProtectedRoute>
           } 
         />

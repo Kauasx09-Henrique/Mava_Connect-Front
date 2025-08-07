@@ -1,0 +1,110 @@
+/* Layout Principal */
+.statsContainer {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+}
+
+.mainContent {
+    flex-grow: 1;
+    padding: 2rem;
+}
+
+.mainHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.mainHeader h1 {
+    font-size: 2rem;
+    color: #333;
+    margin: 0;
+}
+
+.totalVisitorsCard {
+    background-color: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+}
+
+.totalVisitorsCard svg {
+    font-size: 1.5rem;
+    color: #007bff;
+}
+
+/* Grid de Gráficos */
+.chartsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.chartCard {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.chartTitle {
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chartWrapper {
+    height: 350px; /* Altura fixa para manter a consistência */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Loading Spinner */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #555;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .mainContent { padding: 1rem; }
+    .chartsGrid {
+        grid-template-columns: 1fr;
+    }
+    .chartWrapper {
+        height: 300px;
+    }
+}

@@ -1,6 +1,6 @@
-// src/Components/Header.jsx
 import { Link, useNavigate } from 'react-router-dom';
-import { FaUserPlus, FaSignOutAlt, FaSun, FaMoon } from 'react-icons/fa';
+// 1. Importei o ícone de gráfico
+import { FaUserPlus, FaSignOutAlt, FaSun, FaMoon, FaChartBar } from 'react-icons/fa';
 import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import mavaLogo from '../../public/logo_mava.png';
@@ -64,12 +64,22 @@ function Header() {
             </div>
             <div className={styles.userArea}>
                 <div className={styles.actions}>
+                    {/* Link para Novo Visitante */}
                     {(userType === 'secretaria' || userType === 'admin') && (
                         <Link to="/cadastrar-visitante" className={styles.actionButton} title="Novo Visitante">
                             <FaUserPlus />
                             <span>Novo Visitante</span>
                         </Link>
                     )}
+
+                    {/* 2. ADICIONEI O NOVO LINK PARA ESTATÍSTICAS AQUI */}
+                    {userType === 'admin' && (
+                        <Link to="/admin/estatisticas" className={styles.actionButton} title="Estatísticas">
+                            <FaChartBar />
+                            <span>Estatísticas</span>
+                        </Link>
+                    )}
+
                     <button onClick={toggleDarkMode} className={styles.iconButton} title={darkMode ? 'Modo claro' : 'Modo escuro'}>
                         {darkMode ? <FaSun /> : <FaMoon />}
                     </button>
@@ -94,4 +104,3 @@ function Header() {
 }
 
 export default Header;
-// FIM DO ARQUIVO
