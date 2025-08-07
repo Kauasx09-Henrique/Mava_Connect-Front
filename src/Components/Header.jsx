@@ -1,11 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
-// 1. Importei o ícone de gráfico
 import { FaUserPlus, FaSignOutAlt, FaSun, FaMoon, FaChartBar } from 'react-icons/fa';
 import { useEffect, useState, useMemo } from 'react';
 import toast from 'react-hot-toast';
 import mavaLogo from '../../public/logo_mava.png';
 import styles from './Header.module.css';
 
+// Componente para o avatar do usuário
 const UserAvatar = ({ name }) => {
     const initial = name ? name.charAt(0).toUpperCase() : '?';
     const avatarColor = useMemo(() => {
@@ -21,13 +21,18 @@ function Header() {
     const [darkMode, setDarkMode] = useState(false);
     const [imageError, setImageError] = useState(false);
 
+    // Lê os dados do localStorage
     const userName = localStorage.getItem('nome_gf') || 'Visitante';
     const userType = localStorage.getItem('tipo');
     const userLogoPath = localStorage.getItem('logo');
 
+    // LINHA DE DEPURAÇÃO: Verifique a consola do navegador para ver este valor
+    console.log("DEBUG: O Header está a ver o tipo de utilizador como:", userType);
+
     const API_URL = import.meta.env.VITE_API_URL || 'https://mava-connect-backend.onrender.com';
     const userProfileImageUrl = userLogoPath ? `${API_URL}/${userLogoPath}` : null;
 
+    // Efeito para gerir o modo escuro
     useEffect(() => {
         const isDark = localStorage.getItem('darkMode') === 'true';
         setDarkMode(isDark);
@@ -60,11 +65,13 @@ function Header() {
     return (
         <header className={`${styles.header} ${darkMode ? styles.darkMode : ''}`}>
             <div className={styles.brand}>
-                <img src={mavaLogo} alt="Logo Mava Connect" className={styles.logo} />
+                <Link to={userType === 'admin' ? '/admin' : '/secretaria'}>
+                    <img src={mavaLogo} alt="Logo Mava Connect" className={styles.logo} />
+                </Link>
             </div>
             <div className={styles.userArea}>
                 <div className={styles.actions}>
-                    {/* Link para Novo Visitante */}
+                    {/* Link para Novo Visitante (Secretaria e Admin) */}
                     {(userType === 'secretaria' || userType === 'admin') && (
                         <Link to="/cadastrar-visitante" className={styles.actionButton} title="Novo Visitante">
                             <FaUserPlus />
@@ -72,14 +79,15 @@ function Header() {
                         </Link>
                     )}
 
-                    {/* Link de Estatísticas corrigido */}
+                    {/* Link para Estatísticas (Apenas Admin) */}
                     {userType === 'admin' && (
-                        <Link to="/AdminEstatisticas" className={styles.actionButton} title="Estatísticas">
+                        <Link to="/admin/estatisticas" className={styles.actionButton} title="Estatísticas">
                             <FaChartBar />
                             <span>Estatísticas</span>
                         </Link>
                     )}
 
+                    {/* Botões de Ação */}
                     <button onClick={toggleDarkMode} className={styles.iconButton} title={darkMode ? 'Modo claro' : 'Modo escuro'}>
                         {darkMode ? <FaSun /> : <FaMoon />}
                     </button>
