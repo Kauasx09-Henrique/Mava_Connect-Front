@@ -2,13 +2,20 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, Link } from 'react-router-dom';
+
+// --- CORREÇÃO DE IMPORTAÇÃO ---
+// Ícones do Material Design
 import { 
     MdPhone, MdOutlineMail, MdAdd, MdClose, 
     MdCalendarToday, MdOutlineAccessTime, MdErrorOutline, 
     MdSearch, MdGroups, MdThumbUp, MdEmojiEvents, MdWhatsapp,
-    MdPerson, MdMale, MdFemale, FaChevronLeft, FaChevronRight 
+    MdPerson, MdMale, MdFemale 
 } from 'react-icons/md';
+// Ícones do Font Awesome
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+// Ícones do Heroicons
 import { HiPencil, HiOutlineTrash } from 'react-icons/hi';
+
 import Header from '../Components/Header';
 import styles from './style/Secretaria.module.css';
 
@@ -139,6 +146,8 @@ export default function Secretaria() {
 
     // Estatísticas calculadas
     const stats = useMemo(() => {
+        if (visitantes.length === 0) return { total: 0, pending: 0, contacted: 0, error: 0, myRegisters: 0, male: 0, female: 0, topRegistrar: null };
+
         const loggedInUserId = localStorage.getItem('usuario_id');
         const registrarCounts = visitantes.reduce((acc, v) => {
             const registrarName = v.gf_responsavel || 'Não atribuído';
@@ -165,6 +174,7 @@ export default function Secretaria() {
     // Visitantes filtrados e paginados
     const { paginatedVisitors, totalPages } = useMemo(() => {
         const filtered = visitantes.filter(v => {
+            if (!v) return false;
             const searchLower = searchTerm.toLowerCase();
             const matchesSearch = !searchLower || v.nome?.toLowerCase().includes(searchLower) || v.telefone?.includes(searchTerm);
             const matchesStatus = statusFilter === 'todos' || v.status === statusFilter;
@@ -257,7 +267,10 @@ export default function Secretaria() {
                 
                 <div className={styles.toolbar}>
                     <div className={styles.filters}>
-                        <div className={styles.searchContainer}><MdSearch className={styles.searchIcon} /><input type="text" placeholder="Buscar por nome ou telefone..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} /></div>
+                        <div className={styles.searchContainer}>
+                            <MdSearch className={styles.searchIcon} />
+                            <input type="text" placeholder="Buscar por nome ou telefone..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
+                        </div>
                         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={styles.statusFilter}>
                             {STATUS_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                         </select>
@@ -270,10 +283,10 @@ export default function Secretaria() {
                         <>
                             <div className={styles.visitorGrid}>
                                 {paginatedVisitors.map(v => (
-                                    <VisitorCard key={v.id} visitante={v} onEdit={setEditingVisitor} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+                                    v && v.id && <VisitorCard key={v.id} visitante={v} onEdit={setEditingVisitor} onDelete={handleDelete} onStatusChange={handleStatusChange} />
                                 ))}
                             </div>
-                            {paginatedVisitors.length === 0 && <div className={styles.emptyState}><p>Nenhum visitante encontrado.</p></div>}
+                            {paginatedVisitors.length === 0 && <div className={styles.emptyState}><p>Nenhum visitante encontrado para os filtros selecionados.</p></div>}
                             <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                         </>
                     }
