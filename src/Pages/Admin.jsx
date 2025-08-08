@@ -8,7 +8,7 @@ import {
     FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
     FaUserShield, FaUserFriends, FaPhone, FaEnvelope,
     FaHome, FaMapMarkerAlt, FaUsersCog, FaChurch,
-    FaRegClock // ÍCONE NOVO
+    FaRegClock
 } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 import { FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
@@ -17,14 +17,10 @@ import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
 
-// --- MELHORIA: Cores e ícones de status atualizados ---
 const statusOptions = [
-    // Cor mais vibrante para melhor contraste em ambos os temas
-    { value: 'pendente', label: 'Pendente', color: '#F59E0B', icon: <FaRegClock /> }, 
-    // Verde mais claro e positivo
-    { value: 'entrou em contato', label: 'Contatado', color: '#22C55E', icon: <FiUserCheck /> }, 
-    // Vermelho claro e universal para erros
-    { value: 'erro número', label: 'Erro no Número', color: '#EF4444', icon: <FiUserX /> } 
+    { value: 'pendente', label: 'Pendente', color: '#F59E0B', icon: <FaRegClock /> },
+    { value: 'entrou em contato', label: 'Contatado', color: '#22C55E', icon: <FiUserCheck /> },
+    { value: 'erro número', label: 'Erro no Número', color: '#EF4444', icon: <FiUserX /> }
 ];
 
 const userRoles = {
@@ -187,14 +183,38 @@ function Admin() {
         const totalVisitors = visitantes.length;
         const statItems = [
             { icon: <FaUsers />, value: totalVisitors, label: 'Total de Visitantes', color: 'blue' },
-            // --- MELHORIA: Ícones agora vêm do statusOptions ---
             { icon: statusOptions.find(s => s.value === 'pendente').icon, value: visitorStats.statusDistribution.pendente || 0, label: 'Pendentes', color: 'yellow' },
             { icon: statusOptions.find(s => s.value === 'entrou em contato').icon, value: visitorStats.statusDistribution['entrou em contato'] || 0, label: 'Contatados', color: 'green' },
             { icon: statusOptions.find(s => s.value === 'erro número').icon, value: visitorStats.statusDistribution['erro número'] || 0, label: 'Erros de Número', color: 'red' },
             visitorStats.topGF ? { icon: <FiTrendingUp />, value: visitorStats.topGF.count, label: `GF Top: ${visitorStats.topGF.name}`, color: 'purple' } : null,
-            visitorStats.bottomGF ? { icon: <FiTrendingDown />, value: visitorStats.bottomGF.count, label: `GF que menos cadastrou: ${visitorStats.bottomGF.name}`, color: 'orange' } : null
+            visitorStats.bottomGF ? { icon: <FiTrendingDown />, value: visitorStats.bottomGF.count, label: `GF que menos cadastrou: ${visitorStats.bottomGF.name}`, color: 'orange' } : null,
+            { icon: <BsGenderMale />, value: visitorStats.genderDistribution.Masculino || 0, label: 'Visitantes Masculinos', color: 'blue' },
+            { icon: <BsGenderFemale />, value: visitorStats.genderDistribution.Feminino || 0, label: 'Visitantes Femininos', color: 'pink' }
         ].filter(Boolean);
-        return (<div className={styles.statsGrid}>{statItems.map((item, index) => (<div key={index} className={`${styles.statCard} ${styles[item.color]}`}><div className={styles.statIcon}>{item.icon}</div><div className={styles.statInfo}><span className={styles.statValue}>{item.value}</span><span className={styles.statLabel}>{item.label}</span></div></div>))}</div>);
+
+        // Dividir os cards em grupos de 7
+        const cardGroups = [];
+        for (let i = 0; i < statItems.length; i += 7) {
+            cardGroups.push(statItems.slice(i, i + 7));
+        }
+
+        return (
+            <div className={styles.statsContainer}>
+                {cardGroups.map((group, groupIndex) => (
+                    <div key={groupIndex} className={styles.statsGrid}>
+                        {group.map((item, index) => (
+                            <div key={index} className={`${styles.statCard} ${styles[item.color]}`}>
+                                <div className={styles.statIcon}>{item.icon}</div>
+                                <div className={styles.statInfo}>
+                                    <span className={styles.statValue}>{item.value}</span>
+                                    <span className={styles.statLabel}>{item.label}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        );
     };
 
     const renderUserStatsCards = () => {
@@ -203,7 +223,20 @@ function Admin() {
             { icon: <FaUserShield />, value: userStats.admins, label: 'Administradores', color: 'purple' },
             { icon: <FaUserFriends />, value: userStats.secretarias, label: 'Secretarias', color: 'green' },
         ];
-        return (<div className={styles.statsGrid}>{statItems.map((item, index) => (<div key={index} className={`${styles.statCard} ${styles[item.color]}`}><div className={styles.statIcon}>{item.icon}</div><div className={styles.statInfo}><span className={styles.statValue}>{item.value}</span><span className={styles.statLabel}>{item.label}</span></div></div>))}</div>);
+
+        return (
+            <div className={styles.statsGrid}>
+                {statItems.map((item, index) => (
+                    <div key={index} className={`${styles.statCard} ${styles[item.color]}`}>
+                        <div className={styles.statIcon}>{item.icon}</div>
+                        <div className={styles.statInfo}>
+                            <span className={styles.statValue}>{item.value}</span>
+                            <span className={styles.statLabel}>{item.label}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
     };
 
     const renderTable = () => {
@@ -230,7 +263,6 @@ function Admin() {
                                     {columns.map(col => (
                                         <td key={`${item.id}-${col.key}`} data-label={col.label}>
                                             {col.key === 'tipo_usuario' ? <span className={styles.roleBadge} style={{'--role-color': userRoles[item.tipo_usuario]?.color}}>{userRoles[item.tipo_usuario]?.icon}{userRoles[item.tipo_usuario]?.label}</span>
-                                            // --- MELHORIA: Cor do select agora vem das novas opções ---
                                             : col.key === 'status' ? <select value={item.status} onChange={(e) => handleStatusChange(item.id, e.target.value)} className={styles.statusSelect} style={{'--status-color': statusOptions.find(s=>s.value===item.status)?.color}}>{statusOptions.map(opt=><option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>
                                             : item[col.key]}
                                         </td>
@@ -248,11 +280,6 @@ function Admin() {
         )
     };
     
-    // O restante do seu código (renderModal, return principal) permanece o mesmo, 
-    // pois a lógica principal não foi alterada. Cole o código do seu renderModal()
-    // e do return() final aqui.
-    // ...
-    // ... (cole o resto do seu componente aqui)
     const renderModal = () => {
         if (!isModalOpen) return null;
         const isUserView = view === 'usuarios';

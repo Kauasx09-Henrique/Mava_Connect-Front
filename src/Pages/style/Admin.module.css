@@ -138,11 +138,15 @@
 }
 
 /* --- CARDS DE ESTATÍSTICA --- */
+.statsContainer {
+    margin-bottom: 2rem;
+}
+
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .statCard {
@@ -152,6 +156,7 @@
     align-items: center;
     gap: 1rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .statCard:hover {
@@ -160,28 +165,34 @@
 }
 
 .statIcon {
-    font-size: 2.5rem;
+    font-size: 2rem;
     padding: 1rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .statInfo {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .statValue {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
+    line-height: 1.2;
 }
 
 .statLabel {
     font-size: 0.9rem;
     color: var(--text-secondary);
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Cores dos cards */
@@ -197,8 +208,8 @@
 .statCard.purple .statIcon { background-color: rgba(142, 36, 170, 0.1); }
 .statCard.orange { background-color: var(--color-orange-bg); color: var(--color-orange-text); }
 .statCard.orange .statIcon { background-color: rgba(251, 140, 0, 0.1); }
-
-
+.statCard.pink { background-color: #fce4ec; color: #ec407a; }
+.statCard.pink .statIcon { background-color: rgba(236, 64, 122, 0.1); }
 /* --- TABELA DE DADOS --- */
 .tableContainer {
     background-color: var(--bg-card);
