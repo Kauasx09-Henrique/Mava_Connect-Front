@@ -52,7 +52,6 @@
 .statValue { font-size: 2rem; font-weight: 700; }
 .statLabel { font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; }
 
-/* Cores dos cards */
 .statCard.blue { background-color: var(--color-blue-bg); color: var(--color-blue-text); }
 .statCard.blue .statIcon { background-color: rgba(30, 136, 229, 0.1); }
 .statCard.green { background-color: var(--color-green-bg); color: var(--color-green-text); }
@@ -82,11 +81,18 @@
 .dataTable th, .dataTable td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
 .dataTable th { font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); }
 .statusSelect { padding: 0.5rem; border-radius: 6px; border: 2px solid var(--status-color, var(--border-color)); background-color: var(--bg-card); color: var(--text-primary); font-weight: 600; outline: none; cursor: pointer; }
+.roleBadge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600; font-size: 0.8rem; background-color: var(--role-color, var(--border-color)); color: white; }
 .actionButtons { display: flex; gap: 0.5rem; }
 .actionButtons button { padding: 0.5rem; border: none; border-radius: 6px; cursor: pointer; color: white; display: flex; font-size: 1rem; transition: opacity 0.2s; }
 .actionButtons button:hover { opacity: 0.8; }
 .editButton { background-color: #f5a623; }
 .deleteButton { background-color: var(--color-red-text); }
+
+/* --- PAGINAÇÃO --- */
+.paginationControls { display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; margin-top: 1rem; border-top: 1px solid var(--border-color); color: var(--text-secondary); font-weight: 500; }
+.paginationControls button { display: inline-flex; align-items: center; gap: 0.5rem; background-color: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+.paginationControls button:hover:not(:disabled) { background-color: var(--bg-page); border-color: var(--accent-primary); color: var(--accent-primary); }
+.paginationControls button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* --- MODAL --- */
 .modalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
@@ -102,6 +108,9 @@
 .cancelButton, .saveButton { padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); }
 .cancelButton { background-color: var(--bg-card); color: var(--text-secondary); }
 .saveButton { background-color: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+.modalActions .deleteButton { background-color: var(--color-red-text); border-color: var(--color-red-text); }
+.modalActions .deleteButton:hover { background-color: #c53030; }
+
 
 /* --- SKELETON LOADER --- */
 @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
@@ -123,4 +132,5 @@
 @media (max-width: 768px) {
     .mainContent, .tableContainer, .modalContent { padding: 1rem; }
     .mainHeader, .headerActions { flex-direction: column; align-items: stretch; }
+    .paginationControls { flex-direction: column; gap: 1rem; }
 }

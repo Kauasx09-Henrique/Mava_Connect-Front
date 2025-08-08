@@ -9,15 +9,17 @@ import Header from '../Components/Header';
 import {
     FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
     FaUserShield, FaUserFriends, FaPhone, FaChurch,
-    FaHome, FaMapMarkerAlt, FaUsersCog, FaRegClock
+    FaHome, FaMapMarkerAlt, FaUsersCog, FaRegClock,
+    FaChevronLeft, FaChevronRight
 } from 'react-icons/fa';
-import { FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
+import { FiUserCheck, FiUserX } from 'react-icons/fi';
 import { BsGenderMale, BsGenderFemale, BsCalendarDate } from 'react-icons/bs';
 import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
 // --- 1. CONFIGURAÇÕES E CONSTANTES ---
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
+const ITEMS_PER_PAGE = 7; // Itens por página da tabela
 
 const statusOptions = [
     { value: 'pendente', label: 'Pendente', color: '#F59E0B' },
@@ -32,9 +34,7 @@ const userRoles = {
 
 
 // --- 2. COMPONENTES INTERNOS DE UI ---
-// Manter componentes menores aqui dentro ajuda na organização do arquivo.
 
-// Componente para o Skeleton Loading
 const SkeletonPage = () => (
     <main className={styles.mainContent}>
         <header className={styles.mainHeader}>
@@ -48,7 +48,6 @@ const SkeletonPage = () => (
     </main>
 );
 
-// Formulário de Visitante com Abas
 const VisitorForm = ({ formData, onFormChange, onAddressChange }) => {
     const [activeTab, setActiveTab] = useState('pessoal');
     const formContent = {
@@ -96,6 +95,21 @@ const VisitorForm = ({ formData, onFormChange, onAddressChange }) => {
     );
 };
 
+const PaginationControls = ({ currentPage, totalPages, onPageChange }) => {
+    if (totalPages <= 1) return null;
+
+    return (
+        <div className={styles.paginationControls}>
+            <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
+                <FaChevronLeft /> Anterior
+            </button>
+            <span>Página {currentPage} de {totalPages}</span>
+            <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+                Próximo <FaChevronRight />
+            </button>
+        </div>
+    );
+};
 
 // --- 3. COMPONENTE PRINCIPAL: Admin ---
 
@@ -107,6 +121,7 @@ export default function Admin() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
     
     // Estados dos Modais
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -114,7 +129,7 @@ export default function Admin() {
     const [formData, setFormData] = useState({});
     const [confirmModalState, setConfirmModalState] = useState({ isOpen: false, item: null, onConfirm: null });
 
-    // Carregamento inicial dos dados
+    // Carregamento inicial
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) { toast.error("Sessão expirada."); navigate('/'); return; }
@@ -129,13 +144,16 @@ export default function Admin() {
             setVisitantes(visitorsRes.data);
         }).catch(error => {
             console.error("Erro ao carregar dados:", error);
-            toast.error("Erro ao carregar dados. Tente recarregar a página.");
-        }).finally(() => {
-            setLoading(false);
-        });
+            toast.error("Erro ao carregar dados.");
+        }).finally(() => setLoading(false));
     }, [navigate]);
 
-    // Filtragem dos dados
+    // Reseta a página para 1 sempre que os filtros mudarem
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [view, activeFilter, searchTerm]);
+
+    // Lógica de filtragem
     const filteredData = useMemo(() => {
         const data = view === 'visitantes' ? visitantes : usuarios;
         let filtered = data;
@@ -143,21 +161,28 @@ export default function Admin() {
         if (view === 'visitantes' && activeFilter !== 'all') {
             filtered = data.filter(v => v.status === activeFilter);
         }
-
         if (searchTerm) {
             const lowerTerm = searchTerm.toLowerCase();
             filtered = filtered.filter(item =>
-                (item.nome && item.nome.toLowerCase().includes(lowerTerm)) ||
-                (item.nome_gf && item.nome_gf.toLowerCase().includes(lowerTerm)) ||
-                (item.email && item.email.toLowerCase().includes(lowerTerm)) ||
-                (item.telefone && item.telefone.includes(lowerTerm))
+                (item.nome?.toLowerCase().includes(lowerTerm)) ||
+                (item.nome_gf?.toLowerCase().includes(lowerTerm)) ||
+                (item.email?.toLowerCase().includes(lowerTerm)) ||
+                (item.telefone?.includes(lowerTerm))
             );
         }
         return filtered;
     }, [view, visitantes, usuarios, activeFilter, searchTerm]);
     
-    // --- Funções de Ação ---
+    // Lógica para fatiar os dados para a página atual
+    const paginatedData = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        return filteredData.slice(startIndex, endIndex);
+    }, [filteredData, currentPage]);
+    
+    const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
+    // Funções de Ação
     const handleOpenModal = (item = null) => {
         setEditingItem(item);
         if (item) {
@@ -233,14 +258,11 @@ export default function Admin() {
     };
     
     // --- Renderização ---
-
     if (loading) {
         return <div className={styles.adminContainer}><Header /><SkeletonPage /></div>;
     }
 
-    const visitorStats = calculateVisitorStats(visitantes);
-    const userStats = calculateUserStats(usuarios);
-    const statItems = view === 'visitantes' ? visitorStats : userStats;
+    const statItems = view === 'visitantes' ? calculateVisitorStats(visitantes) : calculateUserStats(usuarios);
     const isUserView = view === 'usuarios';
     const columns = isUserView 
         ? [{key: 'id', label: 'ID'}, {key: 'nome_gf', label: 'Nome'}, {key: 'email_gf', label: 'Email'}, {key: 'tipo_usuario', label: 'Perfil'}]
@@ -262,7 +284,6 @@ export default function Admin() {
                     <button onClick={() => setView('usuarios')} className={view === 'usuarios' ? styles.active : ''}><FaUsers /> Usuários</button>
                 </div>
                 
-                {/* Grid de Estatísticas */}
                 <div className={styles.statsGrid}>
                     {statItems.map((item, index) => (
                         <div key={index} className={`${styles.statCard} ${styles[item.color]}`}>
@@ -275,7 +296,6 @@ export default function Admin() {
                     ))}
                 </div>
                 
-                {/* Tabela de Dados */}
                 <div className={styles.tableContainer}>
                     <div className={styles.tableHeader}>
                         <h3>{isUserView ? 'Usuários' : 'Visitantes'} ({filteredData.length})</h3>
@@ -293,11 +313,11 @@ export default function Admin() {
                         <table className={styles.dataTable}>
                             <thead><tr>{columns.map(c => <th key={c.key}>{c.label}</th>)}<th>Ações</th></tr></thead>
                             <tbody>
-                                {filteredData.map(item => (
+                                {paginatedData.map(item => (
                                     <tr key={item.id}>
                                         {columns.map(col => (
                                             <td key={`${item.id}-${col.key}`} data-label={col.label}>
-                                                {col.key === 'tipo_usuario' ? <span>{userRoles[item.tipo_usuario]?.label}</span> : 
+                                                {col.key === 'tipo_usuario' ? <span className={styles.roleBadge} style={{'--role-color': userRoles[item.tipo_usuario]?.color}}>{userRoles[item.tipo_usuario]?.icon}{userRoles[item.tipo_usuario]?.label}</span> : 
                                                  col.key === 'status' ? <select value={item.status} onChange={(e) => handleStatusChange(item.id, e.target.value)} className={styles.statusSelect} style={{'--status-color': statusOptions.find(s => s.value === item.status)?.color}}>{statusOptions.map(opt=><option key={opt.value} value={opt.value}>{opt.label}</option>)}</select> : 
                                                  item[col.key]}
                                             </td>
@@ -313,10 +333,15 @@ export default function Admin() {
                             </tbody>
                         </table>
                     </div>
+                    
+                    <PaginationControls 
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
                 </div>
             </main>
 
-            {/* Modal de Edição/Criação */}
             {isModalOpen && (
                 <div className={styles.modalOverlay} onClick={handleCloseModal}>
                     <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
@@ -342,7 +367,6 @@ export default function Admin() {
                 </div>
             )}
             
-            {/* Modal de Confirmação para Exclusão */}
             {confirmModalState.isOpen && (
                  <div className={styles.modalOverlay}>
                     <div className={styles.modalContent} style={{ maxWidth: '450px' }}>
