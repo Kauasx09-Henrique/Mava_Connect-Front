@@ -7,19 +7,24 @@ import Header from '../Components/Header';
 import {
     FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
     FaUserShield, FaUserFriends, FaPhone, FaEnvelope,
-    FaHome, FaMapMarkerAlt, FaUsersCog, FaChurch
+    FaHome, FaMapMarkerAlt, FaUsersCog, FaChurch,
+    FaRegClock // ÍCONE NOVO
 } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
-import { FiUser, FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
+import { FiUserCheck, FiUserX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
 import { BsGenderMale, BsGenderFemale, BsCalendarDate } from 'react-icons/bs';
 import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
 
+// --- MELHORIA: Cores e ícones de status atualizados ---
 const statusOptions = [
-    { value: 'pendente', label: 'Pendente', color: '#D97706', icon: <FiUser /> },
-    { value: 'entrou em contato', label: 'Contatado', color: '#16A34A', icon: <FiUserCheck /> },
-    { value: 'erro número', label: 'Erro no Número', color: '#DC2626', icon: <FiUserX /> }
+    // Cor mais vibrante para melhor contraste em ambos os temas
+    { value: 'pendente', label: 'Pendente', color: '#F59E0B', icon: <FaRegClock /> }, 
+    // Verde mais claro e positivo
+    { value: 'entrou em contato', label: 'Contatado', color: '#22C55E', icon: <FiUserCheck /> }, 
+    // Vermelho claro e universal para erros
+    { value: 'erro número', label: 'Erro no Número', color: '#EF4444', icon: <FiUserX /> } 
 ];
 
 const userRoles = {
@@ -180,14 +185,12 @@ function Admin() {
 
     const renderVisitorStatsCards = () => {
         const totalVisitors = visitantes.length;
-        const pendingCount = visitorStats.statusDistribution.pendente || 0;
-        const contactedCount = visitorStats.statusDistribution['entrou em contato'] || 0;
-        const errorCount = visitorStats.statusDistribution['erro número'] || 0;
         const statItems = [
             { icon: <FaUsers />, value: totalVisitors, label: 'Total de Visitantes', color: 'blue' },
-            { icon: <FiUser />, value: pendingCount, label: 'Pendentes', color: 'yellow' },
-            { icon: <FiUserCheck />, value: contactedCount, label: 'Contatados', color: 'green' },
-            { icon: <FiUserX />, value: errorCount, label: 'Erros de Número', color: 'red' },
+            // --- MELHORIA: Ícones agora vêm do statusOptions ---
+            { icon: statusOptions.find(s => s.value === 'pendente').icon, value: visitorStats.statusDistribution.pendente || 0, label: 'Pendentes', color: 'yellow' },
+            { icon: statusOptions.find(s => s.value === 'entrou em contato').icon, value: visitorStats.statusDistribution['entrou em contato'] || 0, label: 'Contatados', color: 'green' },
+            { icon: statusOptions.find(s => s.value === 'erro número').icon, value: visitorStats.statusDistribution['erro número'] || 0, label: 'Erros de Número', color: 'red' },
             visitorStats.topGF ? { icon: <FiTrendingUp />, value: visitorStats.topGF.count, label: `GF Top: ${visitorStats.topGF.name}`, color: 'purple' } : null,
             visitorStats.bottomGF ? { icon: <FiTrendingDown />, value: visitorStats.bottomGF.count, label: `GF que menos cadastrou: ${visitorStats.bottomGF.name}`, color: 'orange' } : null
         ].filter(Boolean);
@@ -227,6 +230,7 @@ function Admin() {
                                     {columns.map(col => (
                                         <td key={`${item.id}-${col.key}`} data-label={col.label}>
                                             {col.key === 'tipo_usuario' ? <span className={styles.roleBadge} style={{'--role-color': userRoles[item.tipo_usuario]?.color}}>{userRoles[item.tipo_usuario]?.icon}{userRoles[item.tipo_usuario]?.label}</span>
+                                            // --- MELHORIA: Cor do select agora vem das novas opções ---
                                             : col.key === 'status' ? <select value={item.status} onChange={(e) => handleStatusChange(item.id, e.target.value)} className={styles.statusSelect} style={{'--status-color': statusOptions.find(s=>s.value===item.status)?.color}}>{statusOptions.map(opt=><option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>
                                             : item[col.key]}
                                         </td>
@@ -244,6 +248,11 @@ function Admin() {
         )
     };
     
+    // O restante do seu código (renderModal, return principal) permanece o mesmo, 
+    // pois a lógica principal não foi alterada. Cole o código do seu renderModal()
+    // e do return() final aqui.
+    // ...
+    // ... (cole o resto do seu componente aqui)
     const renderModal = () => {
         if (!isModalOpen) return null;
         const isUserView = view === 'usuarios';
@@ -255,14 +264,14 @@ function Admin() {
                     <form onSubmit={handleFormSubmit} className={styles.modalForm}>
                         {isUserView ? (
                             <div className={styles.formGrid}>
-                                <div className={styles.formGroup}><label><FiUser /> Nome*</label><input type="text" name="nome_gf" value={formData.nome_gf || ''} onChange={handleFormChange} required /></div>
+                                <div className={styles.formGroup}><label><FaUserFriends /> Nome*</label><input type="text" name="nome_gf" value={formData.nome_gf || ''} onChange={handleFormChange} required /></div>
                                 <div className={styles.formGroup}><label><MdEmail /> Email*</label><input type="email" name="email_gf" value={formData.email_gf || ''} onChange={handleFormChange} required /></div>
                                 <div className={styles.formGroup}><label><FaUserShield /> Senha{!editingItem && '*'}</label><input type="password" name="senha_gf" value={formData.senha_gf || ''} onChange={handleFormChange} placeholder={editingItem ? 'Deixe em branco para não alterar' : ''} required={!editingItem} /></div>
                                 <div className={styles.formGroup}><label><FaUserFriends /> Perfil*</label><select name="tipo_usuario" value={formData.tipo_usuario || 'secretaria'} onChange={handleFormChange} required><option value="secretaria">Secretaria</option><option value="admin">Administrador</option></select></div>
                             </div>
                         ) : (
                             <>
-                                <div className={styles.formSection}><h3><FiUser /> Informações Pessoais</h3><div className={styles.formGrid}>
+                                <div className={styles.formSection}><h3><FaUsers /> Informações Pessoais</h3><div className={styles.formGrid}>
                                     <div className={styles.formGroup}><label>Nome Completo*</label><input type="text" name="nome" value={formData.nome || ''} onChange={handleFormChange} required /></div>
                                     <div className={styles.formGroup}><label><BsCalendarDate /> Data de Nascimento</label><input type="date" name="data_nascimento" value={formData.data_nascimento || ''} onChange={handleFormChange} /></div>
                                     <div className={styles.formGroup}><label>{formData.sexo === 'Masculino' ? <BsGenderMale /> : <BsGenderFemale />} Sexo</label><select name="sexo" value={formData.sexo || ''} onChange={handleFormChange}><option value="">Não informar</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select></div>
@@ -274,10 +283,7 @@ function Admin() {
                                     <div className={styles.formGroup}><label><MdEmail /> Email</label><input type="email" name="email" value={formData.email || ''} onChange={handleFormChange} /></div>
                                     <div className={styles.formGroup}><label><FiUserCheck /> Status*</label><select name="status" value={formData.status || 'pendente'} onChange={handleFormChange} required>{statusOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}</select></div>
                                     <div className={styles.formGroup}><label><FaUserFriends /> GF Responsável</label><input type="text" name="gf_responsavel" value={formData.gf_responsavel || ''} onChange={handleFormChange} /></div>
-                                    
-                                    {/* CAMPO 'EVENTO' ADICIONADO AQUI */}
                                     <div className={styles.formGroup}><label><FaChurch /> Evento da Visita*</label><select name="evento" value={formData.evento || ''} onChange={handleFormChange} required><option value="" disabled>Selecione...</option><option value="gf">GF</option><option value="evangelismo">Evangelismo</option><option value="culto">Culto</option></select></div>
-
                                     <div className={styles.formGroup} style={{ gridColumn: 'span 2' }}><label><FaHome /> Como conheceu a igreja?</label><textarea name="como_conheceu" value={formData.como_conheceu || ''} onChange={handleFormChange}></textarea></div>
                                 </div></div>
                                 <div className={styles.formSection}><h3><FaMapMarkerAlt /> Endereço</h3><div className={styles.formGrid}>

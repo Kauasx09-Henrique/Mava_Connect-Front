@@ -11,172 +11,198 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* NOVO: Animação para o efeito de "carregando" */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
 }
 
 /* --- 2. LAYOUT PRINCIPAL --- */
 .statsContainer {
-    background-color: var(--bg-page);
-    color: var(--text-primary);
-    min-height: 100vh;
-    font-family: 'Inter', sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
 .mainContent {
-    padding: 2.5rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-    animation: fadeInUp 0.6s ease-out forwards;
+  padding: 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  /* Animação inicial para o conteúdo principal */
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
 /* --- 3. CABEÇALHO DA PÁGINA --- */
 .mainHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2.5rem;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .mainHeader h1 {
-    font-size: 2.5rem;
-    color: var(--text-primary);
-    margin: 0;
-    font-weight: 800;
-    letter-spacing: -1px;
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -1.2px; /* Ajuste para mais impacto */
 }
 
 .totalVisitorsCard {
-    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .totalVisitorsCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
 }
 
 .totalVisitorsCard svg {
-    font-size: 1.8rem;
+  font-size: 1.8rem;
 }
 
 /* --- 4. GRID DE GRÁFICOS --- */
+/* MELHORIA: Grid responsivo e flexível sem precisar de classes auxiliares */
 .chartsGrid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+  display: grid;
+  /* Cria colunas que têm no mínimo 400px, e se ajustam para preencher o espaço */
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
 }
 
 .chartCard {
-    background: var(--bg-card);
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: 0 8px 25px var(--shadow-color);
-    border: 1px solid var(--border-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-    overflow: hidden;
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px var(--shadow-color); /* Sombra mais suave */
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  /* NOVO: Animação de entrada escalonada para os cards */
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
 .chartCard::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .chartCard:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 35px var(--shadow-color);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px var(--shadow-color);
 }
 
 .chartCard:hover::before {
-    opacity: 1;
+  opacity: 1;
 }
 
 .chartTitle {
-    font-size: 1.25rem;
-    margin-top: 0;
-    margin-bottom: 2rem;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-weight: 600;
+  font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
 }
 
 .chartWrapper {
-    height: 350px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  height: 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.fullWidthCard {
-    grid-column: 1 / -1;
+/* --- 5. SKELETON LOADER (NOVO) --- */
+.skeleton {
+  background-color: var(--bg-card);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-input); /* Cor base do skeleton */
 }
 
-/* --- 5. ESTADOS DE CARREGAMENTO --- */
-.loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    color: var(--text-secondary);
-    font-size: 1.2rem;
+/* Efeito de brilho */
+.skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--shadow-color), transparent);
+  animation: shimmer 1.5s infinite;
 }
 
-.spinner {
-    width: 60px;
-    height: 60px;
-    border: 6px solid var(--bg-input);
-    border-top: 6px solid var(--accent-primary);
-    border-radius: 50%;
-    animation: spin 1.2s linear infinite;
-    margin-bottom: 1.5rem;
+.skeletonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  gap: 1.5rem;
 }
+.skeletonTitle { height: 40px; width: 300px; }
+.skeletonBadge { height: 60px; width: 200px; }
+.skeletonCard {
+  height: 450px; /* Altura do card de gráfico */
+  border-radius: 16px;
+}
+
 
 /* --- 6. RESPONSIVIDADE --- */
 @media (max-width: 1024px) {
-    .chartsGrid {
-        grid-template-columns: 1fr;
-    }
-    .mainContent {
-        padding: 1.5rem;
-    }
+  .mainContent {
+    padding: 1.5rem;
+  }
+   /* O grid já é responsivo por natureza, mas podemos ajustar o minmax se necessário */
+  .chartsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
-    .mainContent {
-        padding: 1rem;
-    }
-    .mainHeader h1 {
-        font-size: 1.75rem;
-    }
-    .chartCard {
-        padding: 1.5rem;
-    }
-    .chartWrapper {
-        height: 300px;
-    }
+  .mainContent {
+    padding: 1rem;
+  }
+  .mainHeader h1 {
+    font-size: 1.8rem;
+  }
+  .chartCard {
+    padding: 1.5rem;
+  }
+  .chartWrapper {
+    height: 300px;
+  }
+  .skeletonTitle { width: 200px; }
+  .skeletonBadge { width: 150px; }
 }
