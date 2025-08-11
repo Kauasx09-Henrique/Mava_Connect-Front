@@ -6,13 +6,14 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Pie, Bar } from 'react-chartjs-2';
 import Header from '../Components/Header'; 
 import styles from './style/AdminEstatisticas.module.css';
-import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt } from 'react-icons/fa';
+// NOVO: Ícone adicionado para o novo gráfico
+import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt, FaUserCheck } from 'react-icons/fa';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
 
-// NOVO: Componente Skeleton Loader para uma melhor UX
+// Componente Skeleton Loader para uma melhor UX (sem alterações)
 const SkeletonLoader = () => (
     <div className={styles.statsContainer}>
         <Header />
@@ -31,7 +32,7 @@ const SkeletonLoader = () => (
     </div>
 );
 
-// NOVO: Função para pegar cores do tema CSS
+// Função para pegar cores do tema CSS (sem alterações)
 const getThemeColor = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 
 function AdminEstatisticas() {
@@ -39,7 +40,6 @@ function AdminEstatisticas() {
     const [visitantes, setVisitantes] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // MELHORIA: Use useMemo para memorizar os dados processados e evitar recálculos
     const chartData = useMemo(() => {
         if (visitantes.length === 0) return {};
 
@@ -49,28 +49,31 @@ function AdminEstatisticas() {
         const colorMale = '#3b82f6';
         const colorFemale = '#ec4899';
         const colorOther = '#a0aec0';
+        const colorIncomplete = '#a0aec0'; // Mesma cor para "Outro" e "Incompleto" para consistência
 
-        // 1. Dados por Gênero
-        const genderCounts = visitantes.reduce((acc, { sexo }) => {
-            const gender = sexo || 'Não informado';
-            acc[gender] = (acc[gender] || 0) + 1;
+        // ALTERADO: 1. Dados de Status de Cadastro e Gênero (Gráfico principal)
+        const registrationCounts = visitantes.reduce((acc, { sexo }) => {
+            // Se 'sexo' não existir, classifica como 'Cadastro Incompleto'
+            const status = sexo || 'Cadastro Incompleto'; 
+            acc[status] = (acc[status] || 0) + 1;
             return acc;
         }, {});
-        const genderChart = {
-            labels: Object.keys(genderCounts),
+        const registrationChart = {
+            labels: Object.keys(registrationCounts),
             datasets: [{
-                data: Object.values(genderCounts),
-                backgroundColor: Object.keys(genderCounts).map(label => {
+                data: Object.values(registrationCounts),
+                backgroundColor: Object.keys(registrationCounts).map(label => {
                     if (label === 'Masculino') return colorMale;
                     if (label === 'Feminino') return colorFemale;
-                    return colorOther;
+                    if (label === 'Cadastro Incompleto') return colorIncomplete;
+                    return colorOther; // Cor para 'Outro', se houver
                 }),
                 borderColor: getThemeColor('--bg-card'),
                 borderWidth: 4,
             }],
         };
 
-        // 2. Dados por Faixa Etária
+        // 2. Dados por Faixa Etária (sem alterações na lógica)
         const ageGroups = { '0-17': 0, '18-25': 0, '26-35': 0, '36-50': 0, '51+': 0, 'Não informado': 0 };
         visitantes.forEach(({ data_nascimento }) => {
             if (!data_nascimento) {
@@ -89,7 +92,7 @@ function AdminEstatisticas() {
             datasets: [{ label: 'Nº de Visitantes', data: Object.values(ageGroups), backgroundColor: accentSecondary, borderRadius: 4 }],
         };
 
-        // 3. Dados por Localização (Top 7 + "Outras")
+        // 3. Dados por Localização (sem alterações na lógica)
         const locationCounts = visitantes.reduce((acc, { endereco }) => {
             const city = endereco?.cidade ? (endereco.cidade.charAt(0).toUpperCase() + endereco.cidade.slice(1).toLowerCase()) : 'Não informado';
             acc[city] = (acc[city] || 0) + 1;
@@ -104,7 +107,7 @@ function AdminEstatisticas() {
             datasets: [{ label: 'Nº de Visitantes', data: topLocations.map(([, count]) => count), backgroundColor: '#34d399', borderRadius: 4 }],
         };
 
-        // 4. Dados por Data de Visita (Top 10)
+        // 4. Dados por Data de Visita (sem alterações na lógica)
         const dateCounts = visitantes.reduce((acc, { data_visita }) => {
             const visitDate = new Date(data_visita).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             acc[visitDate] = (acc[visitDate] || 0) + 1;
@@ -115,11 +118,12 @@ function AdminEstatisticas() {
             labels: topDates.map(([date]) => date),
             datasets: [{ label: 'Nº de Visitantes', data: topDates.map(([, count]) => count), backgroundColor: accentPrimary, borderRadius: 4 }],
         };
-
-        return { gender: genderChart, age: ageChart, location: locationChart, visitsByDate: visitsByDateChart };
+        
+        // ALTERADO: Retorna o novo gráfico com o nome 'registration'
+        return { registration: registrationChart, age: ageChart, location: locationChart, visitsByDate: visitsByDateChart };
     }, [visitantes]);
 
-    // Opções dos gráficos, também memorizadas
+    // Opções dos gráficos (sem alterações)
     const chartOptions = useMemo(() => {
         const textColor = getThemeColor('--text-secondary');
         const gridColor = getThemeColor('--border-color');
@@ -143,6 +147,7 @@ function AdminEstatisticas() {
         };
     }, []);
 
+    // Fetch de dados (sem alterações)
     useEffect(() => {
         const fetchVisitantes = async () => {
             setLoading(true);
@@ -182,17 +187,20 @@ function AdminEstatisticas() {
                     </div>
                 </header>
 
-                {/* MELHORIA: Grid flexível e animação escalonada */}
                 <div className={styles.chartsGrid}>
-                    {chartData.gender && (
+                    
+                    {/* NOVO: Gráfico de Status de Cadastro posicionado no topo */}
+                    {chartData.registration && (
                         <div className={styles.chartCard} style={{animationDelay: '0.1s'}}>
-                            <h2 className={styles.chartTitle}><FaVenusMars /> Distribuição por Gênero</h2>
+                            {/* ALTERADO: Título e ícone refletem o novo propósito */}
+                            <h2 className={styles.chartTitle}><FaUserCheck /> Status de Cadastro por Gênero</h2>
                             <div className={styles.chartWrapper}>
-                                <Pie data={chartData.gender} options={chartOptions.pie} />
+                                <Pie data={chartData.registration} options={chartOptions.pie} />
                             </div>
                         </div>
                     )}
 
+                    {/* ALTERADO: Atraso da animação ajustado */}
                     {chartData.age && (
                         <div className={styles.chartCard} style={{animationDelay: '0.2s'}}>
                             <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
@@ -202,6 +210,7 @@ function AdminEstatisticas() {
                         </div>
                     )}
                     
+                    {/* ALTERADO: Atraso da animação ajustado */}
                     {chartData.location && (
                         <div className={styles.chartCard} style={{animationDelay: '0.3s'}}>
                             <h2 className={styles.chartTitle}><FaMapMarkedAlt /> Visitantes por Localização</h2>
@@ -211,6 +220,7 @@ function AdminEstatisticas() {
                         </div>
                     )}
 
+                    {/* ALTERADO: Atraso da animação ajustado */}
                     {chartData.visitsByDate && (
                         <div className={styles.chartCard} style={{animationDelay: '0.4s'}}>
                             <h2 className={styles.chartTitle}><FaCalendarDay /> Top 10 Dias com Mais Visitas</h2>
@@ -219,6 +229,7 @@ function AdminEstatisticas() {
                             </div>
                         </div>
                     )}
+
                 </div>
             </main>
         </div>
