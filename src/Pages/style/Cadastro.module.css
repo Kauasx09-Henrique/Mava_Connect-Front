@@ -1,204 +1,445 @@
 /* --- VARIAVEIS DE TEMA --- */
 :global(body.dark-mode) {
-  --bg-page: #1a1b21;
-  --bg-form: #24252c;
-  --text-primary: #e2e2e2;
-  --text-secondary: #8c8c8c;
-  --border-color: #3a3b45;
-  --input-bg: #1a1b21;
-  --accent-primary: #6a5af9;
-  --accent-hover: #5a4ae0;
-  --shadow-color: rgba(0, 0, 0, 0.2);
+    --bg-page: #121212;
+    --bg-card: #1e1e1e;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b3b3b3;
+    --border-color: #333;
+    --input-bg: #2a2a2a;
+    --accent-primary: #bb86fc;
+    --accent-secondary: #03dac6;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --success-color: #4caf50;
+    --pending-color: #ffc107;
+    --error-color: #f44336;
+    --blue-color: #2196f3;
 }
 :global(body.light-mode) {
-  --bg-page: #f4f7fc;
-  --bg-form: #ffffff;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --border-color: #e2e8f0;
-  --input-bg: #f8fafc;
-  --accent-primary: #4f46e5;
-  --accent-hover: #4338ca;
-  --shadow-color: rgba(149, 157, 165, 0.1);
+    --bg-page: #f4f7fc;
+    --bg-card: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --input-bg: #f8fafc;
+    --accent-primary: #4f46e5;
+    --accent-secondary: #10b981;
+    --shadow-color: rgba(149, 157, 165, 0.1);
+    --success-color: #22c55e;
+    --pending-color: #f59e0b;
+    --error-color: #ef4444;
+    --blue-color: #3b82f6;
+}
+
+/* --- ANIMAÇÕES --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- LAYOUT GERAL --- */
 .pageContainer {
-  background-color: var(--bg-page);
-  padding: 2rem;
-  min-height: 100vh;
-  font-family: 'Inter', sans-serif;
-  color: var(--text-primary);
-  transition: background-color 0.3s;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+.dashboard {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+    animation: fadeIn 0.5s ease-out;
+}
+.dashboardHeader {
+    margin-bottom: 2rem;
+}
+.dashboardHeader h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+.dashboardHeader p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
 }
 
-.formContainer {
-  max-width: 900px;
-  margin: 0 auto;
-  background-color: var(--bg-form);
-  padding: 2.5rem;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 8px 24px var(--shadow-color);
-  transition: background-color 0.3s, border-color 0.3s;
+/* --- GRID DE ESTATÍSTICAS --- */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+.statCard {
+    background-color: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.statCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px var(--shadow-color);
+}
+.statIcon {
+    font-size: 2.5rem;
+    padding: 0.75rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.statInfo .value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.statInfo .label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.formContainer h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+/* Cores dos StatCards */
+.statCard.myRegisters .statIcon { background-color: rgba(187, 134, 252, 0.1); color: var(--accent-primary); }
+.statCard.total .statIcon { background-color: rgba(33, 150, 243, 0.1); color: var(--blue-color); }
+.statCard.pending .statIcon { background-color: rgba(255, 193, 7, 0.1); color: var(--pending-color); }
+.statCard.contacted .statIcon { background-color: rgba(76, 175, 80, 0.1); color: var(--success-color); }
+.statCard.error .statIcon { background-color: rgba(244, 67, 54, 0.1); color: var(--error-color); }
+.statCard.topRegistrar .statIcon { background-color: rgba(16, 185, 129, 0.1); color: var(--accent-secondary); }
+.statCard.male .statIcon { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.statCard.female .statIcon { background-color: rgba(236, 72, 153, 0.1); color: #ec4899; }
+
+
+/* --- BARRA DE FERRAMENTAS E FILTROS --- */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.searchContainer {
+    position: relative;
+}
+.searchIcon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+}
+.searchInput, .statusFilter {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.searchInput {
+    padding-left: 3rem;
+    min-width: 250px;
+}
+.searchInput:focus, .statusFilter:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+}
+.addButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--accent-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.addButton:hover {
+    background-color: var(--accent-secondary);
+    transform: translateY(-2px);
 }
 
-.formContainer h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-top: 2rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
+/* --- GRID DE VISITANTES --- */
+.visitorGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+.visitorCard {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+.visitorCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px var(--shadow-color);
+}
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.visitorName {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+}
+.statusSelect {
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+.statusSelect.pendente { border-color: var(--pending-color); color: var(--pending-color); background-color: transparent; }
+.statusSelect.entrouemcontato { border-color: var(--success-color); color: var(--success-color); background-color: transparent; }
+.statusSelect.erronúmero { border-color: var(--error-color); color: var(--error-color); background-color: transparent; }
+
+.cardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: var(--text-secondary);
+}
+.contactItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.contactItem svg { font-size: 1.1rem; }
+.contactItem a { color: var(--accent-primary); text-decoration: none; }
+.contactItem a:hover { text-decoration: underline; }
+
+.cardFooter {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+.actionButton {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+}
+.actionButton:hover {
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+.whatsappButton:hover { color: #25d366; border-color: #25d366; }
+.editButton:hover { color: var(--blue-color); border-color: var(--blue-color); }
+.deleteButton:hover { color: var(--error-color); border-color: var(--error-color); }
+
+
+/* --- PAGINAÇÃO --- */
+.paginationControls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding: 1rem;
+}
+.paginationControls button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+.paginationControls button:hover:not(:disabled) {
+    background-color: var(--accent-primary);
+    color: #fff;
+}
+.paginationControls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.paginationControls span {
+    color: var(--text-secondary);
+    font-weight: 500;
 }
 
-/* --- GRID E CAMPOS DO FORMULÁRIO --- */
+/* --- MODAL DE EDIÇÃO --- */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s;
+}
+.modalContent {
+    background-color: var(--bg-card);
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.closeModal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.modalContent h2 { margin-bottom: 2rem; }
 .formGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
 }
-
 .formGroup {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
-
 .formGroup label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+.formGroup input {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+.saveButton, .cancelButton {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+}
+.saveButton {
+    background-color: var(--accent-primary);
+    color: #fff;
+}
+.cancelButton {
+    background-color: var(--border-color);
+    color: var(--text-primary);
 }
 
-.formGroup input,
-.formGroup select {
-  background-color: var(--input-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  transition: all 0.2s;
+/* --- ESTADOS VAZIOS E SKELETON --- */
+.emptyState {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem;
+    color: var(--text-secondary);
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    border: 2px dashed var(--border-color);
+}
+.skeletonCard {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+.skeletonText {
+    background-color: var(--input-bg);
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+    animation: shimmer 1.5s infinite linear;
+    background: linear-gradient(to right, var(--input-bg) 8%, var(--border-color) 18%, var(--input-bg) 33%);
+    background-size: 800px 104px;
+}
+@keyframes shimmer {
+    0% { background-position: -468px 0; }
+    100% { background-position: 468px 0; }
 }
 
-.formGroup input:focus,
-.formGroup select:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(106, 90, 249, 0.2);
+/* --- TOAST (NOTIFICAÇÃO) --- */
+.toastContainer {
+    text-align: center;
 }
+.toastActions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+.toastConfirmButton, .toastCancelButton {
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.toastConfirmButton { background-color: var(--error-color); color: white; }
+.toastCancelButton { background-color: var(--border-color); color: var(--text-primary); }
 
-.formGroup input:disabled,
-.formGroup select:disabled {
-  background-color: var(--border-color);
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.fullWidth {
-  grid-column: 1 / -1;
-}
-
-/* --- CAMPO DE CEP --- */
-.cepContainer {
-  display: flex;
-  gap: 0.5rem;
-}
-.cepContainer input {
-  flex-grow: 1;
-}
-.cepButton {
-  flex-shrink: 0;
-  padding: 0 1.25rem;
-  background-color: var(--accent-primary);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.cepButton:hover {
-  background-color: var(--accent-hover);
-}
-.cepButton:disabled {
-  background-color: var(--text-secondary);
-  cursor: not-allowed;
-}
-
-/* --- GRUPO DE BOTÕES DE AÇÃO --- */
-.buttonGroup {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.primaryButton, .secondaryButton {
-  padding: 0.8rem 1.75rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-}
-
-.primaryButton {
-  background-color: var(--accent-primary);
-  color: #fff;
-}
-.primaryButton:hover {
-  background-color: var(--accent-hover);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-.primaryButton:disabled {
-  background-color: var(--text-secondary);
-  cursor: not-allowed;
-}
-
-.secondaryButton {
-  background-color: var(--border-color);
-  color: var(--text-primary);
-}
-.secondaryButton:hover {
-  filter: brightness(0.9);
-}
-:global(body.light-mode) .secondaryButton:hover {
-    filter: brightness(0.95);
-}
 
 /* --- RESPONSIVIDADE --- */
 @media (max-width: 768px) {
-  .pageContainer {
-    padding: 1rem;
-  }
-  .formContainer {
-    padding: 1.5rem;
-  }
-  .dashboardHeader h1 {
-    font-size: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-    .formGrid {
-        grid-template-columns: 1fr; /* Uma coluna em telas pequenas */
-    }
-    .buttonGroup {
-        flex-direction: column-reverse; /* Empilha os botões */
-    }
-    .primaryButton, .secondaryButton {
-        width: 100%;
-        text-align: center;
-    }
+    .dashboard { padding: 1rem; }
+    .statsGrid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .formGrid { grid-template-columns: 1fr; }
 }
