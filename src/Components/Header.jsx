@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import mavaLogo from '../../public/logo_mava.png';
 import styles from './Header.module.css';
 
-// Componente para o avatar do usuário
+// Componente para o avatar do usuário (Fallback)
 const UserAvatar = ({ name }) => {
     const initial = name ? name.charAt(0).toUpperCase() : '?';
     const avatarColor = useMemo(() => {
@@ -19,36 +19,31 @@ const UserAvatar = ({ name }) => {
 function Header() {
     const navigate = useNavigate();
     const [darkMode, setDarkMode] = useState(false);
+    // Estado que controla se houve erro ao carregar a imagem da logo
     const [imageError, setImageError] = useState(false);
 
-    // Lê os dados do localStorage
+    // Lê os dados do usuário do localStorage
     const userName = localStorage.getItem('nome_gf') || 'Visitante';
     const userType = localStorage.getItem('tipo');
-    const userLogoPath = localStorage.getItem('logo');
+    // 1. Puxa o caminho da logo do localStorage
+    const userLogoPath = localStorage.getItem('logo_url'); // O nome da chave é 'logo_url'
 
     const API_URL = import.meta.env.VITE_API_URL || 'https://mava-connect-backend.onrender.com';
-    const userProfileImageUrl = userLogoPath ? `${API_URL}/${userLogoPath}` : null;
+    // 2. Monta a URL completa da imagem apenas se o caminho existir
+    const userProfileImageUrl = userLogoPath ? `${userLogoPath}` : null;
 
     // Efeito para gerir o modo escuro
     useEffect(() => {
         const isDark = localStorage.getItem('darkMode') === 'true';
         setDarkMode(isDark);
-        if (isDark) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
+        document.body.classList.toggle('dark-mode', isDark);
     }, []);
 
     const toggleDarkMode = () => {
         const newDarkMode = !darkMode;
         setDarkMode(newDarkMode);
         localStorage.setItem('darkMode', newDarkMode);
-        if (newDarkMode) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
+        document.body.classList.toggle('dark-mode', newDarkMode);
     };
     
     const handleLogout = () => {
@@ -57,6 +52,7 @@ function Header() {
         navigate('/');
     };
     
+    // 3. Função que é chamada se a imagem não carregar, ativando o fallback
     const handleImageError = () => setImageError(true);
 
     return (
@@ -97,10 +93,16 @@ function Header() {
                         <span className={styles.greeting}>Olá,</span>
                         <span className={styles.userName}>{userName}</span>
                     </div>
+                    {/* 4. LÓGICA PRINCIPAL: Se a URL existir e não houver erro, mostra a <img>. Caso contrário, mostra o avatar com a inicial. */}
                     {userProfileImageUrl && !imageError ? (
-                        <img src={userProfileImageUrl} alt={`Perfil de ${userName}`} className={styles.profileImage} onError={handleImageError} />
+                        <img 
+                            src={userProfileImageUrl} 
+                            alt={`Perfil de ${userName}`} 
+                            className={styles.profileImage} 
+                            onError={handleImageError} // Ativa o fallback em caso de erro
+                        />
                     ) : (
-                        <UserAvatar name={userName} />
+                        <UserAvatar name={userName} /> // O fallback
                     )}
                 </div>
             </div>
