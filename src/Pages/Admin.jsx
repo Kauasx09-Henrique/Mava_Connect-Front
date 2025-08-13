@@ -5,12 +5,12 @@ import toast from 'react-hot-toast';
 import styles from './style/Admin.module.css';
 import Header from '../Components/Header';
 
-// Import de todos os Ícones
+// Import de todos os Ícones (Adicionado FaImage)
 import {
     FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
     FaUserShield, FaUserFriends, FaPhone, FaChurch,
     FaHome, FaMapMarkerAlt, FaUsersCog, FaRegClock,
-    FaChevronLeft, FaChevronRight
+    FaChevronLeft, FaChevronRight, FaImage // <-- Ícone da logo adicionado
 } from 'react-icons/fa';
 import { FiUserCheck, FiUserX } from 'react-icons/fi';
 import { BsGenderMale, BsGenderFemale, BsCalendarDate } from 'react-icons/bs';
@@ -167,6 +167,7 @@ export default function Admin() {
                 (item.nome?.toLowerCase().includes(lowerTerm)) ||
                 (item.nome_gf?.toLowerCase().includes(lowerTerm)) ||
                 (item.email?.toLowerCase().includes(lowerTerm)) ||
+                (item.email_gf?.toLowerCase().includes(lowerTerm)) || // Adicionado email_gf
                 (item.telefone?.includes(lowerTerm))
             );
         }
@@ -188,13 +189,24 @@ export default function Admin() {
         if (item) {
             setFormData({ ...item, data_nascimento: item.data_nascimento ? new Date(item.data_nascimento).toISOString().split('T')[0] : '' });
         } else {
-            setFormData(view === 'usuarios' ? { tipo_usuario: 'secretaria' } : { status: 'pendente', evento: 'culto', endereco: {} });
+            // Limpa o campo de logo ao criar novo item
+            setFormData(view === 'usuarios' ? { tipo_usuario: 'secretaria', logo: null } : { status: 'pendente', evento: 'culto', endereco: {} });
         }
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => { setIsModalOpen(false); setEditingItem(null); setFormData({}); };
-    const handleFormChange = (e) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, [name]: value })); };
+    
+    // ATUALIZADO: handleFormChange para aceitar arquivos de imagem
+    const handleFormChange = (e) => {
+        const { name, value, files } = e.target;
+        if (files && files[0]) {
+            setFormData(prev => ({ ...prev, [name]: files[0] }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
+    };
+    
     const handleAddressChange = (e) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, endereco: { ...prev.endereco, [name]: value } })); };
 
     const handleStatusChange = async (id, newStatus) => {
@@ -218,11 +230,11 @@ export default function Admin() {
             const setData = isUserView ? setUsuarios : setVisitantes;
             
             setData(prevData => prevData.filter(d => d.id !== item.id));
-            toast.success("Item removido!");
-
+            
             try {
                 const token = localStorage.getItem('token');
                 await axios.delete(`${API_BASE_URL}${endpoint}`, { headers: { 'Authorization': `Bearer ${token}` }});
+                toast.success("Item removido!");
             } catch (error) {
                 toast.error("Falha ao excluir no servidor. Restaurando.");
                 setData(originalData);
@@ -231,17 +243,35 @@ export default function Admin() {
         setConfirmModalState({ isOpen: true, item, onConfirm });
     };
 
+    // ATUALIZADO: handleFormSubmit para enviar FormData para usuários
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
-        const headers = { 'Authorization': `Bearer ${token}` };
         const isUserView = view === 'usuarios';
         const endpoint = isUserView ? '/api/usuarios' : '/visitantes';
         const url = `${API_BASE_URL}${endpoint}${editingItem ? `/${editingItem.id}` : ''}`;
         const method = editingItem ? 'put' : 'post';
+        
+        let payload;
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        if (isUserView) {
+            // Se for usuário, monta um FormData para o upload da logo
+            payload = new FormData();
+            for (const key in formData) {
+                // Anexa todos os campos, incluindo o arquivo da logo se for um objeto File
+                if (formData[key] !== null && formData[key] !== undefined) {
+                    payload.append(key, formData[key]);
+                }
+            }
+        } else {
+            // Se for visitante, envia como JSON normal
+            payload = formData;
+            headers['Content-Type'] = 'application/json';
+        }
 
         try {
-            const response = await axios[method](url, formData, { headers });
+            const response = await axios[method](url, payload, { headers });
             toast.success(`Dados salvos com sucesso!`);
             
             const updatedItem = response.data;
@@ -253,7 +283,8 @@ export default function Admin() {
             }
             handleCloseModal();
         } catch (error) { 
-            toast.error("Falha ao salvar. Verifique os dados.");
+            const errorMessage = error.response?.data?.message || "Falha ao salvar. Verifique os dados.";
+            toast.error(errorMessage);
         }
     };
     
@@ -265,7 +296,7 @@ export default function Admin() {
     const statItems = view === 'visitantes' ? calculateVisitorStats(visitantes) : calculateUserStats(usuarios);
     const isUserView = view === 'usuarios';
     const columns = isUserView 
-        ? [{key: 'id', label: 'ID'}, {key: 'nome_gf', label: 'Nome'}, {key: 'email_gf', label: 'Email'}, {key: 'tipo_usuario', label: 'Perfil'}]
+        ? [{key: 'logo', label: 'Logo'}, {key: 'nome_gf', label: 'Nome'}, {key: 'email_gf', label: 'Email'}, {key: 'tipo_usuario', label: 'Perfil'}]
         : [{key: 'id', label: 'ID'}, {key: 'nome', label: 'Visitante'}, {key: 'telefone', label: 'Contato'}, {key: 'status', label: 'Status'}, {key: 'gf_responsavel', label: 'GF Responsável'}];
 
     return (
@@ -317,9 +348,19 @@ export default function Admin() {
                                     <tr key={item.id}>
                                         {columns.map(col => (
                                             <td key={`${item.id}-${col.key}`} data-label={col.label}>
-                                                {col.key === 'tipo_usuario' ? <span className={styles.roleBadge} style={{'--role-color': userRoles[item.tipo_usuario]?.color}}>{userRoles[item.tipo_usuario]?.icon}{userRoles[item.tipo_usuario]?.label}</span> : 
-                                                 col.key === 'status' ? <select value={item.status} onChange={(e) => handleStatusChange(item.id, e.target.value)} className={styles.statusSelect} style={{'--status-color': statusOptions.find(s => s.value === item.status)?.color}}>{statusOptions.map(opt=><option key={opt.value} value={opt.value}>{opt.label}</option>)}</select> : 
-                                                 item[col.key]}
+                                                {/* Lógica de renderização de célula atualizada */}
+                                                {(() => {
+                                                    if (col.key === 'logo') {
+                                                        return <img src={item.logo_url || 'https://via.placeholder.com/40'} alt="Logo" className={styles.tableLogo} />;
+                                                    }
+                                                    if (col.key === 'tipo_usuario') {
+                                                        return <span className={styles.roleBadge} style={{'--role-color': userRoles[item.tipo_usuario]?.color}}>{userRoles[item.tipo_usuario]?.icon}{userRoles[item.tipo_usuario]?.label}</span>;
+                                                    }
+                                                    if (col.key === 'status') {
+                                                        return <select value={item.status} onChange={(e) => handleStatusChange(item.id, e.target.value)} className={styles.statusSelect} style={{'--status-color': statusOptions.find(s => s.value === item.status)?.color}}>{statusOptions.map(opt=><option key={opt.value} value={opt.value}>{opt.label}</option>)}</select>;
+                                                    }
+                                                    return item[col.key];
+                                                })()}
                                             </td>
                                         ))}
                                         <td data-label="Ações">
@@ -350,6 +391,30 @@ export default function Admin() {
                         <form onSubmit={handleFormSubmit} className={styles.modalForm}>
                             {isUserView ? (
                                 <div className={styles.formGrid}>
+                                    {/* CAMPO DE LOGO ADICIONADO AQUI */}
+                                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                                        <label><FaImage /> Logo do Usuário</label>
+                                        <div className={styles.logoUploadContainer}>
+                                            <img 
+                                                src={
+                                                    formData.logo instanceof File
+                                                        ? URL.createObjectURL(formData.logo)
+                                                        : (editingItem?.logo_url || 'https://via.placeholder.com/100')
+                                                }
+                                                alt="Preview"
+                                                className={styles.logoPreview}
+                                            />
+                                            <input
+                                                type="file"
+                                                name="logo"
+                                                accept="image/*"
+                                                onChange={handleFormChange}
+                                                className={styles.fileInput}
+                                            />
+                                        </div>
+                                    </div>
+                                    {/* FIM DO CAMPO DE LOGO */}
+
                                     <div className={styles.formGroup}><label>Nome*</label><input type="text" name="nome_gf" value={formData.nome_gf || ''} onChange={handleFormChange} required /></div>
                                     <div className={styles.formGroup}><label>Email*</label><input type="email" name="email_gf" value={formData.email_gf || ''} onChange={handleFormChange} required /></div>
                                     <div className={styles.formGroup}><label>Senha{!editingItem && '*'}</label><input type="password" name="senha_gf" onChange={handleFormChange} placeholder={editingItem ? 'Deixe em branco para não alterar' : ''} required={!editingItem} /></div>
