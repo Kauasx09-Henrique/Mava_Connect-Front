@@ -197,7 +197,6 @@ export default function Admin() {
 
     const handleCloseModal = () => { setIsModalOpen(false); setEditingItem(null); setFormData({}); };
     
-    // ATUALIZADO: handleFormChange para aceitar arquivos de imagem
     const handleFormChange = (e) => {
         const { name, value, files } = e.target;
         if (files && files[0]) {
@@ -243,7 +242,6 @@ export default function Admin() {
         setConfirmModalState({ isOpen: true, item, onConfirm });
     };
 
-    // ATUALIZADO: handleFormSubmit para enviar FormData para usuários
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
@@ -256,16 +254,13 @@ export default function Admin() {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         if (isUserView) {
-            // Se for usuário, monta um FormData para o upload da logo
             payload = new FormData();
             for (const key in formData) {
-                // Anexa todos os campos, incluindo o arquivo da logo se for um objeto File
                 if (formData[key] !== null && formData[key] !== undefined) {
                     payload.append(key, formData[key]);
                 }
             }
         } else {
-            // Se for visitante, envia como JSON normal
             payload = formData;
             headers['Content-Type'] = 'application/json';
         }
@@ -281,6 +276,23 @@ export default function Admin() {
             } else {
                 setData(prev => [updatedItem, ...prev]);
             }
+
+            // --- INÍCIO DA ALTERAÇÃO ---
+            // Verifica se o usuário editado é o mesmo que está logado.
+            // É importante que você salve o ID do usuário como 'userId' no localStorage durante o login.
+            const loggedInUserId = localStorage.getItem('userId');
+            
+            if (isUserView && editingItem && loggedInUserId && updatedItem.id.toString() === loggedInUserId) {
+                // Atualiza os dados no localStorage
+                localStorage.setItem('nome_gf', updatedItem.nome_gf);
+                localStorage.setItem('logo_url', updatedItem.logo_url);
+                localStorage.setItem('tipo', updatedItem.tipo_usuario);
+
+                // Dispara o evento customizado para notificar o Header da mudança
+                window.dispatchEvent(new Event('storageUpdated'));
+            }
+            // --- FIM DA ALTERAÇÃO ---
+
             handleCloseModal();
         } catch (error) { 
             const errorMessage = error.response?.data?.message || "Falha ao salvar. Verifique os dados.";
@@ -348,7 +360,6 @@ export default function Admin() {
                                     <tr key={item.id}>
                                         {columns.map(col => (
                                             <td key={`${item.id}-${col.key}`} data-label={col.label}>
-                                                {/* Lógica de renderização de célula atualizada */}
                                                 {(() => {
                                                     if (col.key === 'logo') {
                                                         return <img src={item.logo_url || 'https://via.placeholder.com/40'} alt="Logo" className={styles.tableLogo} />;
@@ -391,7 +402,6 @@ export default function Admin() {
                         <form onSubmit={handleFormSubmit} className={styles.modalForm}>
                             {isUserView ? (
                                 <div className={styles.formGrid}>
-                                    {/* CAMPO DE LOGO ADICIONADO AQUI */}
                                     <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
                                         <label><FaImage /> Logo do Usuário</label>
                                         <div className={styles.logoUploadContainer}>
@@ -413,7 +423,6 @@ export default function Admin() {
                                             />
                                         </div>
                                     </div>
-                                    {/* FIM DO CAMPO DE LOGO */}
 
                                     <div className={styles.formGroup}><label>Nome*</label><input type="text" name="nome_gf" value={formData.nome_gf || ''} onChange={handleFormChange} required /></div>
                                     <div className={styles.formGroup}><label>Email*</label><input type="email" name="email_gf" value={formData.email_gf || ''} onChange={handleFormChange} required /></div>

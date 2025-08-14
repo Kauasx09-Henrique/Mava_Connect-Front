@@ -1,3 +1,5 @@
+// Arquivo: Header.module.css
+
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUserPlus, FaSignOutAlt, FaSun, FaMoon, FaChartBar } from 'react-icons/fa';
 import { useEffect, useState, useMemo } from 'react';
@@ -5,7 +7,7 @@ import toast from 'react-hot-toast';
 import mavaLogo from '../../public/logo_mava.png';
 import styles from './Header.module.css';
 
-// Componente para o avatar do usuário (Fallback)
+// Componente de Avatar (Fallback) - Sem alterações
 const UserAvatar = ({ name }) => {
     const initial = name ? name.charAt(0).toUpperCase() : '?';
     const avatarColor = useMemo(() => {
@@ -16,23 +18,52 @@ const UserAvatar = ({ name }) => {
     return (<div className={styles.avatar} style={{ backgroundColor: avatarColor }}>{initial}</div>);
 };
 
+
 function Header() {
     const navigate = useNavigate();
     const [darkMode, setDarkMode] = useState(false);
-    // Estado que controla se houve erro ao carregar a imagem da logo
     const [imageError, setImageError] = useState(false);
 
-    // Lê os dados do usuário do localStorage
-    const userName = localStorage.getItem('nome_gf') || 'Visitante';
-    const userType = localStorage.getItem('tipo');
-    // 1. Puxa o caminho da logo do localStorage
-    const userLogoPath = localStorage.getItem('logo_url'); // O nome da chave é 'logo_url'
+    // --- MUDANÇA 1: Usar 'useState' para os dados do usuário ---
+    // Em vez de ler diretamente do localStorage, guardamos em um estado.
+    // Isso torna o componente reativo a mudanças.
+    const [userData, setUserData] = useState({
+        name: 'Visitante',
+        type: null,
+        logoUrl: null
+    });
 
-    const API_URL = import.meta.env.VITE_API_URL || 'https://mava-connect-backend.onrender.com';
-    // 2. Monta a URL completa da imagem apenas se o caminho existir
-    const userProfileImageUrl = userLogoPath ? `${userLogoPath}` : null;
+    // --- MUDANÇA 2: useEffect para sincronizar com localStorage ---
+    // Este efeito será executado quando o componente for montado e
+    // também ouvirá por atualizações vindas de outras partes do app.
+    useEffect(() => {
+        // Função para ler os dados do localStorage e atualizar o estado
+        const updateUserData = () => {
+            const name = localStorage.getItem('nome_gf') || 'Visitante';
+            const type = localStorage.getItem('tipo');
+            const logoUrl = localStorage.getItem('logo_url');
 
-    // Efeito para gerir o modo escuro
+            setUserData({ name, type, logoUrl });
+            // Reseta o erro da imagem sempre que os dados são atualizados,
+            // para que o componente tente carregar a nova foto.
+            setImageError(false);
+        };
+
+        // Chama a função uma vez na montagem inicial
+        updateUserData();
+
+        // ADIÇÃO CRÍTICA: Ouve o evento 'storageUpdated' que a página Admin dispara.
+        // Quando esse evento acontece, ele chama 'updateUserData' novamente.
+        window.addEventListener('storageUpdated', updateUserData);
+
+        // Função de limpeza: Remove o "ouvinte" quando o componente é desmontado
+        // para evitar vazamentos de memória.
+        return () => {
+            window.removeEventListener('storageUpdated', updateUserData);
+        };
+    }, []); // O array vazio [] garante que isso só configure o "ouvinte" uma vez.
+
+    // Efeito para o dark mode (sem alterações)
     useEffect(() => {
         const isDark = localStorage.getItem('darkMode') === 'true';
         setDarkMode(isDark);
@@ -52,35 +83,31 @@ function Header() {
         navigate('/');
     };
     
-    // 3. Função que é chamada se a imagem não carregar, ativando o fallback
     const handleImageError = () => setImageError(true);
 
     return (
         <header className={`${styles.header} ${darkMode ? styles.darkMode : ''}`}>
             <div className={styles.brand}>
-                <Link to={userType === 'admin' ? '/admin' : '/secretaria'}>
+                {/* --- MUDANÇA 3: Usar o estado 'userData' para navegação --- */}
+                <Link to={userData.type === 'admin' ? '/admin' : '/secretaria'}>
                     <img src={mavaLogo} alt="Logo Mava Connect" className={styles.logo} />
                 </Link>
             </div>
             <div className={styles.userArea}>
                 <div className={styles.actions}>
-                    {/* Link para Novo Visitante (Secretaria e Admin) */}
-                    {(userType === 'secretaria' || userType === 'admin') && (
+                    {/* Botões condicionais usando 'userData.type' */}
+                    {(userData.type === 'secretaria' || userData.type === 'admin') && (
                         <Link to="/cadastrar-visitante" className={styles.actionButton} title="Novo Visitante">
                             <FaUserPlus />
                             <span className={styles.actionText}>Novo Visitante</span>
                         </Link>
                     )}
-
-                    {/* Link para Estatísticas (Apenas Admin) */}
-                    {userType === 'admin' && (
+                    {userData.type === 'admin' && (
                         <Link to="/AdminEstatisticas" className={styles.actionButton} title="Estatísticas">
                             <FaChartBar />
                             <span className={styles.actionText}>Estatísticas</span>
                         </Link>
                     )}
-
-                    {/* Botões de Ação */}
                     <button onClick={toggleDarkMode} className={styles.iconButton} title={darkMode ? 'Modo claro' : 'Modo escuro'}>
                         {darkMode ? <FaSun /> : <FaMoon />}
                     </button>
@@ -91,18 +118,22 @@ function Header() {
                 <div className={styles.profile}>
                     <div className={styles.userInfo}>
                         <span className={styles.greeting}>Olá,</span>
-                        <span className={styles.userName}>{userName}</span>
+                        {/* Usando o nome do estado */}
+                        <span className={styles.userName}>{userData.name}</span>
                     </div>
-                    {/* 4. LÓGICA PRINCIPAL: Se a URL existir e não houver erro, mostra a <img>. Caso contrário, mostra o avatar com a inicial. */}
-                    {userProfileImageUrl && !imageError ? (
+
+                    {/* Lógica de imagem/avatar usando 'userData.logoUrl' */}
+                    {userData.logoUrl && !imageError ? (
                         <img 
-                            src={userProfileImageUrl} 
-                            alt={`Perfil de ${userName}`} 
+                            src={userData.logoUrl} 
+                            alt={`Perfil de ${userData.name}`} 
                             className={styles.profileImage} 
-                            onError={handleImageError} // Ativa o fallback em caso de erro
+                            onError={handleImageError}
+                            // Adicionar uma key força o React a recarregar a tag <img> quando a URL muda
+                            key={userData.logoUrl}
                         />
                     ) : (
-                        <UserAvatar name={userName} /> // O fallback
+                        <UserAvatar name={userData.name} />
                     )}
                 </div>
             </div>
