@@ -1,3 +1,4 @@
+// Arquivo: Login.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -27,45 +28,42 @@ function Login() {
         e.preventDefault();
         setLoading(true);
 
-        // O seu backend espera 'email' e 'senha' simples, o que está correto.
-        const loginPromise = axios.post(`${API_URL}/auth/login`, { email, senha });
+        try {
+            const res = await axios.post(`${API_URL}/auth/login`, { email, senha });
+            const { token, usuario } = res.data;
 
-        toast.promise(loginPromise, {
-            loading: 'Verificando credenciais...',
-            success: (res) => {
-                const { token, usuario } = res.data;
+            if (!token || !usuario || !usuario.tipo) {
+                throw new Error('Resposta inválida do servidor.');
+            }
 
-                if (!token || !usuario || !usuario.tipo) {
-                    throw new Error('Resposta inválida do servidor.');
+            // --- SALVANDO NO LOCALSTORAGE ---
+            localStorage.setItem('token', token);
+            localStorage.setItem('tipo', usuario.tipo);       // Tipo de usuário
+            localStorage.setItem('nome_gf', usuario.nome);    // Nome do usuário
+            localStorage.setItem('logo_url', usuario.logo_url || ''); // Logo do usuário
+
+            // Dispara evento para atualizar Header
+            window.dispatchEvent(new Event('storageUpdated'));
+
+            toast.success(`Bem-vindo(a), ${usuario.nome || 'usuário'}!`);
+
+            // Redireciona conforme tipo
+            setTimeout(() => {
+                if (usuario.tipo === 'admin') {
+                    navigate('/admin');
+                } else if (usuario.tipo === 'secretaria') {
+                    navigate('/secretaria');
+                } else {
+                    navigate('/');
                 }
+            }, 500);
 
-                // --- CORREÇÃO PRINCIPAL AQUI ---
-                // Ajustando as chaves para corresponder ao que o Header.jsx lê.
-                localStorage.setItem('token', token);
-                localStorage.setItem('tipo', usuario.tipo); // Chave corrigida de 'user_tipo' para 'tipo'
-                localStorage.setItem('nome_gf', usuario.nome); // Chave corrigida de 'user_nome' para 'nome_gf'
-                if (usuario.logo) {
-                    localStorage.setItem('logo', usuario.logo); // Chave corrigida de 'user_logo' para 'logo'
-                }
-
-                setTimeout(() => {
-                    if (usuario.tipo === 'admin') {
-                        navigate('/admin');
-                    } else if (usuario.tipo === 'secretaria') {
-                        navigate('/secretaria');
-                    } else {
-                        navigate('/');
-                    }
-                }, 800);
-
-                return `Bem-vindo(a), ${usuario.nome || 'usuário'}!`;
-            },
-            error: (err) => {
-                return err.response?.data?.mensagem || 'Credenciais inválidas ou erro no servidor.';
-            },
-        }).finally(() => {
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.mensagem || 'Credenciais inválidas ou erro no servidor.');
+        } finally {
             setLoading(false);
-        });
+        }
     };
 
     return (
