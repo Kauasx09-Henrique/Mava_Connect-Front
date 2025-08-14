@@ -1,4 +1,4 @@
-// Arquivo: Login.jsx
+// Login.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -36,31 +36,27 @@ function Login() {
                 throw new Error('Resposta inválida do servidor.');
             }
 
-            // --- SALVANDO NO LOCALSTORAGE ---
+            // Salva dados no localStorage exatamente como o Header espera
             localStorage.setItem('token', token);
-            localStorage.setItem('tipo', usuario.tipo);       // Tipo de usuário
-            localStorage.setItem('nome_gf', usuario.nome);    // Nome do usuário
-            localStorage.setItem('logo_url', usuario.logo_url || ''); // Logo do usuário
+            localStorage.setItem('tipo', usuario.tipo);
+            localStorage.setItem('nome_gf', usuario.nome);
+            localStorage.setItem('logo_url', usuario.logo_url || ''); // <---- Importante
+
+            toast.success(`Bem-vindo(a), ${usuario.nome}!`);
+
+            // Redireciona conforme tipo de usuário
+            if (usuario.tipo === 'admin') {
+                navigate('/admin');
+            } else if (usuario.tipo === 'secretaria') {
+                navigate('/secretaria');
+            } else {
+                navigate('/');
+            }
 
             // Dispara evento para atualizar Header
             window.dispatchEvent(new Event('storageUpdated'));
-
-            toast.success(`Bem-vindo(a), ${usuario.nome || 'usuário'}!`);
-
-            // Redireciona conforme tipo
-            setTimeout(() => {
-                if (usuario.tipo === 'admin') {
-                    navigate('/admin');
-                } else if (usuario.tipo === 'secretaria') {
-                    navigate('/secretaria');
-                } else {
-                    navigate('/');
-                }
-            }, 500);
-
         } catch (err) {
-            console.error(err);
-            toast.error(err.response?.data?.mensagem || 'Credenciais inválidas ou erro no servidor.');
+            toast.error(err.response?.data?.mensagem || 'Erro no login');
         } finally {
             setLoading(false);
         }
