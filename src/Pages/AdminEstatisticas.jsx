@@ -11,7 +11,8 @@ import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt, Fa
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 
-const API_URL = 'https://mava-connect.onrender.com';
+const API_BASE_URL = 'https://mava-connect.onrender.com';
+
 
 const SkeletonLoader = () => (
     <div className={styles.statsContainer}>

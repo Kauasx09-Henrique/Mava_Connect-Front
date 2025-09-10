@@ -21,7 +21,8 @@ import styles from './style/Secretaria.module.css';
 
 // --- 1. CONSTANTES E CONFIGURAÇÕES ---
 
-const API_URL = 'https://mava-connect.onrender.com';
+const API_BASE_URL = 'https://mava-connect.onrender.com';
+
 const ITEMS_PER_PAGE = 12; // Cards por página
 const WHATSAPP_MESSAGE = `Olá, tudo bem?\n\nSeja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.\n\nAtenciosamente,\nSecretaria MAVA`;
 const STATUS_OPTIONS = [

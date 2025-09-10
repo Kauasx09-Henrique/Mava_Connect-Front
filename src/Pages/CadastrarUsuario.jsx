@@ -7,7 +7,8 @@ import toast from 'react-hot-toast';
 import styles from './style/Form.module.css';
 
 
-const API_URL = 'https://mava-connect.onrender.com';
+const API_BASE_URL = 'https://mava-connect.onrender.com';
+
 
 function CadastrarUsuario() {
   const navigate = useNavigate();
