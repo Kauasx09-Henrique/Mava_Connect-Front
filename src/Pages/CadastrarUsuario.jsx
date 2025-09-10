@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import styles from './style/Form.module.css';
 
 
-const API_BASE_URL = 'https://mava-connect.onrender.com';
+const API_BASE_URL = ' https://mava-connect.onrender.com/api/usuarios';
 
 
 function CadastrarUsuario() {
