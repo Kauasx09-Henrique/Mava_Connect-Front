@@ -6,8 +6,8 @@ import toast from 'react-hot-toast';
 import styles from './style/Login.module.css';
 import logo from '../../public/logo_mava.png';
 
-const API_URL = 'https://mava-connect-backend.onrender.com';
 
+const API_URL = 'https://mava-connect.onrender.com';
 function Login() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
