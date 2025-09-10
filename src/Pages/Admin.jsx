@@ -17,7 +17,6 @@ import { BsGenderMale, BsGenderFemale, BsCalendarDate } from 'react-icons/bs';
 import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
 // --- 1. CONFIGURAÇÕES E CONSTANTES ---
-
 const API_BASE_URL = 'https://mava-connect-backend.onrender.com';
 const ITEMS_PER_PAGE = 7; // Itens por página da tabela
 
