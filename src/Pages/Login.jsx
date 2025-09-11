@@ -45,7 +45,7 @@ function Login() {
             }
 
             // --- LOGIN NORMAL (via backend) ---
-            const res = await axios.post(`${API_URL}/auth/login`, { email, senha });
+            const res = await axios.post(`${API_BASE_URL}/auth/login`, { email, senha });
             const { token, usuario } = res.data;
 
             if (!token || !usuario || !usuario.tipo) {
