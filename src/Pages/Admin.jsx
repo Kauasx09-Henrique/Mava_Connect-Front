@@ -5,19 +5,19 @@ import toast from 'react-hot-toast';
 import styles from './style/Admin.module.css';
 import Header from '../Components/Header';
 
-// Import de todos os Ícones (Adicionado FaImage)
+// Import de todos os Ícones
 import {
     FaEdit, FaTrashAlt, FaPlus, FaUsers, FaWalking, FaSearch,
-    FaUserShield, FaUserFriends, FaPhone, FaChurch,
-    FaHome, FaMapMarkerAlt, FaUsersCog, FaRegClock,
-    FaChevronLeft, FaChevronRight, FaImage // <-- Ícone da logo adicionado
+    FaUserShield, FaUserFriends, FaChurch,
+    FaHome, FaUsersCog, FaRegClock,
+    FaChevronLeft, FaChevronRight, FaImage
 } from 'react-icons/fa';
 import { FiUserCheck, FiUserX } from 'react-icons/fi';
 import { BsGenderMale, BsGenderFemale, BsCalendarDate } from 'react-icons/bs';
 import { MdEmail, MdPhone, MdFamilyRestroom, MdWork } from 'react-icons/md';
 
 // --- 1. CONFIGURAÇÕES E CONSTANTES ---
-const API_BASE_URL = 'https://mava-connect.onrender.com';
+const API_BASE_URL = 'https://mava-connect.onrender.com/api';
 
 const ITEMS_PER_PAGE = 7; // Itens por página da tabela
 
@@ -137,7 +137,7 @@ export default function Admin() {
         
         setLoading(true);
         Promise.all([
-            axios.get(`${API_BASE_URL}/api/usuarios`, { headers }),
+            axios.get(`${API_BASE_URL}/usuarios`, { headers }),
             axios.get(`${API_BASE_URL}/visitantes`, { headers })
         ]).then(([usersRes, visitorsRes]) => {
             setUsuarios(usersRes.data);
@@ -167,7 +167,7 @@ export default function Admin() {
                 (item.nome?.toLowerCase().includes(lowerTerm)) ||
                 (item.nome_gf?.toLowerCase().includes(lowerTerm)) ||
                 (item.email?.toLowerCase().includes(lowerTerm)) ||
-                (item.email_gf?.toLowerCase().includes(lowerTerm)) || // Adicionado email_gf
+                (item.email_gf?.toLowerCase().includes(lowerTerm)) ||
                 (item.telefone?.includes(lowerTerm))
             );
         }
@@ -189,7 +189,6 @@ export default function Admin() {
         if (item) {
             setFormData({ ...item, data_nascimento: item.data_nascimento ? new Date(item.data_nascimento).toISOString().split('T')[0] : '' });
         } else {
-            // Limpa o campo de logo ao criar novo item
             setFormData(view === 'usuarios' ? { tipo_usuario: 'secretaria', logo: null } : { status: 'pendente', evento: 'culto', endereco: {} });
         }
         setIsModalOpen(true);
@@ -225,7 +224,7 @@ export default function Admin() {
         const onConfirm = async () => {
             const isUserView = view === 'usuarios';
             const originalData = isUserView ? [...usuarios] : [...visitantes];
-            const endpoint = isUserView ? `/api/usuarios/${item.id}` : `/visitantes/${item.id}`;
+            const endpoint = isUserView ? `/usuarios/${item.id}` : `/visitantes/${item.id}`;
             const setData = isUserView ? setUsuarios : setVisitantes;
             
             setData(prevData => prevData.filter(d => d.id !== item.id));
@@ -246,7 +245,7 @@ export default function Admin() {
         e.preventDefault();
         const token = localStorage.getItem('token');
         const isUserView = view === 'usuarios';
-        const endpoint = isUserView ? '/api/usuarios' : '/visitantes';
+        const endpoint = isUserView ? '/usuarios' : '/visitantes';
         const url = `${API_BASE_URL}${endpoint}${editingItem ? `/${editingItem.id}` : ''}`;
         const method = editingItem ? 'put' : 'post';
         
@@ -269,7 +268,7 @@ export default function Admin() {
             const response = await axios[method](url, payload, { headers });
             toast.success(`Dados salvos com sucesso!`);
             
-            const updatedItem = response.data;
+            const updatedItem = response.data.visitante || response.data;
             const setData = isUserView ? setUsuarios : setVisitantes;
             if (editingItem) {
                 setData(prev => prev.map(item => item.id === editingItem.id ? updatedItem : item));
@@ -277,25 +276,17 @@ export default function Admin() {
                 setData(prev => [updatedItem, ...prev]);
             }
 
-            // --- INÍCIO DA ALTERAÇÃO ---
-            // Verifica se o usuário editado é o mesmo que está logado.
-            // É importante que você salve o ID do usuário como 'userId' no localStorage durante o login.
             const loggedInUserId = localStorage.getItem('userId');
-            
             if (isUserView && editingItem && loggedInUserId && updatedItem.id.toString() === loggedInUserId) {
-                // Atualiza os dados no localStorage
                 localStorage.setItem('nome_gf', updatedItem.nome_gf);
                 localStorage.setItem('logo_url', updatedItem.logo_url);
                 localStorage.setItem('tipo', updatedItem.tipo_usuario);
-
-                // Dispara o evento customizado para notificar o Header da mudança
                 window.dispatchEvent(new Event('storageUpdated'));
             }
-            // --- FIM DA ALTERAÇÃO ---
 
             handleCloseModal();
         } catch (error) { 
-            const errorMessage = error.response?.data?.message || "Falha ao salvar. Verifique os dados.";
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || "Falha ao salvar. Verifique os dados.";
             toast.error(errorMessage);
         }
     };
