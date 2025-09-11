@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import Swal from 'sweetalert2'; // ALTERAÇÃO: Importado SweetAlert2 em vez de toast
 import { useNavigate, Link } from 'react-router-dom';
 
-// --- CORREÇÃO DE IMPORTAÇÃO ---
 // Ícones do Material Design
 import { 
-    MdPhone, MdOutlineMail, MdAdd, MdClose, 
+    MdPhone, MdOutlineMail, MdAdd, MdClose, MdCheck, // CORREÇÃO: Ícone MdCheck adicionado
     MdCalendarToday, MdOutlineAccessTime, MdErrorOutline, 
     MdSearch, MdGroups, MdThumbUp, MdEmojiEvents, MdWhatsapp,
     MdPerson, MdMale, MdFemale 
@@ -21,7 +20,8 @@ import styles from './style/Secretaria.module.css';
 
 // --- 1. CONSTANTES E CONFIGURAÇÕES ---
 
-const API_BASE_URL = 'https://mava-connect.onrender.com';
+// CORREÇÃO: Adicionado o prefixo /api à URL base para corrigir os erros 404
+const API_BASE_URL = 'https://mava-connect.onrender.com/api';
 
 const ITEMS_PER_PAGE = 12; // Cards por página
 const WHATSAPP_MESSAGE = `Olá, tudo bem?\n\nSeja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.\n\nAtenciosamente,\nSecretaria MAVA`;
@@ -132,7 +132,12 @@ export default function Secretaria() {
             setVisitantes(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error('Erro ao buscar visitantes:', err);
-            toast.error('Sessão expirada ou erro de rede.');
+            // ALTERAÇÃO: Usando SweetAlert para erro
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro de Autenticação',
+                text: 'Sessão expirada ou erro de rede. Por favor, faça login novamente.',
+            });
             if (err.response?.status === 401 || err.response?.status === 403) navigate('/');
         }
     }, [navigate]);
@@ -182,9 +187,9 @@ export default function Secretaria() {
             const matchesStatus = statusFilter === 'todos' || v.status === statusFilter;
             return matchesSearch && matchesStatus;
         });
-        const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+        const totalPagesResult = Math.ceil(filtered.length / ITEMS_PER_PAGE);
         const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-        return { paginatedVisitors: paginated, totalPages };
+        return { paginatedVisitors: paginated, totalPages: totalPagesResult };
     }, [searchTerm, statusFilter, visitantes, currentPage]);
 
     // Manipuladores de Ações com UI Otimista
@@ -195,35 +200,62 @@ export default function Secretaria() {
         try {
             const token = localStorage.getItem('token');
             await axios.patch(`${API_BASE_URL}/visitantes/${id}/status`, { status }, { headers: { 'Authorization': `Bearer ${token}` }});
-            toast.success('Status alterado!');
+            // ALTERAÇÃO: Usando SweetAlert para sucesso
+             Swal.fire({
+                icon: 'success',
+                title: 'Status alterado!',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+            });
         } catch {
-            toast.error('Erro ao alterar status.');
+            // ALTERAÇÃO: Usando SweetAlert para erro
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Erro ao alterar o status.',
+            });
             setVisitantes(originalVisitantes);
         }
     }, [visitantes]);
 
     const handleDelete = useCallback((visitorToDelete) => {
-        toast((t) => (
-            <div>
-                <p>Excluir <strong>{visitorToDelete.nome}</strong>?</p>
-                <div className={styles.toastActions}>
-                    <button className={styles.toastConfirmButton} onClick={() => {
-                        toast.dismiss(t.id);
-                        const originalVisitantes = [...visitantes];
-                        setVisitantes(prev => prev.filter(v => v.id !== visitorToDelete.id));
-                        toast.success('Excluído com sucesso!');
+        // ALTERAÇÃO: Usando SweetAlert para confirmação
+        Swal.fire({
+            title: `Excluir ${visitorToDelete.nome}?`,
+            text: "Esta ação não pode ser desfeita!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6e7881',
+            confirmButtonText: 'Sim, excluir!',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const originalVisitantes = [...visitantes];
+                setVisitantes(prev => prev.filter(v => v.id !== visitorToDelete.id));
 
-                        const token = localStorage.getItem('token');
-                        axios.delete(`${API_BASE_URL}/visitantes/${visitorToDelete.id}`, { headers: { 'Authorization': `Bearer ${token}` }})
-                            .catch(() => {
-                                toast.error('Erro ao excluir.');
-                                setVisitantes(originalVisitantes);
-                            });
-                    }}>Excluir</button>
-                    <button className={styles.toastCancelButton} onClick={() => toast.dismiss(t.id)}>Cancelar</button>
-                </div>
-            </div>
-        ));
+                const token = localStorage.getItem('token');
+                axios.delete(`${API_BASE_URL}/visitantes/${visitorToDelete.id}`, { headers: { 'Authorization': `Bearer ${token}` }})
+                    .then(() => {
+                        Swal.fire(
+                            'Excluído!',
+                            'O visitante foi removido.',
+                            'success'
+                        );
+                    })
+                    .catch(() => {
+                        Swal.fire(
+                            'Erro!',
+                            'Falha ao excluir o visitante.',
+                            'error'
+                        );
+                        setVisitantes(originalVisitantes);
+                    });
+            }
+        });
     }, [visitantes]);
 
     const handleUpdateVisitor = useCallback(async (e) => {
@@ -235,9 +267,20 @@ export default function Secretaria() {
         try {
             const token = localStorage.getItem('token');
             await axios.put(`${API_BASE_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` }});
-            toast.success('Visitante atualizado!');
+            // ALTERAÇÃO: Usando SweetAlert para sucesso
+            Swal.fire({
+                icon: 'success',
+                title: 'Visitante atualizado!',
+                showConfirmButton: false,
+                timer: 1500
+            });
         } catch {
-            toast.error('Erro ao atualizar.');
+            // ALTERAÇÃO: Usando SweetAlert para erro
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Erro ao atualizar o visitante.',
+            });
             setVisitantes(originalVisitantes);
         }
     }, [editingVisitor, visitantes]);
