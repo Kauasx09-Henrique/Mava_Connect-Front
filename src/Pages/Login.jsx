@@ -6,8 +6,8 @@ import toast from 'react-hot-toast';
 import styles from './style/Login.module.css';
 import logo from '../../public/logo_mava.png';
 
-const API_BASE_URL = 'https://mava-connect.onrender.com';
-
+// CORREÇÃO: Adicionado o prefixo /api na URL base para corresponder ao back-end
+const API_BASE_URL = 'https://mava-connect.onrender.com/api';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -30,21 +30,9 @@ function Login() {
         setLoading(true);
 
         try {
-            // --- ADMIN FIXO ---
-            if (email === "admin@gmail.com" && senha === "123456") {
-                localStorage.setItem("token", "fake-admin-token");
-                localStorage.setItem("tipo", "admin");
-                localStorage.setItem("nome_gf", "Administrador");
-                localStorage.setItem("logo_url", ""); // pode ser uma imagem default se quiser
+            // --- LÓGICA DO ADMIN FIXO REMOVIDA ---
+            // Agora todas as autenticações passam pelo backend.
 
-                toast.success("Bem-vindo(a), Administrador!");
-
-                navigate("/admin");
-                window.dispatchEvent(new Event("storageUpdated"));
-                return; // não chama backend
-            }
-
-            // --- LOGIN NORMAL (via backend) ---
             const res = await axios.post(`${API_BASE_URL}/auth/login`, { email, senha });
             const { token, usuario } = res.data;
 
@@ -69,7 +57,7 @@ function Login() {
 
             window.dispatchEvent(new Event("storageUpdated"));
         } catch (err) {
-            toast.error(err.response?.data?.mensagem || "Erro no login");
+            toast.error(err.response?.data?.mensagem || "E-mail ou senha incorretos.");
         } finally {
             setLoading(false);
         }
