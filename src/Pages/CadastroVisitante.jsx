@@ -65,7 +65,7 @@ function CadastroVisitante() {
     const fetchGfs = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_URL}/api/gfs`, {
+        const res = await axios.get(`${API_BASE_URL}/api/gfs`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setGfs(res.data);
@@ -140,7 +140,7 @@ function CadastroVisitante() {
     };
 
     const token = localStorage.getItem('token');
-    const promise = axios.post(`${API_URL}/visitantes`, dataToSend, {
+    const promise = axios.post(`${API_BASE_URL}/visitantes`, dataToSend, {
         headers: { Authorization: `Bearer ${token}` }
     });
 

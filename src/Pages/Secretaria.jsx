@@ -128,7 +128,7 @@ export default function Secretaria() {
     const fetchData = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get(`${API_URL}/visitantes`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const res = await axios.get(`${API_BASE_URL}/visitantes`, { headers: { 'Authorization': `Bearer ${token}` } });
             setVisitantes(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error('Erro ao buscar visitantes:', err);
@@ -194,7 +194,7 @@ export default function Secretaria() {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.patch(`${API_URL}/visitantes/${id}/status`, { status }, { headers: { 'Authorization': `Bearer ${token}` }});
+            await axios.patch(`${API_BASE_URL}/visitantes/${id}/status`, { status }, { headers: { 'Authorization': `Bearer ${token}` }});
             toast.success('Status alterado!');
         } catch {
             toast.error('Erro ao alterar status.');
@@ -214,7 +214,7 @@ export default function Secretaria() {
                         toast.success('Excluído com sucesso!');
 
                         const token = localStorage.getItem('token');
-                        axios.delete(`${API_URL}/visitantes/${visitorToDelete.id}`, { headers: { 'Authorization': `Bearer ${token}` }})
+                        axios.delete(`${API_BASE_URL}/visitantes/${visitorToDelete.id}`, { headers: { 'Authorization': `Bearer ${token}` }})
                             .catch(() => {
                                 toast.error('Erro ao excluir.');
                                 setVisitantes(originalVisitantes);
@@ -234,7 +234,7 @@ export default function Secretaria() {
         
         try {
             const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` }});
+            await axios.put(`${API_BASE_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` }});
             toast.success('Visitante atualizado!');
         } catch {
             toast.error('Erro ao atualizar.');

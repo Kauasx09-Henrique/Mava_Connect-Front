@@ -53,7 +53,7 @@ function CadastrarUsuario() {
       dataToSend.append('logo', logoFile); // Adiciona o arquivo ao formulário
     }
 
-    const promise = axios.post(API_URL, dataToSend, {
+    const promise = axios.post(API_BASE_URL, dataToSend, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data', // Essencial para o envio de arquivos
