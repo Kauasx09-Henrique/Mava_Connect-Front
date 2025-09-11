@@ -65,7 +65,7 @@ function CadastroVisitante() {
     const fetchGfs = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get(`${API_BASE_URL}/api/gfs`, {
+        const res = await axios.get(`${API_BASE_URL}/gfs`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setGfs(res.data);
