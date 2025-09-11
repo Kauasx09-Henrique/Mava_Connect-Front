@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useIMask } from 'react-imask';
 import toast from 'react-hot-toast';
-import { useViaCep } from '../../src/hooks/useViaCep'; // Verifique se este caminho está correto
+import { useViaCep } from '../../src/hooks/useViaCep';
 import Header from '../Components/Header';
 import styles from './style/Cadastro.module.css';
 
 // URL da sua API backend
-
 const API_BASE_URL = 'https://mava-connect.onrender.com/api';
 
+// CORREÇÃO 1: Removido o trecho de código solto que estava aqui.
 
 // Estado inicial do formulário
 const initialState = {
@@ -32,7 +32,7 @@ const initialState = {
   },
   como_conheceu: '',
   gf_responsavel: '',
-  evento: '', // Campo de evento adicionado ao estado inicial
+  evento: '',
 };
 
 function CadastroVisitante() {
@@ -45,14 +45,11 @@ function CadastroVisitante() {
   const { address, loading: cepLoading, error: cepError, fetchCep } = useViaCep();
   const numeroInputRef = useRef(null);
 
-  // Detecta e aplica o tema (dark/light mode) do sistema
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => setDarkMode(mediaQuery.matches);
-    
-    setDarkMode(mediaQuery.matches); // Define o tema inicial
+    setDarkMode(mediaQuery.matches);
     mediaQuery.addEventListener('change', handler);
-    
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
@@ -60,11 +57,11 @@ function CadastroVisitante() {
     document.body.className = darkMode ? 'dark-mode' : 'light-mode';
   }, [darkMode]);
 
-  // Busca a lista de GFs da API
   useEffect(() => {
     const fetchGfs = async () => {
       try {
         const token = localStorage.getItem('token');
+        // CORREÇÃO 2: Adicionada a barra "/" entre a URL base e o endpoint.
         const res = await axios.get(`${API_BASE_URL}/gfs`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -74,11 +71,9 @@ function CadastroVisitante() {
         console.error('Erro ao buscar GFs:', error);
       }
     };
-
     fetchGfs();
   }, []);
 
-  // Handler para atualizar o estado do formulário
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (Object.keys(form.endereco).includes(name)) {
@@ -91,7 +86,6 @@ function CadastroVisitante() {
     }
   };
   
-  // Máscaras de input para CEP e Telefone
   const { ref: cepRef } = useIMask(
     { mask: '00000-000' },
     { onAccept: (value) => handleChange({ target: { name: 'cep', value } }) }
@@ -102,7 +96,6 @@ function CadastroVisitante() {
     { onAccept: (value) => handleChange({ target: { name: 'telefone', value } }) }
   );
   
-  // Preenche o endereço automaticamente após a busca do CEP
   useEffect(() => {
     if (Object.keys(address).length > 0) {
       setForm((prev) => ({
@@ -111,7 +104,7 @@ function CadastroVisitante() {
           ...prev.endereco,
           logradouro: address.logradouro,
           bairro: address.bairro,
-          cidade: address.localidade, // ViaCEP retorna 'localidade'
+          cidade: address.localidade,
           uf: address.uf,
         },
       }));
@@ -123,12 +116,10 @@ function CadastroVisitante() {
     if (form.endereco.cep) fetchCep(form.endereco.cep);
   };
 
-  // Handler para submeter o formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Prepara os dados removendo máscaras e tratando valores nulos
     const dataToSend = {
       ...form,
       data_nascimento: form.data_nascimento || null,
@@ -276,7 +267,6 @@ function CadastroVisitante() {
             </select>
           </div>
           
-          {/* CAMPO EVENTO CORRIGIDO - Movido para fora do .map */}
           <div className={styles.formGroup}>
             <label htmlFor="evento">Evento de Origem</label>
             <select
