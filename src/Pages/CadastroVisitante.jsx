@@ -9,7 +9,7 @@ import styles from './style/Cadastro.module.css';
 
 // URL da sua API backend
 
-const API_BASE_URL = 'https://mava-connect.onrender.com';
+const API_BASE_URL = 'https://mava-connect.onrender.com/api';
 
 
 // Estado inicial do formulário
