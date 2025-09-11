@@ -7,7 +7,29 @@
   padding: 20px;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   transition: all 0.3s ease;
+  
+  /* --- ADIÇÃO PARA LOGO DE FUNDO --- */
+  position: relative; /* Necessário para o posicionamento do fundo */
+  overflow: hidden;   /* Garante que o fundo não ultrapasse os limites */
 }
+
+/* --- ADIÇÃO PARA LOGO DE FUNDO --- */
+/* Cria um elemento "virtual" para colocar a imagem de fundo */
+.loginContainer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: var(--background-logo); /* Variável vinda do JSX */
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.05; /* Deixa a imagem bem transparente */
+    z-index: 1;    /* Coloca o fundo atrás do formulário */
+}
+
 
 /* Modo escuro */
 .loginContainer.darkMode {
@@ -23,6 +45,10 @@
   width: 100%;
   max-width: 450px;
   transition: all 0.3s ease;
+  
+  /* --- ADIÇÃO PARA LOGO DE FUNDO --- */
+  position: relative; /* Garante que o formulário fique na frente do fundo */
+  z-index: 2;
 }
 
 .darkMode .loginForm {

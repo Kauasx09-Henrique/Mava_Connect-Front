@@ -1,12 +1,10 @@
-// Login.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import Swal from 'sweetalert2'; // ALTERAÇÃO: Importado SweetAlert2
 import styles from './style/Login.module.css';
 import logo from '../../public/logo_mava.png';
 
-// CORREÇÃO: Adicionado o prefixo /api na URL base para corresponder ao back-end
 const API_BASE_URL = 'https://mava-connect.onrender.com/api';
 
 function Login() {
@@ -30,9 +28,6 @@ function Login() {
         setLoading(true);
 
         try {
-            // --- LÓGICA DO ADMIN FIXO REMOVIDA ---
-            // Agora todas as autenticações passam pelo backend.
-
             const res = await axios.post(`${API_BASE_URL}/auth/login`, { email, senha });
             const { token, usuario } = res.data;
 
@@ -45,7 +40,15 @@ function Login() {
             localStorage.setItem("nome_gf", usuario.nome);
             localStorage.setItem("logo_url", usuario.logo_url || "");
 
-            toast.success(`Bem-vindo(a), ${usuario.nome}!`);
+            // ALTERAÇÃO: Usando SweetAlert para sucesso
+            await Swal.fire({
+                icon: 'success',
+                title: `Bem-vindo(a), ${usuario.nome}!`,
+                text: 'Você será redirecionado em breve.',
+                timer: 2000,
+                showConfirmButton: false,
+                timerProgressBar: true,
+            });
 
             if (usuario.tipo === "admin") {
                 navigate("/admin");
@@ -54,17 +57,26 @@ function Login() {
             } else {
                 navigate("/");
             }
-
             window.dispatchEvent(new Event("storageUpdated"));
+
         } catch (err) {
-            toast.error(err.response?.data?.mensagem || "E-mail ou senha incorretos.");
+            // ALTERAÇÃO: Usando SweetAlert para erro
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro no Login',
+                text: err.response?.data?.mensagem || "E-mail ou senha incorretos.",
+            });
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className={`${styles.loginContainer} ${darkMode ? styles.darkMode : ''}`}>
+        // CORREÇÃO: Passando a URL da logo como uma variável CSS
+        <div 
+            className={`${styles.loginContainer} ${darkMode ? styles.darkMode : ''}`}
+            style={{ '--background-logo': `url(${logo})` }}
+        >
             <form className={styles.loginForm} onSubmit={handleLogin}>
                 <div className={styles.logoContainer}>
                     <img src={logo} alt="Logo da Empresa" className={styles.logo} />
