@@ -1,43 +1,39 @@
 /* Estilos base */
 .loginContainer {
-  display: flex; /* ATIVA O LAYOUT FLEXBOX */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   transition: all 0.3s ease;
-  background: #f0f2f5; /* Cor de fundo para o painel do formulário */
+  
+  /* --- ADIÇÃO PARA LOGO DE FUNDO --- */
+  position: relative;
+  overflow: hidden;
 }
 
-/* PAINEL DA LOGO (ESQUERDA) */
-.logoPanel {
-    flex: 1; /* Ocupa metade da tela */
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+/* --- CRIA A LOGO DE FUNDO TRANSPARENTE --- */
+.loginContainer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background-image: var(--background-logo);
-    background-size: 60%; /* Ajuste o tamanho da logo como preferir */
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-}
-
-/* PAINEL DO FORMULÁRIO (DIREITA) */
-.formPanel {
-    flex: 1; /* Ocupa a outra metade */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    opacity: 0.05;
+    z-index: 1;
 }
 
 /* Modo escuro */
 .loginContainer.darkMode {
-  background: #2d3748; /* Cor de fundo para o painel do formulário */
-}
-
-.darkMode .logoPanel {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  background-image: var(--background-logo);
-  background-size: 60%;
-  background-position: center;
-  background-repeat: no-repeat;
+  color: #f0f0f0;
 }
-
 
 .loginForm {
   background: white;
@@ -47,11 +43,14 @@
   width: 100%;
   max-width: 450px;
   transition: all 0.3s ease;
+  
+  /* --- GARANTE QUE O FORMULÁRIO FIQUE NA FRENTE DO FUNDO --- */
+  position: relative;
+  z-index: 2;
 }
 
 .darkMode .loginForm {
   background: #2d3748;
-  color: #f0f0f0;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
@@ -155,7 +154,6 @@
   background-color: #718096;
 }
 
-/* Efeito de loading */
 @keyframes pulse {
   0% { opacity: 0.8; }
   50% { opacity: 1; }
@@ -166,14 +164,31 @@
   animation: pulse 1.5s infinite;
 }
 
-/* Responsividade */
-@media (max-width: 900px) {
-  /* Em telas menores, o painel da logo some */
-  .logoPanel {
-    display: none;
+@media (max-width: 768px) {
+  .loginForm {
+    padding: 2rem;
   }
   
-  .formPanel {
-    flex: 1 1 100%; /* Ocupa a tela toda */
+  .loginForm h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginContainer {
+    padding: 15px;
+  }
+  
+  .loginForm {
+    padding: 1.5rem;
+    border-radius: 10px;
+  }
+  
+  .inputGroup input {
+    padding: 0.7rem 0.9rem;
+  }
+  
+  .loginButton {
+    padding: 0.8rem;
   }
 }

@@ -70,50 +70,43 @@ function Login() {
     };
 
     return (
-        <div className={`${styles.loginContainer} ${darkMode ? styles.darkMode : ''}`}>
-            
-            {/* PAINEL DA LOGO (LADO ESQUERDO) */}
-            <div 
-                className={styles.logoPanel}
-                style={{ '--background-logo': `url(${logo})` }}
-            />
-
-            {/* PAINEL DO FORMULÁRIO (LADO DIREITO) */}
-            <div className={styles.formPanel}>
-                <form className={styles.loginForm} onSubmit={handleLogin}>
-                    <div className={styles.logoContainer}>
-                        <img src={logo} alt="Logo da Empresa" className={styles.logo} />
-                    </div>
-                    <h2>Acessar o Sistema</h2>
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="email">Email</label>
-                        <input
-                            id="email"
-                            type="email"
-                            placeholder="seu@email.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            disabled={loading}
-                        />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <label htmlFor="password">Senha</label>
-                        <input
-                            id="password"
-                            type="password"
-                            placeholder="Sua senha"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                            required
-                            disabled={loading}
-                        />
-                    </div>
-                    <button type="submit" className={styles.loginButton} disabled={loading}>
-                        {loading ? 'Entrando...' : 'Entrar'}
-                    </button>
-                </form>
-            </div>
+        <div 
+            className={`${styles.loginContainer} ${darkMode ? styles.darkMode : ''}`}
+            style={{ '--background-logo': `url(${logo})` }}
+        >
+            <form className={styles.loginForm} onSubmit={handleLogin}>
+                <div className={styles.logoContainer}>
+                    <img src={logo} alt="Logo da Empresa" className={styles.logo} />
+                </div>
+                <h2>Acessar o Sistema</h2>
+                <div className={styles.inputGroup}>
+                    <label htmlFor="email">Email</label>
+                    <input
+                        id="email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        disabled={loading}
+                    />
+                </div>
+                <div className={styles.inputGroup}>
+                    <label htmlFor="password">Senha</label>
+                    <input
+                        id="password"
+                        type="password"
+                        placeholder="Sua senha"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        required
+                        disabled={loading}
+                    />
+                </div>
+                <button type="submit" className={styles.loginButton} disabled={loading}>
+                    {loading ? 'Entrando...' : 'Entrar'}
+                </button>
+            </form>
         </div>
     );
 }
