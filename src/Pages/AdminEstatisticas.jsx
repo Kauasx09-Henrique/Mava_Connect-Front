@@ -6,13 +6,11 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Pie, Bar } from 'react-chartjs-2';
 import Header from '../Components/Header'; 
 import styles from './style/AdminEstatisticas.module.css';
-import { FaUsers, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt, FaUserCheck } from 'react-icons/fa';
+import { FaUsers, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt, FaUserCheck, FaFilter, FaTimesCircle } from 'react-icons/fa';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
-// CORREÇÃO: Adicionado o prefixo /api na URL base
 const API_BASE_URL = 'https://mava-connect.onrender.com/api';
-
 
 const SkeletonLoader = () => (
     <div className={styles.statsContainer}>
@@ -39,8 +37,44 @@ function AdminEstatisticas() {
     const [visitantes, setVisitantes] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const [filtroGF, setFiltroGF] = useState('');
+    const [filtroDataInicio, setFiltroDataInicio] = useState('');
+    const [filtroDataFim, setFiltroDataFim] = useState('');
+
+    const gfsUnicos = useMemo(() => {
+        if (visitantes.length === 0) return [];
+        const gfs = visitantes.map(v => v.gf_responsavel?.trim()).filter(Boolean);
+        return [...new Set(gfs)].sort();
+    }, [visitantes]);
+
+    const visitantesFiltrados = useMemo(() => {
+        return visitantes.filter(visitante => {
+            if (filtroGF && visitante.gf_responsavel?.trim() !== filtroGF) {
+                return false;
+            }
+            if (filtroDataInicio && filtroDataFim) {
+                const dataVisita = new Date(visitante.data_visita);
+                const dataInicio = new Date(filtroDataInicio);
+                const dataFim = new Date(filtroDataFim);
+                dataVisita.setHours(0, 0, 0, 0);
+                dataInicio.setHours(0, 0, 0, 0);
+                dataFim.setHours(0, 0, 0, 0);
+                if (dataVisita < dataInicio || dataVisita > dataFim) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }, [visitantes, filtroGF, filtroDataInicio, filtroDataFim]);
+
+    const handleClearFilters = () => {
+        setFiltroGF('');
+        setFiltroDataInicio('');
+        setFiltroDataFim('');
+    };
+
     const chartData = useMemo(() => {
-        if (visitantes.length === 0) return {};
+        if (visitantesFiltrados.length === 0) return {};
 
         const accentPrimary = getThemeColor('--accent-primary');
         const accentSecondary = getThemeColor('--accent-secondary');
@@ -49,13 +83,12 @@ function AdminEstatisticas() {
         const colorOther = '#a0aec0';
         const colorIncomplete = '#a0aec0';
 
-        // 1. Percentual por GF
-        const gfCounts = visitantes.reduce((acc, { gf_responsavel }) => {
+        const gfCounts = visitantesFiltrados.reduce((acc, { gf_responsavel }) => {
             const nomeGF = gf_responsavel?.trim() || 'Não informado';
             acc[nomeGF] = (acc[nomeGF] || 0) + 1;
             return acc;
         }, {});
-        const totalVisitantes = visitantes.length;
+        const totalVisitantes = visitantesFiltrados.length;
         const gfChart = {
             labels: Object.keys(gfCounts),
             datasets: [{
@@ -66,8 +99,7 @@ function AdminEstatisticas() {
             }],
         };
 
-        // 2. Status de cadastro / gênero
-        const registrationCounts = visitantes.reduce((acc, { sexo }) => {
+        const registrationCounts = visitantesFiltrados.reduce((acc, { sexo }) => {
             const status = sexo || 'Cadastro Incompleto'; 
             acc[status] = (acc[status] || 0) + 1;
             return acc;
@@ -87,14 +119,14 @@ function AdminEstatisticas() {
             }],
         };
 
-        // 3. Faixa etária
         const ageGroups = { '0-17': 0, '18-25': 0, '26-35': 0, '36-50': 0, '51+': 0, 'Não informado': 0 };
-        visitantes.forEach(({ data_nascimento }) => {
+        visitantesFiltrados.forEach(({ data_nascimento }) => {
             if (!data_nascimento) {
                 ageGroups['Não informado']++;
                 return;
             }
-            const age = new Date().getFullYear() - new Date(data_nascimento).getFullYear();
+            const birthDate = new Date(data_nascimento);
+            const age = Math.floor((new Date() - birthDate.getTime()) / 3.15576e+10);
             if (age <= 17) ageGroups['0-17']++;
             else if (age <= 25) ageGroups['18-25']++;
             else if (age <= 35) ageGroups['26-35']++;
@@ -102,12 +134,11 @@ function AdminEstatisticas() {
             else ageGroups['51+']++;
         });
         const ageChart = {
-            labels: Object.keys(ageGroups),
-            datasets: [{ label: 'Nº de Visitantes', data: Object.values(ageGroups), backgroundColor: accentSecondary, borderRadius: 4 }],
+             labels: Object.keys(ageGroups),
+             datasets: [{ label: 'Nº de Visitantes', data: Object.values(ageGroups), backgroundColor: accentSecondary, borderRadius: 4 }],
         };
 
-        // 4. Localização
-        const locationCounts = visitantes.reduce((acc, { endereco }) => {
+        const locationCounts = visitantesFiltrados.reduce((acc, { endereco }) => {
             const city = endereco?.cidade ? (endereco.cidade.charAt(0).toUpperCase() + endereco.cidade.slice(1).toLowerCase()) : 'Não informado';
             acc[city] = (acc[city] || 0) + 1;
             return acc;
@@ -121,8 +152,7 @@ function AdminEstatisticas() {
             datasets: [{ label: 'Nº de Visitantes', data: topLocations.map(([, count]) => count), backgroundColor: '#34d399', borderRadius: 4 }],
         };
 
-        // 5. Datas
-        const dateCounts = visitantes.reduce((acc, { data_visita }) => {
+        const dateCounts = visitantesFiltrados.reduce((acc, { data_visita }) => {
             const visitDate = new Date(data_visita).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             acc[visitDate] = (acc[visitDate] || 0) + 1;
             return acc;
@@ -132,9 +162,9 @@ function AdminEstatisticas() {
             labels: topDates.map(([date]) => date),
             datasets: [{ label: 'Nº de Visitantes', data: topDates.map(([, count]) => count), backgroundColor: accentPrimary, borderRadius: 4 }],
         };
-        
+
         return { gf: gfChart, registration: registrationChart, age: ageChart, location: locationChart, visitsByDate: visitsByDateChart };
-    }, [visitantes]);
+    }, [visitantesFiltrados]);
 
     const chartOptions = useMemo(() => {
         const textColor = getThemeColor('--text-secondary');
@@ -192,62 +222,93 @@ function AdminEstatisticas() {
                     <h1>Dashboard de Visitantes</h1>
                     <div className={styles.totalVisitorsCard}>
                         <FaUsers />
-                        <span><strong>{visitantes.length}</strong> Visitantes Totais</span>
+                        <span><strong>{visitantesFiltrados.length}</strong> Visitantes</span>
                     </div>
                 </header>
 
-                <div className={styles.chartsGrid}>
-                    {chartData.gf && (
-                        <div className={styles.chartCard} style={{animationDelay: '0.05s'}}>
-                            <h2 className={styles.chartTitle}><FaUsers /> Percentual de Cadastros por GF</h2>
-                            <div className={styles.chartWrapper}>
-                                <Pie data={chartData.gf} options={{
-                                    ...chartOptions.pie,
-                                    plugins: {
-                                        ...chartOptions.pie.plugins,
-                                        tooltip: {
-                                            callbacks: {
-                                                label: (context) => `${context.label}: ${context.formattedValue}%`
+                <div className={styles.filtersContainer}>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="gf-filter">Filtrar por GF</label>
+                        <select id="gf-filter" value={filtroGF} onChange={(e) => setFiltroGF(e.target.value)}>
+                            <option value="">Todos os GFs</option>
+                            {gfsUnicos.map(gf => <option key={gf} value={gf}>{gf}</option>)}
+                        </select>
+                    </div>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="start-date">Data de Início</label>
+                        <input type="date" id="start-date" value={filtroDataInicio} onChange={(e) => setFiltroDataInicio(e.target.value)} />
+                    </div>
+                    <div className={styles.filterGroup}>
+                        <label htmlFor="end-date">Data de Fim</label>
+                        <input type="date" id="end-date" value={filtroDataFim} onChange={(e) => setFiltroDataFim(e.target.value)} />
+                    </div>
+                    <button className={styles.clearButton} onClick={handleClearFilters}>
+                        <FaTimesCircle /> Limpar Filtros
+                    </button>
+                </div>
+                
+                {visitantesFiltrados.length === 0 && !loading && (
+                    <div className={styles.noResults}>
+                        <FaFilter />
+                        <h3>Nenhum resultado encontrado</h3>
+                        <p>Tente ajustar os filtros ou limpá-los para ver os dados.</p>
+                    </div>
+                )}
+
+                {visitantesFiltrados.length > 0 && (
+                    <div className={styles.chartsGrid}>
+                        {chartData.gf && (
+                            <div className={styles.chartCard} style={{animationDelay: '0.05s'}}>
+                                <h2 className={styles.chartTitle}><FaUsers /> Percentual de Cadastros por GF</h2>
+                                <div className={styles.chartWrapper}>
+                                    <Pie data={chartData.gf} options={{
+                                        ...chartOptions.pie,
+                                        plugins: {
+                                            ...chartOptions.pie.plugins,
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: (context) => `${context.label}: ${context.formattedValue}%`
+                                                }
                                             }
                                         }
-                                    }
-                                }} />
+                                    }} />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                    {chartData.registration && (
-                        <div className={styles.chartCard} style={{animationDelay: '0.1s'}}>
-                            <h2 className={styles.chartTitle}><FaUserCheck /> Status de Cadastro por Gênero</h2>
-                            <div className={styles.chartWrapper}>
-                                <Pie data={chartData.registration} options={chartOptions.pie} />
+                        )}
+                        {chartData.registration && (
+                            <div className={styles.chartCard} style={{animationDelay: '0.1s'}}>
+                                <h2 className={styles.chartTitle}><FaUserCheck /> Status de Cadastro por Gênero</h2>
+                                <div className={styles.chartWrapper}>
+                                    <Pie data={chartData.registration} options={chartOptions.pie} />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                    {chartData.age && (
-                        <div className={styles.chartCard} style={{animationDelay: '0.2s'}}>
-                            <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
-                            <div className={styles.chartWrapper}>
-                                <Bar data={chartData.age} options={chartOptions.bar} />
+                        )}
+                        {chartData.age && (
+                            <div className={styles.chartCard} style={{animationDelay: '0.2s'}}>
+                                <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
+                                <div className={styles.chartWrapper}>
+                                    <Bar data={chartData.age} options={chartOptions.bar} />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                    {chartData.location && (
-                        <div className={styles.chartCard} style={{animationDelay: '0.3s'}}>
-                            <h2 className={styles.chartTitle}><FaMapMarkedAlt /> Visitantes por Localização</h2>
-                            <div className={styles.chartWrapper}>
-                                <Bar data={chartData.location} options={chartOptions.bar} />
+                        )}
+                        {chartData.location && (
+                            <div className={styles.chartCard} style={{animationDelay: '0.3s'}}>
+                                <h2 className={styles.chartTitle}><FaMapMarkedAlt /> Visitantes por Localização</h2>
+                                <div className={styles.chartWrapper}>
+                                    <Bar data={chartData.location} options={chartOptions.bar} />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                    {chartData.visitsByDate && (
-                        <div className={styles.chartCard} style={{animationDelay: '0.4s'}}>
-                            <h2 className={styles.chartTitle}><FaCalendarDay /> Top 10 Dias com Mais Visitas</h2>
-                            <div className={styles.chartWrapper}>
-                                <Bar data={chartData.visitsByDate} options={chartOptions.bar} />
+                        )}
+                        {chartData.visitsByDate && (
+                            <div className={styles.chartCard} style={{animationDelay: '0.4s'}}>
+                                <h2 className={styles.chartTitle}><FaCalendarDay /> Top 10 Dias com Mais Visitas</h2>
+                                <div className={styles.chartWrapper}>
+                                    <Bar data={chartData.visitsByDate} options={chartOptions.bar} />
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
             </main>
         </div>
     );

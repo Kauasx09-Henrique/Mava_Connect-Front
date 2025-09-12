@@ -19,14 +19,12 @@
   100% { background-position: 1000px 0; }
 }
 
-/* NOVO: Animação para o gradiente da borda do card */
 @keyframes gradient-pan {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* NOVO: Animação de pulsação para o card de total de visitantes */
 @keyframes pulse-glow {
   0% {
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
@@ -38,7 +36,6 @@
     box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
   }
 }
-
 
 /* --- 2. LAYOUT PRINCIPAL --- */
 .statsContainer {
@@ -87,14 +84,12 @@
   font-size: 1.1rem;
   font-weight: 600;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  /* ALTERADO: Aplica a animação de pulsação */
   animation: pulse-glow 5s infinite ease-in-out;
 }
 
 .totalVisitorsCard:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
-  /* Pausa a animação de pulso no hover para dar prioridade ao efeito de levantar */
   animation-play-state: paused;
 }
 
@@ -102,7 +97,69 @@
   font-size: 1.8rem;
 }
 
-/* --- 4. GRID DE GRÁFICOS --- */
+/* --- 4. SEÇÃO DE FILTROS --- */
+.filtersContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    align-items: flex-end;
+    border: 1px solid var(--border-color);
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filterGroup label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.filterGroup select,
+.filterGroup input {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.filterGroup select:focus,
+.filterGroup input:focus {
+    border-color: var(--accent-primary);
+}
+
+.clearButton {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    background-color: #ef4444; /* Cor vermelha para 'limpar' */
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+    margin-left: auto; /* Alinha o botão à direita */
+}
+
+.clearButton:hover {
+    background-color: #dc2626;
+}
+
+/* --- 5. GRID DE GRÁFICOS --- */
 .chartsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -123,7 +180,6 @@
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
-/* ALTERADO: Preparação para a animação de gradiente */
 .chartCard::before {
   content: '';
   position: absolute;
@@ -131,7 +187,6 @@
   left: 0;
   width: 100%;
   height: 4px;
-  /* Adiciona a cor primária no final para um loop perfeito e aumenta o tamanho do fundo */
   background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
   background-size: 250% 250%;
   opacity: 0;
@@ -143,7 +198,6 @@
   box-shadow: 0 12px 30px var(--shadow-color);
 }
 
-/* ALTERADO: Ativa a animação do gradiente no hover */
 .chartCard:hover::before {
   opacity: 1;
   animation: gradient-pan 3s linear infinite;
@@ -167,7 +221,29 @@
   align-items: center;
 }
 
-/* --- 5. SKELETON LOADER --- */
+/* --- 6. MENSAGEM DE 'SEM RESULTADOS' --- */
+.noResults {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    border: 1px dashed var(--border-color);
+}
+
+.noResults svg {
+    font-size: 3rem;
+    color: var(--accent-secondary);
+    margin-bottom: 1rem;
+}
+
+.noResults h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* --- 7. SKELETON LOADER --- */
 .skeleton {
   background-color: var(--bg-card);
   border-radius: 8px;
@@ -201,8 +277,7 @@
   border-radius: 16px;
 }
 
-
-/* --- 6. RESPONSIVIDADE --- */
+/* --- 8. RESPONSIVIDADE --- */
 @media (max-width: 1024px) {
   .mainContent {
     padding: 1.5rem;
