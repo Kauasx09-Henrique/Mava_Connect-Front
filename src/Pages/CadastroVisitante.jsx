@@ -2,15 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useIMask } from 'react-imask';
-import toast from 'react-hot-toast';
+import Swal from 'sweetalert2'; // ALTERAÇÃO: Importado SweetAlert2
 import { useViaCep } from '../../src/hooks/useViaCep';
 import Header from '../Components/Header';
 import styles from './style/Cadastro.module.css';
 
-// URL da API backend já corrigida
 const API_BASE_URL = 'https://mava-connect.onrender.com/api';
 
-// Estado inicial do formulário
 const initialState = {
   nome: '',
   data_nascimento: '',
@@ -64,7 +62,12 @@ function CadastroVisitante() {
         });
         setGfs(res.data);
       } catch (error) {
-        toast.error('Não foi possível carregar a lista de GFs.');
+        // ALTERAÇÃO: Usando SweetAlert para erro
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro de Rede',
+            text: 'Não foi possível carregar a lista de GFs. Tente recarregar a página.'
+        });
         console.error('Erro ao buscar GFs:', error);
       }
     };
@@ -113,9 +116,19 @@ function CadastroVisitante() {
     if (form.endereco.cep) fetchCep(form.endereco.cep);
   };
 
+  // ALTERAÇÃO: handleSubmit refeito com SweetAlert
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    Swal.fire({
+        title: 'Cadastrando visitante...',
+        text: 'Por favor, aguarde.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
     
     const dataToSend = {
       ...form,
@@ -127,22 +140,34 @@ function CadastroVisitante() {
       },
     };
 
-    const token = localStorage.getItem('token');
-    const promise = axios.post(`${API_BASE_URL}/visitantes`, dataToSend, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+        const token = localStorage.getItem('token');
+        await axios.post(`${API_BASE_URL}/visitantes`, dataToSend, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
 
-    toast.promise(promise, {
-      loading: 'Cadastrando visitante...',
-      success: () => {
         setForm(initialState);
-        setTimeout(() => navigate('/secretaria'), 1000);
-        return 'Visitante cadastrado com sucesso!';
-      },
-      error: (err) => err.response?.data?.details || err.response?.data?.error || 'Erro ao cadastrar.',
-    }).finally(() => {
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: 'Visitante cadastrado com sucesso!',
+            timer: 2000,
+            showConfirmButton: false,
+            timerProgressBar: true,
+        }).then(() => {
+            navigate('/secretaria');
+        });
+
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro ao Cadastrar',
+            text: err.response?.data?.details || err.response?.data?.error || 'Verifique os dados e tente novamente.',
+        });
+    } finally {
         setIsSubmitting(false);
-    });
+    }
   };
 
   return (
@@ -151,7 +176,6 @@ function CadastroVisitante() {
       <div className={styles.pageContainer}>
         <form className={styles.formContainer} onSubmit={handleSubmit}>
           <h2>Cadastro de Visitante</h2>
-
           <h3 className={styles.fullWidth}>Dados Pessoais</h3>
           <div className={styles.formGrid}>
             <div className={styles.formGroup}>
