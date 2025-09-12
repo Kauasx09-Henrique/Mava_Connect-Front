@@ -70,7 +70,7 @@ function Login() {
     };
 
     return (
-        <div 
+        <div
             className={`${styles.loginContainer} ${darkMode ? styles.darkMode : ''}`}
             style={{ '--background-logo': `url(${logo})` }}
         >

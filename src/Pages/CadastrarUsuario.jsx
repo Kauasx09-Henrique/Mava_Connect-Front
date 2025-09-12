@@ -18,7 +18,7 @@ function CadastrarUsuario() {
     senha_gf: '',
     tipo_usuario: 'secretaria',
   });
-  const [logoFile, setLogoFile] = useState(null); // Estado separado para o arquivo do logo
+  const [logoFile, setLogoFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
@@ -26,7 +26,6 @@ function CadastrarUsuario() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Função específica para lidar com a seleção do arquivo
   const handleFileChange = (e) => {
     setLogoFile(e.target.files[0]);
   };
@@ -43,20 +42,20 @@ function CadastrarUsuario() {
       return;
     }
 
-    // Usamos FormData para poder enviar o arquivo da imagem
+
     const dataToSend = new FormData();
     dataToSend.append('nome_gf', formData.nome_gf);
     dataToSend.append('email_gf', formData.email_gf);
     dataToSend.append('senha_gf', formData.senha_gf);
     dataToSend.append('tipo_usuario', formData.tipo_usuario);
     if (logoFile) {
-      dataToSend.append('logo', logoFile); // Adiciona o arquivo ao formulário
+      dataToSend.append('logo', logoFile);
     }
 
     const promise = axios.post(API_BASE_URL, dataToSend, {
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data', // Essencial para o envio de arquivos
+        'Content-Type': 'multipart/form-data',
       }
     });
 
@@ -80,7 +79,7 @@ function CadastrarUsuario() {
     <div className={styles.formContainer}>
       <form className={styles.form} onSubmit={handleSubmit}>
         <h2 className={styles.formTitle}>Cadastrar Novo Usuário</h2>
-        
+
         <div className={styles.inputGroup}>
           <label htmlFor="nome_gf">Nome Completo</label>
           <input
@@ -119,15 +118,15 @@ function CadastrarUsuario() {
             disabled={loading}
           />
         </div>
-        
-        {/* --- CAMPO DE UPLOAD DE ARQUIVO --- */}
+
+
         <div className={styles.inputGroup}>
           <label htmlFor="logo">Foto de Perfil (Opcional)</label>
           <input
             id="logo"
             name="logo"
             type="file"
-            accept="image/png, image/jpeg, image/gif" // Aceita apenas imagens
+            accept="image/png, image/jpeg, image/gif"
             onChange={handleFileChange}
             disabled={loading}
           />
@@ -148,16 +147,16 @@ function CadastrarUsuario() {
         </div>
 
         <div className={styles.buttonGroup}>
-          <button 
-            type="button" 
-            className={styles.secondaryButton} 
+          <button
+            type="button"
+            className={styles.secondaryButton}
             onClick={() => navigate('/admin')}
             disabled={loading}
           >
             Voltar
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={styles.primaryButton}
             disabled={loading}
           >

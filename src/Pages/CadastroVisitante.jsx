@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useIMask } from 'react-imask';
-import Swal from 'sweetalert2'; // ALTERAÇÃO: Importado SweetAlert2
+import Swal from 'sweetalert2';
 import { useViaCep } from '../../src/hooks/useViaCep';
 import Header from '../Components/Header';
 import styles from './style/Cadastro.module.css';
@@ -37,7 +37,7 @@ function CadastroVisitante() {
   const [gfs, setGfs] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  
+
   const { address, loading: cepLoading } = useViaCep();
   const numeroInputRef = useRef(null);
 
@@ -62,11 +62,11 @@ function CadastroVisitante() {
         });
         setGfs(res.data);
       } catch (error) {
-        // ALTERAÇÃO: Usando SweetAlert para erro
+
         Swal.fire({
-            icon: 'error',
-            title: 'Erro de Rede',
-            text: 'Não foi possível carregar a lista de GFs. Tente recarregar a página.'
+          icon: 'error',
+          title: 'Erro de Rede',
+          text: 'Não foi possível carregar a lista de GFs. Tente recarregar a página.'
         });
         console.error('Erro ao buscar GFs:', error);
       }
@@ -85,7 +85,7 @@ function CadastroVisitante() {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
-  
+
   const { ref: cepRef } = useIMask(
     { mask: '00000-000' },
     { onAccept: (value) => handleChange({ target: { name: 'cep', value } }) }
@@ -95,7 +95,7 @@ function CadastroVisitante() {
     { mask: '(00) 00000-0000' },
     { onAccept: (value) => handleChange({ target: { name: 'telefone', value } }) }
   );
-  
+
   useEffect(() => {
     if (Object.keys(address).length > 0) {
       setForm((prev) => ({
@@ -116,20 +116,20 @@ function CadastroVisitante() {
     if (form.endereco.cep) fetchCep(form.endereco.cep);
   };
 
-  // ALTERAÇÃO: handleSubmit refeito com SweetAlert
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     Swal.fire({
-        title: 'Cadastrando visitante...',
-        text: 'Por favor, aguarde.',
-        allowOutsideClick: false,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+      title: 'Cadastrando visitante...',
+      text: 'Por favor, aguarde.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
     });
-    
+
     const dataToSend = {
       ...form,
       data_nascimento: form.data_nascimento || null,
@@ -141,32 +141,32 @@ function CadastroVisitante() {
     };
 
     try {
-        const token = localStorage.getItem('token');
-        await axios.post(`${API_BASE_URL}/visitantes`, dataToSend, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_BASE_URL}/visitantes`, dataToSend, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-        setForm(initialState);
-        
-        Swal.fire({
-            icon: 'success',
-            title: 'Sucesso!',
-            text: 'Visitante cadastrado com sucesso!',
-            timer: 2000,
-            showConfirmButton: false,
-            timerProgressBar: true,
-        }).then(() => {
-            navigate('/secretaria');
-        });
+      setForm(initialState);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Visitante cadastrado com sucesso!',
+        timer: 2000,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      }).then(() => {
+        navigate('/secretaria');
+      });
 
     } catch (err) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Erro ao Cadastrar',
-            text: err.response?.data?.details || err.response?.data?.error || 'Verifique os dados e tente novamente.',
-        });
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao Cadastrar',
+        text: err.response?.data?.details || err.response?.data?.error || 'Verifique os dados e tente novamente.',
+      });
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 

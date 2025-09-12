@@ -1,18 +1,16 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
-import Swal from 'sweetalert2'; // ALTERAÇÃO: Importado SweetAlert2 em vez de toast
+import Swal from 'sweetalert2'; // Importado SweetAlert2
 import { useNavigate, Link } from 'react-router-dom';
 
-// Ícones do Material Design
+// Ícones
 import { 
-    MdPhone, MdOutlineMail, MdAdd, MdClose, MdCheck, // CORREÇÃO: Ícone MdCheck adicionado
+    MdPhone, MdOutlineMail, MdAdd, MdClose, MdCheck,
     MdCalendarToday, MdOutlineAccessTime, MdErrorOutline, 
     MdSearch, MdGroups, MdThumbUp, MdEmojiEvents, MdWhatsapp,
     MdPerson, MdMale, MdFemale 
 } from 'react-icons/md';
-// Ícones do Font Awesome
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-// Ícones do Heroicons
 import { HiPencil, HiOutlineTrash } from 'react-icons/hi';
 
 import Header from '../Components/Header';
@@ -20,10 +18,8 @@ import styles from './style/Secretaria.module.css';
 
 // --- 1. CONSTANTES E CONFIGURAÇÕES ---
 
-// CORREÇÃO: Adicionado o prefixo /api à URL base para corrigir os erros 404
 const API_BASE_URL = 'https://mava-connect.onrender.com/api';
-
-const ITEMS_PER_PAGE = 12; // Cards por página
+const ITEMS_PER_PAGE = 12;
 const WHATSAPP_MESSAGE = `Olá, tudo bem?\n\nSeja muito bem-vindo(a) à MAVA. Foi uma honra contar com sua presença em nosso culto.\n\nAtenciosamente,\nSecretaria MAVA`;
 const STATUS_OPTIONS = [
     { value: 'todos', label: 'Todos os Status' },
@@ -125,6 +121,16 @@ export default function Secretaria() {
     const [editingVisitor, setEditingVisitor] = useState(null);
     const navigate = useNavigate();
 
+    // Classes customizadas para o SweetAlert, para que ele siga o tema do CSS module
+    const swalCustomClasses = {
+        popup: styles.swalPopup,
+        title: styles.swalTitle,
+        htmlContainer: styles.swalHtmlContainer,
+        confirmButton: styles.swalConfirmButton,
+        cancelButton: styles.swalCancelButton,
+        icon: styles.swalIcon
+    };
+
     const fetchData = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
@@ -132,11 +138,11 @@ export default function Secretaria() {
             setVisitantes(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
             console.error('Erro ao buscar visitantes:', err);
-            // ALTERAÇÃO: Usando SweetAlert para erro
             Swal.fire({
                 icon: 'error',
                 title: 'Erro de Autenticação',
                 text: 'Sessão expirada ou erro de rede. Por favor, faça login novamente.',
+                customClass: swalCustomClasses,
             });
             if (err.response?.status === 401 || err.response?.status === 403) navigate('/');
         }
@@ -200,7 +206,6 @@ export default function Secretaria() {
         try {
             const token = localStorage.getItem('token');
             await axios.patch(`${API_BASE_URL}/visitantes/${id}/status`, { status }, { headers: { 'Authorization': `Bearer ${token}` }});
-            // ALTERAÇÃO: Usando SweetAlert para sucesso
              Swal.fire({
                 icon: 'success',
                 title: 'Status alterado!',
@@ -209,29 +214,28 @@ export default function Secretaria() {
                 showConfirmButton: false,
                 timer: 2000,
                 timerProgressBar: true,
+                customClass: swalCustomClasses,
             });
         } catch {
-            // ALTERAÇÃO: Usando SweetAlert para erro
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Erro ao alterar o status.',
+                customClass: swalCustomClasses,
             });
             setVisitantes(originalVisitantes);
         }
     }, [visitantes]);
 
     const handleDelete = useCallback((visitorToDelete) => {
-        // ALTERAÇÃO: Usando SweetAlert para confirmação
         Swal.fire({
             title: `Excluir ${visitorToDelete.nome}?`,
             text: "Esta ação não pode ser desfeita!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6e7881',
             confirmButtonText: 'Sim, excluir!',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            customClass: swalCustomClasses,
         }).then((result) => {
             if (result.isConfirmed) {
                 const originalVisitantes = [...visitantes];
@@ -240,18 +244,20 @@ export default function Secretaria() {
                 const token = localStorage.getItem('token');
                 axios.delete(`${API_BASE_URL}/visitantes/${visitorToDelete.id}`, { headers: { 'Authorization': `Bearer ${token}` }})
                     .then(() => {
-                        Swal.fire(
-                            'Excluído!',
-                            'O visitante foi removido.',
-                            'success'
-                        );
+                        Swal.fire({
+                            title: 'Excluído!',
+                            text: 'O visitante foi removido.',
+                            icon: 'success',
+                            customClass: swalCustomClasses,
+                        });
                     })
                     .catch(() => {
-                        Swal.fire(
-                            'Erro!',
-                            'Falha ao excluir o visitante.',
-                            'error'
-                        );
+                        Swal.fire({
+                            title: 'Erro!',
+                            text: 'Falha ao excluir o visitante.',
+                            icon: 'error',
+                            customClass: swalCustomClasses,
+                        });
                         setVisitantes(originalVisitantes);
                     });
             }
@@ -267,19 +273,19 @@ export default function Secretaria() {
         try {
             const token = localStorage.getItem('token');
             await axios.put(`${API_BASE_URL}/visitantes/${editingVisitor.id}`, editingVisitor, { headers: { 'Authorization': `Bearer ${token}` }});
-            // ALTERAÇÃO: Usando SweetAlert para sucesso
             Swal.fire({
                 icon: 'success',
                 title: 'Visitante atualizado!',
                 showConfirmButton: false,
-                timer: 1500
+                timer: 1500,
+                customClass: swalCustomClasses,
             });
         } catch {
-            // ALTERAÇÃO: Usando SweetAlert para erro
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Erro ao atualizar o visitante.',
+                customClass: swalCustomClasses,
             });
             setVisitantes(originalVisitantes);
         }

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
-import Header from '../Components/Header'; 
+import Header from '../Components/Header';
 import styles from './style/AdminEstatisticas.module.css';
 import { FaUsers, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt, FaUserCheck, FaFilter, FaTimesCircle } from 'react-icons/fa';
 
@@ -100,7 +100,7 @@ function AdminEstatisticas() {
         };
 
         const registrationCounts = visitantesFiltrados.reduce((acc, { sexo }) => {
-            const status = sexo || 'Cadastro Incompleto'; 
+            const status = sexo || 'Cadastro Incompleto';
             acc[status] = (acc[status] || 0) + 1;
             return acc;
         }, {});
@@ -134,8 +134,8 @@ function AdminEstatisticas() {
             else ageGroups['51+']++;
         });
         const ageChart = {
-             labels: Object.keys(ageGroups),
-             datasets: [{ label: 'Nº de Visitantes', data: Object.values(ageGroups), backgroundColor: accentSecondary, borderRadius: 4 }],
+            labels: Object.keys(ageGroups),
+            datasets: [{ label: 'Nº de Visitantes', data: Object.values(ageGroups), backgroundColor: accentSecondary, borderRadius: 4 }],
         };
 
         const locationCounts = visitantesFiltrados.reduce((acc, { endereco }) => {
@@ -169,13 +169,13 @@ function AdminEstatisticas() {
     const chartOptions = useMemo(() => {
         const textColor = getThemeColor('--text-secondary');
         const gridColor = getThemeColor('--border-color');
-        
+
         const baseOptions = {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { labels: { color: textColor, font: { size: 14 } } } },
         };
-        
+
         return {
             pie: { ...baseOptions, plugins: { ...baseOptions.plugins, legend: { ...baseOptions.plugins.legend, position: 'top' } } },
             bar: {
@@ -246,7 +246,7 @@ function AdminEstatisticas() {
                         <FaTimesCircle /> Limpar Filtros
                     </button>
                 </div>
-                
+
                 {visitantesFiltrados.length === 0 && !loading && (
                     <div className={styles.noResults}>
                         <FaFilter />
@@ -258,7 +258,7 @@ function AdminEstatisticas() {
                 {visitantesFiltrados.length > 0 && (
                     <div className={styles.chartsGrid}>
                         {chartData.gf && (
-                            <div className={styles.chartCard} style={{animationDelay: '0.05s'}}>
+                            <div className={styles.chartCard} style={{ animationDelay: '0.05s' }}>
                                 <h2 className={styles.chartTitle}><FaUsers /> Percentual de Cadastros por GF</h2>
                                 <div className={styles.chartWrapper}>
                                     <Pie data={chartData.gf} options={{
@@ -276,7 +276,7 @@ function AdminEstatisticas() {
                             </div>
                         )}
                         {chartData.registration && (
-                            <div className={styles.chartCard} style={{animationDelay: '0.1s'}}>
+                            <div className={styles.chartCard} style={{ animationDelay: '0.1s' }}>
                                 <h2 className={styles.chartTitle}><FaUserCheck /> Status de Cadastro por Gênero</h2>
                                 <div className={styles.chartWrapper}>
                                     <Pie data={chartData.registration} options={chartOptions.pie} />
@@ -284,7 +284,7 @@ function AdminEstatisticas() {
                             </div>
                         )}
                         {chartData.age && (
-                            <div className={styles.chartCard} style={{animationDelay: '0.2s'}}>
+                            <div className={styles.chartCard} style={{ animationDelay: '0.2s' }}>
                                 <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
                                 <div className={styles.chartWrapper}>
                                     <Bar data={chartData.age} options={chartOptions.bar} />
@@ -292,7 +292,7 @@ function AdminEstatisticas() {
                             </div>
                         )}
                         {chartData.location && (
-                            <div className={styles.chartCard} style={{animationDelay: '0.3s'}}>
+                            <div className={styles.chartCard} style={{ animationDelay: '0.3s' }}>
                                 <h2 className={styles.chartTitle}><FaMapMarkedAlt /> Visitantes por Localização</h2>
                                 <div className={styles.chartWrapper}>
                                     <Bar data={chartData.location} options={chartOptions.bar} />
@@ -300,7 +300,7 @@ function AdminEstatisticas() {
                             </div>
                         )}
                         {chartData.visitsByDate && (
-                            <div className={styles.chartCard} style={{animationDelay: '0.4s'}}>
+                            <div className={styles.chartCard} style={{ animationDelay: '0.4s' }}>
                                 <h2 className={styles.chartTitle}><FaCalendarDay /> Top 10 Dias com Mais Visitas</h2>
                                 <div className={styles.chartWrapper}>
                                     <Bar data={chartData.visitsByDate} options={chartOptions.bar} />

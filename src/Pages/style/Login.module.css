@@ -1,4 +1,3 @@
-/* Estilos base */
 .loginContainer {
   display: flex;
   justify-content: center;
@@ -11,7 +10,6 @@
   overflow: hidden;
 }
 
-/* CRIA A LOGO DE FUNDO TRANSPARENTE */
 .loginContainer::before {
   content: '';
   position: absolute;
@@ -23,14 +21,13 @@
   background-size: contain;
   background-position: left center;
   background-repeat: no-repeat;
-  opacity: 0.02;
+  opacity: 0.03;
   z-index: 1;
 }
 
-/* Modo escuro - CORES DA IMAGEM APLICADAS AQUI */
 .loginContainer.darkMode {
   background: #111111;
-  /* Fundo preto/cinza escuro */
+
   color: #f0f0f0;
 }
 
@@ -48,7 +45,7 @@
 
 .darkMode .loginForm {
   background: #1f1f1f;
-  /* Cor do formulário um pouco mais clara que o fundo */
+
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   border: 1px solid #2c2c2c;
 }
@@ -75,7 +72,7 @@
 
 .darkMode .loginForm h2 {
   color: #f8fafc;
-  /* Texto branco */
+
 }
 
 .inputGroup {
@@ -92,7 +89,7 @@
 
 .darkMode .inputGroup label {
   color: #a0aec0;
-  /* Cinza claro para labels */
+
 }
 
 .inputGroup input {
@@ -114,13 +111,13 @@
 .inputGroup input:focus {
   outline: none;
   border-color: #f97316;
-  /* Laranja no foco */
+
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
 }
 
 .darkMode .inputGroup input:focus {
   border-color: #f97316;
-  /* Laranja no foco (dark mode) */
+
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
 }
 
@@ -136,7 +133,7 @@
   width: 100%;
   padding: 0.9rem;
   background-color: #f97316;
-  /* Botão Laranja */
+
   color: white;
   border: none;
   border-radius: 8px;
@@ -149,20 +146,19 @@
 
 .loginButton:hover {
   background-color: #ea580c;
-  /* Laranja mais escuro no hover */
+
   transform: translateY(-2px);
 }
 
 .loginButton:disabled {
   background-color: #fdba74;
-  /* Laranja claro para desabilitado */
   cursor: not-allowed;
   transform: none;
 }
 
 .darkMode .loginButton:disabled {
   background-color: #7c2d12;
-  /* Laranja escuro e opaco para desabilitado */
+
   color: #a0aec0;
 }
 
