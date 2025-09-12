@@ -22,11 +22,10 @@
     bottom: 0;
     background-image: var(--background-logo);
     background-size: contain;
-    /* --- CORREÇÃO: Posição alterada para a esquerda --- */
     background-position: left center;
     background-repeat: no-repeat;
-    /* --- CORREÇÃO: Opacidade diminuída --- */
-    opacity: 0.03; 
+
+    opacity: 0.02; 
     z-index: 1;
 }
 
