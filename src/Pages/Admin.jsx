@@ -186,10 +186,11 @@ export default function Admin() {
     // Funções de Ação
     const handleOpenModal = (item = null) => {
         setEditingItem(item);
-        if (item) {
+        if (item) { // Se está editando um item existente
             setFormData({ ...item, data_nascimento: item.data_nascimento ? new Date(item.data_nascimento).toISOString().split('T')[0] : '' });
-        } else {
-            setFormData(view === 'usuarios' ? { tipo_usuario: 'secretaria', logo: null } : { status: 'pendente', evento: 'culto', endereco: {} });
+        } else { // Se está criando um novo item (só permitido para usuários)
+            if (view === 'visitantes') return; // Bloqueia a criação de novos visitantes
+            setFormData({ tipo_usuario: 'secretaria', logo: null });
         }
         setIsModalOpen(true);
     };
@@ -340,7 +341,10 @@ export default function Admin() {
                                     {statusOptions.map(opt => <button key={opt.value} onClick={() => setActiveFilter(opt.value)} className={activeFilter === opt.value ? styles.active : ''}>{opt.label}</button>)}
                                 </div>
                             )}
-                            <button onClick={() => handleOpenModal()} className={styles.addButton}><FaPlus /> Novo</button>
+                            {/* // ALTERAÇÃO PRINCIPAL AQUI: O botão só aparece na view de usuários */}
+                            {isUserView && (
+                                <button onClick={() => handleOpenModal()} className={styles.addButton}><FaPlus /> Novo</button>
+                            )}
                         </div>
                     </div>
                     <div className={styles.tableWrapper}>
@@ -414,7 +418,6 @@ export default function Admin() {
                                             />
                                         </div>
                                     </div>
-
                                     <div className={styles.formGroup}><label>Nome*</label><input type="text" name="nome_gf" value={formData.nome_gf || ''} onChange={handleFormChange} required /></div>
                                     <div className={styles.formGroup}><label>Email*</label><input type="email" name="email_gf" value={formData.email_gf || ''} onChange={handleFormChange} required /></div>
                                     <div className={styles.formGroup}><label>Senha{!editingItem && '*'}</label><input type="password" name="senha_gf" onChange={handleFormChange} placeholder={editingItem ? 'Deixe em branco para não alterar' : ''} required={!editingItem} /></div>
