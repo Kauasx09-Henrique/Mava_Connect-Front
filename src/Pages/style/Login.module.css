@@ -7,31 +7,30 @@
   padding: 20px;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   transition: all 0.3s ease;
-  
   position: relative;
   overflow: hidden;
 }
 
 /* CRIA A LOGO DE FUNDO TRANSPARENTE */
 .loginContainer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: var(--background-logo);
-    background-size: contain;
-    background-position: left center;
-    background-repeat: no-repeat;
-
-    opacity: 0.02; 
-    z-index: 1;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--background-logo);
+  background-size: contain;
+  background-position: left center;
+  background-repeat: no-repeat;
+  opacity: 0.02;
+  z-index: 1;
 }
 
-/* Modo escuro */
+/* Modo escuro - CORES DA IMAGEM APLICADAS AQUI */
 .loginContainer.darkMode {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: #111111;
+  /* Fundo preto/cinza escuro */
   color: #f0f0f0;
 }
 
@@ -43,14 +42,15 @@
   width: 100%;
   max-width: 450px;
   transition: all 0.3s ease;
-  
   position: relative;
   z-index: 2;
 }
 
 .darkMode .loginForm {
-  background: #2d3748;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  background: #1f1f1f;
+  /* Cor do formulário um pouco mais clara que o fundo */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2c2c2c;
 }
 
 .logoContainer {
@@ -74,7 +74,8 @@
 }
 
 .darkMode .loginForm h2 {
-  color: #f7fafc;
+  color: #f8fafc;
+  /* Texto branco */
 }
 
 .inputGroup {
@@ -90,7 +91,8 @@
 }
 
 .darkMode .inputGroup label {
-  color: #e2e8f0;
+  color: #a0aec0;
+  /* Cinza claro para labels */
 }
 
 .inputGroup input {
@@ -104,30 +106,37 @@
 }
 
 .darkMode .inputGroup input {
-  background-color: #4a5568;
-  border-color: #4a5568;
+  background-color: #2d2d2d;
+  border-color: #4a4a4a;
   color: #f7fafc;
 }
 
 .inputGroup input:focus {
   outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+  border-color: #f97316;
+  /* Laranja no foco */
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
 }
 
 .darkMode .inputGroup input:focus {
-  border-color: #63b3ed;
-  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
+  border-color: #f97316;
+  /* Laranja no foco (dark mode) */
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
 }
 
 .inputGroup input::placeholder {
   color: #a0aec0;
 }
 
+.darkMode .inputGroup input::placeholder {
+  color: #718096;
+}
+
 .loginButton {
   width: 100%;
   padding: 0.9rem;
-  background-color: #4299e1;
+  background-color: #f97316;
+  /* Botão Laranja */
   color: white;
   border: none;
   border-radius: 8px;
@@ -139,24 +148,36 @@
 }
 
 .loginButton:hover {
-  background-color: #3182ce;
+  background-color: #ea580c;
+  /* Laranja mais escuro no hover */
   transform: translateY(-2px);
 }
 
 .loginButton:disabled {
-  background-color: #a0aec0;
+  background-color: #fdba74;
+  /* Laranja claro para desabilitado */
   cursor: not-allowed;
   transform: none;
 }
 
 .darkMode .loginButton:disabled {
-  background-color: #718096;
+  background-color: #7c2d12;
+  /* Laranja escuro e opaco para desabilitado */
+  color: #a0aec0;
 }
 
 @keyframes pulse {
-  0% { opacity: 0.8; }
-  50% { opacity: 1; }
-  100% { opacity: 0.8; }
+  0% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.8;
+  }
 }
 
 .loginButton[disabled] {
@@ -167,7 +188,7 @@
   .loginForm {
     padding: 2rem;
   }
-  
+
   .loginForm h2 {
     font-size: 1.5rem;
   }
@@ -177,16 +198,16 @@
   .loginContainer {
     padding: 15px;
   }
-  
+
   .loginForm {
     padding: 1.5rem;
     border-radius: 10px;
   }
-  
+
   .inputGroup input {
     padding: 0.7rem 0.9rem;
   }
-  
+
   .loginButton {
     padding: 0.8rem;
   }
