@@ -6,12 +6,12 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Pie, Bar } from 'react-chartjs-2';
 import Header from '../Components/Header'; 
 import styles from './style/AdminEstatisticas.module.css';
-import { FaUsers, FaVenusMars, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt, FaUserCheck } from 'react-icons/fa';
+import { FaUsers, FaBirthdayCake, FaCalendarDay, FaMapMarkedAlt, FaUserCheck } from 'react-icons/fa';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
-
-const API_BASE_URL = 'https://mava-connect.onrender.com';
+// CORREÇÃO: Adicionado o prefixo /api na URL base
+const API_BASE_URL = 'https://mava-connect.onrender.com/api';
 
 
 const SkeletonLoader = () => (
@@ -49,7 +49,7 @@ function AdminEstatisticas() {
         const colorOther = '#a0aec0';
         const colorIncomplete = '#a0aec0';
 
-        // 1️⃣ Novo gráfico: Percentual por GF
+        // 1. Percentual por GF
         const gfCounts = visitantes.reduce((acc, { gf_responsavel }) => {
             const nomeGF = gf_responsavel?.trim() || 'Não informado';
             acc[nomeGF] = (acc[nomeGF] || 0) + 1;
@@ -60,15 +60,13 @@ function AdminEstatisticas() {
             labels: Object.keys(gfCounts),
             datasets: [{
                 data: Object.values(gfCounts).map(count => ((count / totalVisitantes) * 100).toFixed(1)),
-                backgroundColor: [
-                    '#5AC8FA', '#43A047', '#E53935', '#FFB300', '#8E24AA', '#3949AB', '#F4511E', '#6D4C41'
-                ],
+                backgroundColor: ['#5AC8FA', '#43A047', '#E53935', '#FFB300', '#8E24AA', '#3949AB', '#F4511E', '#6D4C41'],
                 borderColor: getThemeColor('--bg-card'),
                 borderWidth: 4,
             }],
         };
 
-        // 2️⃣ Status de cadastro / gênero
+        // 2. Status de cadastro / gênero
         const registrationCounts = visitantes.reduce((acc, { sexo }) => {
             const status = sexo || 'Cadastro Incompleto'; 
             acc[status] = (acc[status] || 0) + 1;
@@ -89,7 +87,7 @@ function AdminEstatisticas() {
             }],
         };
 
-        // 3️⃣ Faixa etária
+        // 3. Faixa etária
         const ageGroups = { '0-17': 0, '18-25': 0, '26-35': 0, '36-50': 0, '51+': 0, 'Não informado': 0 };
         visitantes.forEach(({ data_nascimento }) => {
             if (!data_nascimento) {
@@ -108,7 +106,7 @@ function AdminEstatisticas() {
             datasets: [{ label: 'Nº de Visitantes', data: Object.values(ageGroups), backgroundColor: accentSecondary, borderRadius: 4 }],
         };
 
-        // 4️⃣ Localização
+        // 4. Localização
         const locationCounts = visitantes.reduce((acc, { endereco }) => {
             const city = endereco?.cidade ? (endereco.cidade.charAt(0).toUpperCase() + endereco.cidade.slice(1).toLowerCase()) : 'Não informado';
             acc[city] = (acc[city] || 0) + 1;
@@ -123,7 +121,7 @@ function AdminEstatisticas() {
             datasets: [{ label: 'Nº de Visitantes', data: topLocations.map(([, count]) => count), backgroundColor: '#34d399', borderRadius: 4 }],
         };
 
-        // 5️⃣ Datas
+        // 5. Datas
         const dateCounts = visitantes.reduce((acc, { data_visita }) => {
             const visitDate = new Date(data_visita).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             acc[visitDate] = (acc[visitDate] || 0) + 1;
@@ -199,8 +197,6 @@ function AdminEstatisticas() {
                 </header>
 
                 <div className={styles.chartsGrid}>
-
-                    {/* Novo: Percentual por GF */}
                     {chartData.gf && (
                         <div className={styles.chartCard} style={{animationDelay: '0.05s'}}>
                             <h2 className={styles.chartTitle}><FaUsers /> Percentual de Cadastros por GF</h2>
@@ -219,7 +215,6 @@ function AdminEstatisticas() {
                             </div>
                         </div>
                     )}
-
                     {chartData.registration && (
                         <div className={styles.chartCard} style={{animationDelay: '0.1s'}}>
                             <h2 className={styles.chartTitle}><FaUserCheck /> Status de Cadastro por Gênero</h2>
@@ -228,7 +223,6 @@ function AdminEstatisticas() {
                             </div>
                         </div>
                     )}
-
                     {chartData.age && (
                         <div className={styles.chartCard} style={{animationDelay: '0.2s'}}>
                             <h2 className={styles.chartTitle}><FaBirthdayCake /> Distribuição por Faixa Etária</h2>
@@ -237,7 +231,6 @@ function AdminEstatisticas() {
                             </div>
                         </div>
                     )}
-                    
                     {chartData.location && (
                         <div className={styles.chartCard} style={{animationDelay: '0.3s'}}>
                             <h2 className={styles.chartTitle}><FaMapMarkedAlt /> Visitantes por Localização</h2>
@@ -246,7 +239,6 @@ function AdminEstatisticas() {
                             </div>
                         </div>
                     )}
-
                     {chartData.visitsByDate && (
                         <div className={styles.chartCard} style={{animationDelay: '0.4s'}}>
                             <h2 className={styles.chartTitle}><FaCalendarDay /> Top 10 Dias com Mais Visitas</h2>
@@ -255,7 +247,6 @@ function AdminEstatisticas() {
                             </div>
                         </div>
                     )}
-
                 </div>
             </main>
         </div>
