@@ -8,12 +8,11 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   transition: all 0.3s ease;
   
-  /* --- ADIÇÃO PARA LOGO DE FUNDO --- */
   position: relative;
   overflow: hidden;
 }
 
-/* --- CRIA A LOGO DE FUNDO TRANSPARENTE --- */
+/* CRIA A LOGO DE FUNDO TRANSPARENTE */
 .loginContainer::before {
     content: '';
     position: absolute;
@@ -23,9 +22,11 @@
     bottom: 0;
     background-image: var(--background-logo);
     background-size: contain;
-    background-position: center;
+    /* --- CORREÇÃO: Posição alterada para a esquerda --- */
+    background-position: left center;
     background-repeat: no-repeat;
-    opacity: 0.05;
+    /* --- CORREÇÃO: Opacidade diminuída --- */
+    opacity: 0.03; 
     z-index: 1;
 }
 
@@ -44,7 +45,6 @@
   max-width: 450px;
   transition: all 0.3s ease;
   
-  /* --- GARANTE QUE O FORMULÁRIO FIQUE NA FRENTE DO FUNDO --- */
   position: relative;
   z-index: 2;
 }
